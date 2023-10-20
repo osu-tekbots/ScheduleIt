@@ -43,7 +43,7 @@
 <div class="form-check mb-4">
   <input class="form-check-input" {% if meeting.enable_upload == true %}checked{% endif %} name="enable_upload" type="checkbox" value="1" id="enable_upload">
   <label class="form-check-label" for="enable_upload">
-    Enable Attendees to Upload Files
+    Allow Attendees to Upload Files
   </label>
 </div>
 <div class="row">
@@ -71,8 +71,7 @@
           <p>
             You may only upload a single file. Uploading a second file will overwrite the first.
             If you need to upload multiple files combine them into a single zip file.
-            {# TODO: client wanted the white list to be disabled for now #}
-            {# Allowed file types: {{upload_allowed_filetypes | join}} #}
+            Allowed file types: {{upload_allowed_filetypes | join}}
           </p>
           <input class="form-control-file" name="file" type="file">
         </div>

@@ -11,14 +11,17 @@ function calendarInit() {
     const userId = $("#calendar").data("user-id");
 
     const mappedEvents = events.map(function (event) {
+      const createdEvent = event.creator_id === parseInt(userId, 10);
+      const meetingWith = createdEvent ? event.booker_name : event.creator_name;
+
       return {
         classNames:
-          event.creator_id === parseInt(userId, 10)
+          createdEvent
             ? ["calendar-meeting-mine"]
             : ["calendar-meeting-other"],
-        title: event.name,
+        title: event.name + "\n(" + meetingWith + ")",
         url:
-          event.creator_id === parseInt(userId, 10)
+          createdEvent
             ? `${siteUrl}/meetings/${event.id}`
             : `${siteUrl}/invite?key=${event.meeting_hash}`,
         start: event.start_time,
@@ -28,6 +31,14 @@ function calendarInit() {
     const calendar = new FullCalendar.Calendar(calendarElement, {
       events: mappedEvents,
       initialView: "dayGridMonth",
+      eventContent: (object) => {
+        sections = object.event.title.split("\n");
+
+        return {html: 
+          object.timeText + " " 
+            + "<b>" + sections[0] + "</b>" 
+            + "<br/>&emsp;" + sections[1]};
+      }
     });
     calendar.render();
   }

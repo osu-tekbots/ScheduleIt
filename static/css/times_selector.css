@@ -65,8 +65,13 @@
   color: #fff;
 }
 
-.times-selector-container .times-label--checked-confirm {
+.times-selector-container .times-label--checked.times-label--checked-confirm {
   background-color: #000;
+  color: #fff;
+}
+
+.times-selector-container .times-label--checked.times-label--checked-scheduled {
+  background-color: #dc3545;
   color: #fff;
 }
 

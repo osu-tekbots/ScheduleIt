@@ -16,10 +16,14 @@ if ($meeting) {
     $timeslot_times = [];
     $timeslot_hashes = [];
     $timeslot_times_saved = [];
+    $timeslot_times_scheduled = [];
 
     foreach ($timeslots as $key => $timeslot) {
         array_push($timeslot_times, $timeslot['start_time']);
         array_push($timeslot_times_saved, $timeslot['start_time']);
+        if($timeslot['spaces_available'] != $timeslot['slot_capacity']) {
+            array_push($timeslot_times_scheduled, $timeslot['start_time']);
+        }
         $timeslot_hashes[$timeslot['start_time']] = $timeslot['hash'];
     }
 
@@ -127,6 +131,7 @@ if ($meeting) {
         'time_labels' => $time_labels,
         'timeslot_times' => $timeslot_times,
         'timeslot_times_saved' => $timeslot_times_saved,
+        'timeslot_times_scheduled' => $timeslot_times_scheduled, // Uncomment this to continue dev ---------------------------
         'title' => 'Edit Meeting Dates - ' . $meeting['name'],
     ]);
 } else {

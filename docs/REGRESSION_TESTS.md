@@ -13,11 +13,12 @@
 - Creator can delete a meeting
 - Attendee can view list of meetings they rsvp'd to from My Meetings page
 - Attendee can view meeting details from meeting link on My Meetings page
-- Creator can view a list of created meetings from the Manage Created page
+- Creator can view a list of created events from the Manage Created page
 - Creator can see meeting details and list of rsvp'd attendees from meeting link on Manage Created page
 - E-mail confirmation of meeting reservation
 - E-mail notification if creator removes attendee from meeting
-- E-mail notification if creator removes a time slot that has an attendee
+- E-mail notification if creator removes a time slot that has an attendee 
+    - **NEED TO DOUBLE-CHECK**
 
 ## Please follow these steps:
 

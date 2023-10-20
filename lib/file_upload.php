@@ -36,6 +36,7 @@ class FileUpload
     {
         // Check file size
         // TODO: Final size TBD, edit value in constants.inc.php
+        // Check file size ** final size TBD **
         if ($_SERVER['CONTENT_LENGTH'] > UPLOAD_SIZE_LIMIT) {
             return [
                 'error' => true,
@@ -72,7 +73,7 @@ class FileUpload
             ];
         }
         */
-
+        
         // If there is error with file upload, don't add path to database
         if ($_FILES[$field_name]['error'] > 0) {
             return [
@@ -99,7 +100,6 @@ class FileUpload
 
             move_uploaded_file($_FILES[$field_name]['tmp_name'], $new_file_abspath);
             chmod($new_file_abspath, 0644);
-
             shell_exec('chmod 755 ' . UPLOADS_ABSPATH . $meeting_hash . '/');
 
             return [

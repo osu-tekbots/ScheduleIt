@@ -241,11 +241,12 @@ class DatabaseInterface
         $timeslots_query = "
 
         SELECT
-        id,
-        hash,
-        duration,
-        slot_capacity,
-        start_time
+            id,
+            hash,
+            duration,
+            slot_capacity,
+            spaces_available,
+            start_time
         FROM meb_timeslot
         WHERE fk_event_id = ?
 
@@ -274,21 +275,23 @@ class DatabaseInterface
         $bookings_query = "
 
         SELECT
-        DISTINCT(meb_timeslot.hash),
-        meb_event.id,
-        meb_event.hash AS meeting_hash,
-        meb_event.name,
-        meb_event.location,
-        meb_event.fk_event_creator AS creator_id,
-        meb_timeslot.start_time,
-        meb_timeslot.end_time,
-        meb_creator.email AS creator_email,
-        CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name,
-        meb_creator.onid AS creator_onid
+            DISTINCT(meb_timeslot.hash),
+            meb_event.id,
+            meb_event.hash AS meeting_hash,
+            meb_event.name,
+            meb_event.location,
+            meb_event.fk_event_creator AS creator_id,
+            meb_timeslot.start_time,
+            meb_timeslot.end_time,
+            meb_creator.email AS creator_email,
+            CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name,
+            CONCAT(meb_booker.first_name, ' ', meb_booker.last_name) AS booker_name,
+            meb_creator.onid AS creator_onid
         FROM meb_timeslot
-        INNER JOIN meb_event ON meb_event.id = meb_timeslot.fk_event_id
-        INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_event.fk_event_creator
-        INNER JOIN meb_booking ON meb_timeslot.id = meb_booking.fk_timeslot_id
+            INNER JOIN meb_event ON meb_event.id = meb_timeslot.fk_event_id
+            INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_event.fk_event_creator
+            INNER JOIN meb_booking ON meb_timeslot.id = meb_booking.fk_timeslot_id
+            INNER JOIN meb_user AS meb_booker ON meb_booker.id = meb_booking.fk_user_id
         WHERE (meb_creator.id = ? OR meb_booking.fk_user_id = ?)
         ORDER BY meb_timeslot.start_time ASC
 

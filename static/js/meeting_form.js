@@ -273,8 +273,9 @@ const timesSelector = {
         $(`input[data-meetings-datetime-confirm="${datetime}"]`)
           .prop("checked", false);
 
+        /* Commented out so that re-selecting keeps it highlighted black (IMO more usable)
         $(`label[data-meetings-datetime-label="${datetime}"]`)
-          .removeClass("times-label--checked-confirm");
+          .removeClass("times-label--checked-confirm"); */
 
         $("#removed-times").append(`
           <li data-meetings-datetime-removal="${datetime}">${moment(
