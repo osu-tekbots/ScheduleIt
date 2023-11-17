@@ -104,7 +104,7 @@
           {{meeting.start_time | date("D, F j, Y")}}
         </td>
         <td class="col-3">
-          {{meeting.start_time| date("g:ia")}}-{{meeting.end_time| date("g:ia")}}
+          {{meeting.start_time| date("g:ia")}}-{{meeting.end_time| date("g:ia")}} PST
         </td>
         <td class="col-3">
           <a href="mailto:{{meeting.attendee_email}}">{{meeting.attendee_name}}</a>
@@ -171,7 +171,7 @@
           {{ list.user_onid }}
         </td>
         <td class="col-6">
-          {{ list.mod_date | date("n/j/y g:ia")}}
+          {{ list.mod_date | date("n/j/y g:ia")}} PST
         </td>
       </tr>
     {% endfor %}

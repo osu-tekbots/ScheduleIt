@@ -60,7 +60,7 @@
           <p class="mb-4">
             <label>
               <input name="timeslot_id" value="{{booking.timeslot_id}}" checked type="radio">
-              {{booking.start_time | date('D, F j, Y g:ia')}}-{{booking.end_time| date('g:ia')}}
+              {{booking.start_time | date('D, F j, Y g:ia')}}-{{booking.end_time| date('g:ia')}} PST
             </label>
           </p>
         {% endif %}
@@ -79,7 +79,7 @@
                     <li>
                       <label>
                         <input name="timeslot_id" value="{{time.id}}" type="radio">
-                        {{time.start_time| date('g:ia')}}-{{time.end_time| date('g:ia')}}
+                        {{time.start_time| date('g:ia')}}-{{time.end_time| date('g:ia')}} PST
                       </label>
                     </li>
                   {% endfor %}

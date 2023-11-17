@@ -27,7 +27,7 @@ class SendEmail
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
         $message .= 'You have reserved a timeslot for "' . $meeting['name'] . '".' . "\r\n\r\n";
-        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . "\r\n";
+        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . " PST\r\n";
         $message .= 'Location: ' . $meeting['location'] . "\r\n";
         $message .= 'Creator: ' . $meeting['creator_name'] . "\r\n\r\n";
         $message .= 'Meeting Info: ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";
@@ -51,7 +51,7 @@ class SendEmail
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
         $message .= 'You have updated your timeslot for "' . $meeting['name'] . '".' . "\r\n\r\n";
-        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . "\r\n";
+        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . " PST\r\n";
         $message .= 'Location: ' . $meeting['location'] . "\r\n";
         $message .= 'Creator: ' . $meeting['creator_name'] . "\r\n\r\n";
         $message .= 'Meeting Info: ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";
