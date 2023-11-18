@@ -78,7 +78,7 @@ if ($meeting) {
                 }
                 $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
             } else {
-                $msg->error('There was a problem saving your settings.');
+                $msg->error('That timeslot is no longer available.');
             }
         } else {
             $msg->error('Please select a time.');
