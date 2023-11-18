@@ -149,9 +149,9 @@ class FileUpload
                     }
                 }
             }
+            closedir($dir_handle);
+            rmdir($dirname);
         }
-        closedir($dir_handle);
-        rmdir($dirname);
     }
 }
 
