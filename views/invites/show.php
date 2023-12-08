@@ -14,10 +14,15 @@ if ($meeting) {
 
     // Create date and timeslots objects
     foreach ($results as $key => $date) {
+        $timeslots_and_attendees = [];
         $timeslots = $database->getAvailableTimeslots($meeting_hash, $date['date']);
+        foreach($timeslots as $timeslot) {
+            $attendees = $database->getAttendeesByTimeslot($timeslot['hash']);
+            array_push($timeslots_and_attendees, ['timeslot' => $timeslot, 'attendees' => $attendees]);
+        }
         $date_and_timeslots = [
             'date' => $date['date'],
-            'timeslots' => $timeslots
+            'timeslots' => $timeslots_and_attendees
         ];
         array_push($dates, $date_and_timeslots);
     }

@@ -1089,6 +1089,7 @@ class DatabaseInterface
 
         SELECT
         meb_timeslot.id,
+        meb_timeslot.hash,
         meb_timeslot.start_time,
         meb_timeslot.end_time
         FROM meb_timeslot

@@ -75,11 +75,17 @@
                   {{date.date | date("D, F j, Y")}}
                 </h5>
                 <ul class="list-unstyled mb-4">
-                  {% for time in date.timeslots %}
+                  {% for time_and_attendees in date.timeslots %}
                     <li>
                       <label>
-                        <input name="timeslot_id" value="{{time.id}}" type="radio">
-                        {{time.start_time| date('g:ia')}}-{{time.end_time| date('g:ia')}} PST
+                        <input name="timeslot_id" value="{{time_and_attendees.timeslot.id}}" type="radio">
+                        {{time_and_attendees.timeslot.start_time| date('g:ia')}}-{{time_and_attendees.timeslot.end_time| date('g:ia')}} PST
+                        <br>
+                        {% if meeting.is_anon == 0 %}
+                          {{ time_and_attendees.attendees|map(a => a.attendee_name)|join(', ', ', and') }}
+                        {% else %}
+                          {{ time_and_attendees.attendees|count }} attendees signed up
+                        {% endif %}
                       </label>
                     </li>
                   {% endfor %}
