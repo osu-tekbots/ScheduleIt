@@ -142,6 +142,7 @@ foreach ($past_meetings as $key => $meeting) {
             'description' => $meeting['description'],
             'start_time' => $meeting['start_time'],
             'end_time' => $meeting['end_time'],
+            'is_anon' => $meeting['is_anon'],
             'creator_id' => $meeting['creator_id'],
             'creator_file' => $meeting['creator_file'],
             'creator_email' => $meeting['creator_email'],
