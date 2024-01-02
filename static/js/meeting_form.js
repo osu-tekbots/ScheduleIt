@@ -336,3 +336,13 @@ const timesSelector = {
     }
   },
 };
+
+function toggleFileRequiredOption(e) {
+  if(e.currentTarget.checked)
+    $('#require_upload').parent().show();
+  else {
+    $('#require_upload').prop('checked', false); // Checks it
+    $('#require_upload').parent().hide();
+  }
+}
+$('#enable_upload')?.on('input', toggleFileRequiredOption);

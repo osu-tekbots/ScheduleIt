@@ -27,6 +27,7 @@ if ($meeting) {
             $meeting['description'] = $_POST['description'];
             $meeting['is_anon'] = $_POST['is_anon'] == '1';
             $meeting['enable_upload'] = $_POST['enable_upload'] == '1';
+            $meeting['require_upload'] = $_POST['require_upload'] == '1';
 
             if (empty($_POST['name']) || empty($_POST['location'])) {
                 $msg->error('Please fill out all required fields.');

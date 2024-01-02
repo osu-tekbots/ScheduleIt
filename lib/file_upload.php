@@ -24,6 +24,45 @@ class FileUpload
     }
 
     /**
+     * Verify that the request's file can be safely uploaded.
+     *
+     * @note Logic is duplicated in `upload()` to avoid security holes because the checks 
+     * were made there originally.
+     *
+     * @param string $field_name
+     * @return object
+     */
+    public function verifyUpload($field_name = 'file') 
+    {
+        // Check file size
+        // TODO: Final size TBD, edit value in constants.inc.php
+        // Check file size ** final size TBD **
+        if ($_SERVER['CONTENT_LENGTH'] > UPLOAD_SIZE_LIMIT) {
+            return [
+                'error' => true,
+                'message' => 'File upload is too large.'
+            ];
+        }
+
+        $uploaded_filename = $_FILES[$field_name]['name'];
+        $ext = pathinfo($uploaded_filename, PATHINFO_EXTENSION);
+
+        // To enable more file types, just add extensions to schedule.config.php
+        // TODO: client wanted the white list to be disabled for now -- re-enabled on 1/20/24
+        $allowed_extensions = unserialize(UPLOAD_ALLOWED_FILETYPES);
+        $is_allowed = in_array($ext, $allowed_extensions);
+
+        if (!$is_allowed) {
+            return [
+                'error' => true,
+                'message' => 'This file type is not allowed. Accepted file types: ' . implode(', ', $allowed_extensions)
+            ];
+        }
+
+        return ['error' => false];
+    }
+
+    /**
      * Upload file to server and update booking record.
      *
      * @param string $onid
@@ -62,7 +101,7 @@ class FileUpload
         $url = $meeting_hash . '/' . $renamed_filename . '.' . $ext;
 
         // To enable more file types, just add extensions to schedule.config.php
-        /* TODO: client wanted the white list to be disabled for now
+        // TODO: client wanted the white list to be disabled for now -- re-enabled on 1/20/24
         $allowed_extensions = unserialize(UPLOAD_ALLOWED_FILETYPES);
         $is_allowed = in_array($ext, $allowed_extensions);
 
@@ -72,7 +111,7 @@ class FileUpload
                 'message' => 'This file type is not allowed. Accepted file types: ' . implode(', ', $allowed_extensions)
             ];
         }
-        */
+       
         
         // If there is error with file upload, don't add path to database
         if ($_FILES[$field_name]['error'] > 0) {

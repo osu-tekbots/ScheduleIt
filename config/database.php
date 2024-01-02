@@ -559,6 +559,7 @@ class DatabaseInterface
         meb_event.open_slots,
         meb_event.is_anon,
         meb_event.enable_upload,
+        meb_event.require_upload,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,
         meb_user.email AS creator_email,
@@ -831,6 +832,7 @@ class DatabaseInterface
         $description = $meeting['description'];
         $is_anon = $meeting['is_anon'];
         $enable_upload = $meeting['enable_upload'];
+        $require_upload = $meeting['require_upload'];
 
         $hash = createEventHash($name, $description, $user_id, $location);
         $timeslots = $meeting['timeslots'];
@@ -850,16 +852,17 @@ class DatabaseInterface
                 capacity,
                 open_slots,
                 is_anon,
-                enable_upload
+                enable_upload,
+                require_upload
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiii",
+            "ssssiiiiii",
             $hash,
             $name,
             $description,
@@ -868,7 +871,8 @@ class DatabaseInterface
             $capacity,
             $open_slots,
             $is_anon,
-            $enable_upload
+            $enable_upload,
+            $require_upload
         );
 
         $statement->execute();
@@ -898,6 +902,7 @@ class DatabaseInterface
         $description = $meeting['description'];
         $is_anon = $meeting['is_anon'];
         $enable_upload = $meeting['enable_upload'];
+        $require_upload = $meeting['require_upload'];
         $capacity = $meeting['capacity'];
 
         $query = "
@@ -908,6 +913,7 @@ class DatabaseInterface
             description = ?,
             is_anon = ?,
             enable_upload = ?,
+            require_upload = ?,
             capacity = ?
             WHERE id = ?
             AND fk_event_creator = ?
@@ -917,12 +923,13 @@ class DatabaseInterface
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "sssiiiii",
+            "sssiiiiii",
             $name,
             $location,
             $description,
             $is_anon,
             $enable_upload,
+            $require_upload,
             $capacity,
             $id,
             $user_id
@@ -957,6 +964,7 @@ class DatabaseInterface
         meb_event.open_slots,
         meb_event.is_anon,
         meb_event.enable_upload,
+        meb_event.require_upload,
         meb_event.mod_date,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,

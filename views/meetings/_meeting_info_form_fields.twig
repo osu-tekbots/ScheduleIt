@@ -40,12 +40,19 @@
     Anonymous Meeting
   </label>
 </div>
-<div class="form-check mb-4">
+<div class="form-check mb-2">
   <input class="form-check-input" {% if meeting.enable_upload == true %}checked{% endif %} name="enable_upload" type="checkbox" value="1" id="enable_upload">
   <label class="form-check-label" for="enable_upload">
     Allow Attendees to Upload Files
   </label>
 </div>
+<div class="form-check mb-2" {% if meeting.enable_upload != true %}style="display: none;"{% endif %}>
+  <input class="form-check-input" {% if meeting.require_upload == true %}checked{% endif %} name="require_upload" type="checkbox" value="1" id="require_upload">
+  <label class="form-check-label" for="require_upload">
+    Require Attendees to Upload Files
+  </label>
+</div>
+<div class="d-block mb-4"> <!-- Keep spacing between form sections --> </div>
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-4">

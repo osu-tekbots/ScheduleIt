@@ -47,24 +47,39 @@ if ($meeting) {
             $booking_id = $_POST['booking_id'];
             $timeslot_id = $_POST['timeslot_id'];
 
-            // Add or update booking
-            $updated_booking = $database->addBooking($_SESSION['user_id'], $timeslot_id);
+            // Check that there's a valid file if it's required
+            if ($meeting['require_upload'] && (empty($_FILES['file']['name']) || $file_upload->verifyUpload()['error'])) {
+                $msg->error('Please upload a valid file to reserve your timeslot.');
+            } else {
 
-            // If no booking id from POST, it's a new booking
-            if (empty($booking_id)) {
-                $booking = $database->getMeetingForUserId($_SESSION['user_id'], $meeting_hash);
-                $booking_id = $booking['id'];
-                $send_email->inviteConfirmed($booking);
-            }
-
-            // Check for file to upload
-            if (!empty($_FILES['file']['name'])) {
-                // Upload file
-                $new_file_upload = $file_upload->upload($_SESSION['user_onid'], $meeting['hash'], $booking_id);
-
-                if ($new_file_upload['error']) {
-                    $msg->error($new_file_upload['message']);
-                } else {
+                // Add or update booking
+                $updated_booking = $database->addBooking($_SESSION['user_id'], $timeslot_id);
+    
+                // If no booking id from POST, it's a new booking
+                if (empty($booking_id)) {
+                    $booking = $database->getMeetingForUserId($_SESSION['user_id'], $meeting_hash);
+                    $booking_id = $booking['id'];
+                    $send_email->inviteConfirmed($booking);
+                }
+    
+                // Check for file to upload
+                if (!empty($_FILES['file']['name'])) {
+                    // Upload file
+                    $new_file_upload = $file_upload->upload($_SESSION['user_onid'], $meeting['hash'], $booking_id);
+    
+                    if ($new_file_upload['error']) {
+                        $msg->error($new_file_upload['message']);
+                    } else {
+                        // Delete invite, if one exists
+                        $database->deleteInvite($_SESSION['user_onid'], $meeting['id']);
+                        // Send confirmation email only if time updated
+                        if (!empty($timeslot_id) && $timeslot_id != $booking['timeslot_id']) {
+                            $send_email->inviteUpdated($booking);
+                        }
+                        $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
+                    }
+                // No file uploaded, just booking update
+                } elseif ($updated_booking > -1) {
                     // Delete invite, if one exists
                     $database->deleteInvite($_SESSION['user_onid'], $meeting['id']);
                     // Send confirmation email only if time updated
@@ -72,19 +87,12 @@ if ($meeting) {
                         $send_email->inviteUpdated($booking);
                     }
                     $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
+                } else {
+                    $msg->error('That timeslot is no longer available.');
                 }
-            // No file uploaded, just booking update
-            } elseif ($updated_booking > -1) {
-                // Delete invite, if one exists
-                $database->deleteInvite($_SESSION['user_onid'], $meeting['id']);
-                // Send confirmation email only if time updated
-                if (!empty($timeslot_id) && $timeslot_id != $booking['timeslot_id']) {
-                    $send_email->inviteUpdated($booking);
-                }
-                $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
-            } else {
-                $msg->error('That timeslot is no longer available.');
+                
             }
+
         } else {
             $msg->error('Please select a time.');
         }

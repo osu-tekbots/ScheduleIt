@@ -121,7 +121,7 @@
                 {% if booking.attendee_file %}
                   Upload New File
                 {% else %}
-                  File Upload
+                  File Upload {% if meeting.require_upload %}(required){% endif %}
                 {% endif %}
               </label>
               <p>

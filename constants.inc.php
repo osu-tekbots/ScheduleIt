@@ -34,7 +34,7 @@ if (!defined('UPLOADS_URL')) {
 }
 
 if (!defined('UPLOAD_ALLOWED_FILETYPES')) {
-    define('UPLOAD_ALLOWED_FILETYPES', serialize(['txt', 'zip', 'pdf', 'docx', 'xlsx' ,'pptx']));
+    define('UPLOAD_ALLOWED_FILETYPES', serialize(['txt', 'zip', 'pdf', 'docx', 'xlsx', 'pptx', 'jpg', 'jpeg', 'png']));
 }
 
 if (!defined('UPLOAD_SIZE_LIMIT')) {
