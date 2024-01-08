@@ -38,5 +38,5 @@ if (!defined('UPLOAD_ALLOWED_FILETYPES')) {
 }
 
 if (!defined('UPLOAD_SIZE_LIMIT')) {
-    define('UPLOAD_SIZE_LIMIT', 5000000);
+    define('UPLOAD_SIZE_LIMIT', 10000000);
 }
