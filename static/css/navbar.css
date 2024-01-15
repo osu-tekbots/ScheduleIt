@@ -61,6 +61,8 @@
   border: 1px solid #000;
   right: 0.5rem;
   top: 0.5rem;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
 }
 
 .navbar-container {

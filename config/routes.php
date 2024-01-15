@@ -1,5 +1,9 @@
 <?php
 
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
 $request_uri = str_replace(SITE_DIR, '', $_SERVER['REQUEST_URI']);
 $request_queries = explode('?', $request_uri);
 $request = $request_queries[0];

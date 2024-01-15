@@ -9,7 +9,7 @@ This application was written in PHP and also uses the following libraries:
 - [FontAwesome](https://fontawesome.com/) - an icon library
 - [FullCalendar](https://fullcalendar.io/) - a JavaScript event calendar
 - [jQuery](https://jquery.com/) - a JavaScript library
-- [phpCAS](https://github.com/apereo/phpCAS) - a PHP library to communicate with OSU’s central authentication service
+- [phpCAS](https://github.com/apereo/phpCAS) - a PHP library to communicate with OSU's central authentication service
 - [Twig](https://twig.symfony.com/) - a PHP templating engine
 
 ## App Versions
