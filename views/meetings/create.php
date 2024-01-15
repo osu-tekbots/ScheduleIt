@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $meeting['location'] = $_POST['location'];
     $meeting['description'] = $_POST['description'];
     $meeting['is_anon'] = !empty($_POST['is_anon']) ? 1 : 0;
+    $meeting['enable_message'] = !empty($_POST['enable_message']) ? 1 : 0;
+    $meeting['require_message'] = !empty($_POST['require_message']) ? 1 : 0;
     $meeting['enable_upload'] = !empty($_POST['enable_upload']) ? 1 : 0;
     $meeting['require_upload'] = !empty($_POST['require_upload']) ? 1 : 0;
     $meeting['slot_capacity'] = $_POST['slot_capacity'];

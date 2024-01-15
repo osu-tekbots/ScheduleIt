@@ -558,6 +558,8 @@ class DatabaseInterface
         meb_event.capacity,
         meb_event.open_slots,
         meb_event.is_anon,
+        meb_event.enable_message,
+        meb_event.require_message,
         meb_event.enable_upload,
         meb_event.require_upload,
         meb_event.event_file AS creator_file,
@@ -831,6 +833,8 @@ class DatabaseInterface
         $location = $meeting['location'];
         $description = $meeting['description'];
         $is_anon = $meeting['is_anon'];
+        $enable_message = $meeting['enable_message'];
+        $require_message = $meeting['require_message'];
         $enable_upload = $meeting['enable_upload'];
         $require_upload = $meeting['require_upload'];
 
@@ -852,17 +856,19 @@ class DatabaseInterface
                 capacity,
                 open_slots,
                 is_anon,
+                enable_message,
+                require_message,
                 enable_upload,
                 require_upload
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiiii",
+            "ssssiiiiiiii",
             $hash,
             $name,
             $description,
@@ -871,6 +877,8 @@ class DatabaseInterface
             $capacity,
             $open_slots,
             $is_anon,
+            $enable_message,
+            $require_message,
             $enable_upload,
             $require_upload
         );
@@ -901,6 +909,8 @@ class DatabaseInterface
         $location = $meeting['location'];
         $description = $meeting['description'];
         $is_anon = $meeting['is_anon'];
+        $enable_message = $meeting['enable_message'];
+        $require_message = $meeting['require_message'];
         $enable_upload = $meeting['enable_upload'];
         $require_upload = $meeting['require_upload'];
         $capacity = $meeting['capacity'];
@@ -912,6 +922,8 @@ class DatabaseInterface
             location = ?,
             description = ?,
             is_anon = ?,
+            enable_message = ?,
+            require_message = ?,
             enable_upload = ?,
             require_upload = ?,
             capacity = ?
@@ -923,11 +935,13 @@ class DatabaseInterface
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "sssiiiiii",
+            "sssiiiiiiii",
             $name,
             $location,
             $description,
             $is_anon,
+            $enable_message,
+            $require_message,
             $enable_upload,
             $require_upload,
             $capacity,
@@ -963,6 +977,8 @@ class DatabaseInterface
         meb_event.capacity,
         meb_event.open_slots,
         meb_event.is_anon,
+        meb_event.enable_message,
+        meb_event.require_message,
         meb_event.enable_upload,
         meb_event.require_upload,
         meb_event.mod_date,
@@ -1011,6 +1027,7 @@ class DatabaseInterface
         SELECT
         meb_booking.id,
         meb_booking.fk_timeslot_id AS timeslot_id,
+        meb_booking.message,
         meb_event.hash AS meeting_hash,
         meb_event.name,
         meb_event.location,
@@ -1181,6 +1198,26 @@ class DatabaseInterface
         $statement->close();
 
         return $errorCode;
+    }
+
+    public function addBookingMessage($booking_id, $message) {
+        // If there exists file associated with booking, replace path for that file
+        $file = $this->getFile($booking_id);
+
+        // Add file path associated with booking
+        $query = "UPDATE meb_booking
+            SET `message` = ?
+            WHERE `id` = ?
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param("si", $message, $booking_id);
+        $statement->execute();
+
+        $result = $statement->affected_rows;
+        $statement->close();
+
+        return $result;
     }
 
     /**

@@ -50,6 +50,8 @@ if ($meeting) {
             // Check that there's a valid file if it's required
             if ($meeting['require_upload'] && (empty($_FILES['file']['name']) || $file_upload->verifyUpload()['error'])) {
                 $msg->error('Please upload a valid file to reserve your timeslot.');
+            } elseif($meeting['require_message'] && (!isset($_POST['message']) || $_POST['message'] == '')) {
+                $msg->error('Please include a message to reserve your timeslot.');
             } else {
 
                 // Add or update booking
@@ -60,6 +62,17 @@ if ($meeting) {
                     $booking = $database->getMeetingForUserId($_SESSION['user_id'], $meeting_hash);
                     $booking_id = $booking['id'];
                     $send_email->inviteConfirmed($booking);
+                }
+
+                if(isset($_POST['message'])) {
+                    $result = $database->addBookingMessage($booking_id, htmlspecialchars($_POST['message']));
+                    if($result == -1) {
+                        /* 
+                         *  Probably will get overwritten by a later message; if so this whole section should
+                         *  be extracted into a function to allow an early return
+                         */
+                        $msg->error('Failed to save your message. Please try again later.');
+                    }
                 }
     
                 // Check for file to upload

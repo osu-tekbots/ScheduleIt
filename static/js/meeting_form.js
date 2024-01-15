@@ -337,6 +337,16 @@ const timesSelector = {
   },
 };
 
+function toggleMessageRequiredOption(e) {
+  if(e.currentTarget.checked)
+    $('#require_message').parent().show();
+  else {
+    $('#require_message').prop('checked', false); // Checks it
+    $('#require_message').parent().hide();
+  }
+}
+$('#enable_message')?.on('input', toggleMessageRequiredOption);
+
 function toggleFileRequiredOption(e) {
   if(e.currentTarget.checked)
     $('#require_upload').parent().show();

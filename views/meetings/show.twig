@@ -35,8 +35,6 @@
             {{date.date | date("n/j/y")}}{% if loop.index != meeting.dates_count %}, {% endif %}
           {% endfor %}
         </p>
-      </div>
-      <div class="col-6">
         <h4 class="h6 mb-1">
           Anonymous Meeting
         </h4>
@@ -47,6 +45,30 @@
             No
           {% endif %}
         </p>
+      </div>
+      <div class="col-6">
+        <h4 class="h6 mb-1">
+          Allow Attendees to Include Messages
+        </h4>
+        <p class="card-text-large">
+          {% if meeting.enable_message == true %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+        </p>
+        {% if meeting.enable_message == true %}
+          <h4 class="h6 mb-1">
+            Require Attendees to Include Messages
+          </h4>
+          <p class="card-text-large">
+            {% if meeting.require_message == true %}
+              Yes
+            {% else %}
+              No
+            {% endif %}
+          </p>
+        {% endif %}
         <h4 class="h6 mb-1">
           Allow Attendees to Upload Files
         </h4>
@@ -57,6 +79,18 @@
             No
           {% endif %}
         </p>
+        {% if meeting.enable_upload == true %}
+          <h4 class="h6 mb-1">
+            Require Attendees to Upload Files
+          </h4>
+          <p class="card-text-large">
+            {% if meeting.require_upload == true %}
+              Yes
+            {% else %}
+              No
+            {% endif %}
+          </p>
+        {% endif %}
         <h4 class="h6 mb-1">
           File Download for Attendees
         </h4>
