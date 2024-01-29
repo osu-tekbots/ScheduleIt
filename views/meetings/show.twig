@@ -126,38 +126,54 @@
 {% if attendee_meetings %}
   <table class="table">
     <tr class="d-flex">
-      <th class="col-3">Date</th>
-      <th class="col-3">Time</th>
-      <th class="col-3">Name</th>
-      <th class="col-2">Uploaded File</th>
+      <th class="col">Date</th>
+      <th class="col">Time</th>
+      <th class="col">Name</th>
+      {% if meeting.enable_message == true %}
+        <th class="col-2">Message</th>
+      {% endif %}
+      {% if meeting.enable_upload == true %}
+        <th class="col-2">Uploaded File</th>
+      {% endif %}
       <th class="col-1">Remove</th>
     </tr>
-    {% for meeting in attendee_meetings %}
+    {% for a_meeting in attendee_meetings %}
       <tr class="d-flex">
-        <td class="col-3">
-          {{meeting.start_time | date("D, F j, Y")}}
+        <td class="col">
+          {{a_meeting.start_time | date("D, F j, Y")}}
         </td>
-        <td class="col-3">
-          {{meeting.start_time| date("g:ia")}}-{{meeting.end_time| date("g:ia")}} PST
+        <td class="col">
+          {{a_meeting.start_time| date("g:ia")}}-{{a_meeting.end_time| date("g:ia")}} PST
         </td>
-        <td class="col-3">
-          <a href="mailto:{{meeting.attendee_email}}">{{meeting.attendee_name}}</a>
+        <td class="col">
+          <a href="mailto:{{a_meeting.attendee_email}}">{{a_meeting.attendee_name}}</a>
         </td>
-        <td class="col-2">
-          {% if meeting.attendee_file %}
-            <a href="{{uploads_url}}{{meeting.attendee_file}}" download="">{{meeting.attendee_file | basename}}</a>
-          {% else %}
-            N/A
-          {% endif %}
-        </td>
+        {% if meeting.enable_message == true %}
+          <td class="col-2">
+            {% if a_meeting.message %}
+              {{a_meeting.message}}
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+        {% endif %}
+        {% if meeting.enable_upload == true %}
+          <td class="col-2">
+            {% if a_meeting.attendee_file %}
+              <a href="{{uploads_url}}{{a_meeting.attendee_file}}" download="">{{a_meeting.attendee_file | basename}}</a>
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+        {% endif %}
         <td class="col-1">
           <button
             class="btn btn-danger btn-sm table-btn"
-            data-name="{{meeting.name}}"
-            data-timeslot-hash="{{meeting.timeslot_hash}}"
-            data-attendee-onid="{{meeting.attendee_onid}}"
+            data-name="{{a_meeting.name}}"
+            data-timeslot-hash="{{a_meeting.timeslot_hash}}"
+            data-attendee-onid="{{a_meeting.attendee_onid}}"
             data-url="{{site_url}}/meetings/remove_attendee"
-            data-meeting-hash="{{meeting.hash}}"
+            data-a_meeting-hash="{{a_meeting.hash}}"
             type="button"
           >
             <i class="fas fa-times"></i>

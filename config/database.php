@@ -611,6 +611,7 @@ class DatabaseInterface
         meb_timeslot.start_time,
         meb_timeslot.end_time,
         meb_timeslot.hash AS timeslot_hash,
+        meb_booking.message,
         meb_files.path AS attendee_file,
         meb_user.email AS attendee_email,
         CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS attendee_name,
