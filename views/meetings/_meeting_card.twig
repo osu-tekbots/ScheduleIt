@@ -30,16 +30,6 @@
         </a>
       </p>
     {% endif %}
-    {% if meeting.creator_file %}
-      <p class="mb-0">
-        {% if meeting.creator_onid == user_onid %}
-          My
-        {% else %}
-          Creator
-        {% endif %}
-        File: <a href="{{uploads_url}}{{meeting.creator_file}}" download="">{{meeting.creator_file | basename}}</a>
-      </p>
-    {% endif %}
     {# Show all attendees to each other if meeting is not anonymous and there is more than one attendee #}
     {# Creator always sees all attendees #}
     {% if meeting.creator_onid == user_onid or (meeting.is_anon == 0 and meeting.attendees_count > 1) %}
@@ -68,11 +58,6 @@
     {% if meeting.current_attendee_file %}
       <p class="mb-0 mt-3">
         My File: <a href="{{uploads_url}}{{meeting.current_attendee_file}}" download="">{{meeting.current_attendee_file | basename}}</a>
-      </p>
-    {% endif %}
-    {% if meeting.description %}
-      <p class="mt-3 mb-0">
-        {{meeting.description}}
       </p>
     {% endif %}
   </div>
