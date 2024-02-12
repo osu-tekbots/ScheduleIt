@@ -560,6 +560,7 @@ class DatabaseInterface
         meb_event.is_anon,
         meb_event.enable_message,
         meb_event.require_message,
+        meb_event.message_prompt,
         meb_event.enable_upload,
         meb_event.require_upload,
         meb_event.event_file AS creator_file,
@@ -912,6 +913,7 @@ class DatabaseInterface
         $is_anon = $meeting['is_anon'];
         $enable_message = $meeting['enable_message'];
         $require_message = $meeting['require_message'];
+        $message_prompt = $meeting['message_prompt'];
         $enable_upload = $meeting['enable_upload'];
         $require_upload = $meeting['require_upload'];
         $capacity = $meeting['capacity'];
@@ -922,6 +924,7 @@ class DatabaseInterface
             SET name = ?,
             location = ?,
             description = ?,
+            message_prompt = ?,
             is_anon = ?,
             enable_message = ?,
             require_message = ?,
@@ -936,10 +939,11 @@ class DatabaseInterface
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "sssiiiiiiii",
+            "ssssiiiiiiii",
             $name,
             $location,
             $description,
+            $message_prompt,
             $is_anon,
             $enable_message,
             $require_message,
@@ -980,6 +984,7 @@ class DatabaseInterface
         meb_event.is_anon,
         meb_event.enable_message,
         meb_event.require_message,
+        meb_event.message_prompt,
         meb_event.enable_upload,
         meb_event.require_upload,
         meb_event.mod_date,

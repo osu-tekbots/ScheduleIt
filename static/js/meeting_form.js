@@ -337,15 +337,18 @@ const timesSelector = {
   },
 };
 
-function toggleMessageRequiredOption(e) {
-  if(e.currentTarget.checked)
+function toggleMessageOptions(e) {
+  if(e.currentTarget.checked) {
     $('#require_message').parent().show();
+    $('#message_prompt').parent().parent().parent().show();
+  }
   else {
     $('#require_message').prop('checked', false); // Checks it
     $('#require_message').parent().hide();
+    $('#message_prompt').parent().parent().parent().hide();
   }
 }
-$('#enable_message')?.on('input', toggleMessageRequiredOption);
+$('#enable_message')?.on('input', toggleMessageOptions);
 
 function toggleFileRequiredOption(e) {
   if(e.currentTarget.checked)

@@ -65,6 +65,14 @@
   </label>
 </div>
 <div class="d-block mb-4"> <!-- Keep spacing between form sections --> </div>
+<div class="mb-4" {% if meeting.enable_message != true %}style="display: none;"{% endif %}>
+  <label class="h6" for="message_prompt">Message Prompt</label>
+  <div class="row">
+    <div class="col-md-6">
+      <textarea class="form-control" name="message_prompt" id="message_prompt">{{meeting.message_prompt}}</textarea>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-4">

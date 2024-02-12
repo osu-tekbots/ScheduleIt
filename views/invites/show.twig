@@ -109,13 +109,12 @@
             <div class="card-body pb-0">
               <div class="form-group">
                 <label class="h6">
-                  {% if booking.message %}
-                    Update Message
-                  {% else %}
-                    Include a Message
-                  {% endif %}
+                  Reservation Comment
                   {% if meeting.require_message %} (required) {% endif %}
                 </label>
+                {% if meeting.message_prompt %}
+                  <p>{{meeting.message_prompt}}</p>
+                {% endif %}
                 <textarea class="form-control mb-4" name="message">{% if booking.message %}{{booking.message}}{% endif %}</textarea>
               </div>
             </div>
