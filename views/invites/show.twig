@@ -126,16 +126,6 @@
           <div class="card">
             <div class="card-body pb-0">
               <div class="form-group">
-                {% if booking.attendee_file %}
-                  <h6 class="h6">
-                    File Upload
-                  </h6>
-                  <p class="card-text-large">
-                    <a href="{{uploads_url}}{{booking.attendee_file}}">
-                      {{booking.attendee_file | basename}}
-                    </a>
-                  </p>
-                {% endif %}
                 <label class="h6">
                   {% if booking.attendee_file %}
                     Upload New File
@@ -143,12 +133,25 @@
                     File Upload {% if meeting.require_upload %}(required){% endif %}
                   {% endif %}
                 </label>
+                {% if meeting.upload_prompt %}
+                  <p>{{meeting.upload_prompt}}</p>
+                {% endif %}
                 <p>
                   You may only upload a single file. Uploading a second file will overwrite the first.
                   If you need to upload multiple files combine them into a single zip file.
                   Allowed file types: {{upload_allowed_filetypes | join}}
                 </p>
                 <input class="form-control-file" name="file" type="file">
+                {% if booking.attendee_file %}
+                  <h6 class="h6 mt-4">
+                    Current File
+                  </h6>
+                  <p class="card-text-large">
+                    <a href="{{uploads_url}}{{booking.attendee_file}}">
+                      {{booking.attendee_file | basename}}
+                    </a>
+                  </p>
+                {% endif %}
               </div>
             </div>
           </div>

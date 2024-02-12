@@ -563,6 +563,7 @@ class DatabaseInterface
         meb_event.message_prompt,
         meb_event.enable_upload,
         meb_event.require_upload,
+        meb_event.upload_prompt,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,
         meb_user.email AS creator_email,
@@ -916,6 +917,7 @@ class DatabaseInterface
         $message_prompt = $meeting['message_prompt'];
         $enable_upload = $meeting['enable_upload'];
         $require_upload = $meeting['require_upload'];
+        $upload_prompt = $meeting['upload_prompt'];
         $capacity = $meeting['capacity'];
 
         $query = "
@@ -925,6 +927,7 @@ class DatabaseInterface
             location = ?,
             description = ?,
             message_prompt = ?,
+            upload_prompt = ?,
             is_anon = ?,
             enable_message = ?,
             require_message = ?,
@@ -939,11 +942,12 @@ class DatabaseInterface
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiiiiii",
+            "sssssiiiiiiii",
             $name,
             $location,
             $description,
             $message_prompt,
+            $upload_prompt,
             $is_anon,
             $enable_message,
             $require_message,
@@ -987,6 +991,7 @@ class DatabaseInterface
         meb_event.message_prompt,
         meb_event.enable_upload,
         meb_event.require_upload,
+        meb_event.upload_prompt,
         meb_event.mod_date,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,

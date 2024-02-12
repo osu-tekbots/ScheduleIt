@@ -351,11 +351,14 @@ function toggleMessageOptions(e) {
 $('#enable_message')?.on('input', toggleMessageOptions);
 
 function toggleFileRequiredOption(e) {
-  if(e.currentTarget.checked)
+  if(e.currentTarget.checked) {
     $('#require_upload').parent().show();
+    $('#upload_prompt').parent().parent().parent().show();
+  }
   else {
     $('#require_upload').prop('checked', false); // Checks it
     $('#require_upload').parent().hide();
+    $('#upload_prompt').parent().parent().parent().hide();
   }
 }
 $('#enable_upload')?.on('input', toggleFileRequiredOption);

@@ -73,6 +73,14 @@
     </div>
   </div>
 </div>
+<div class="mb-4" {% if meeting.enable_upload != true %}style="display: none;"{% endif %}>
+  <label class="h6" for="upload_prompt">Upload Prompt</label>
+  <div class="row">
+    <div class="col-md-6">
+      <textarea class="form-control" name="upload_prompt" id="upload_prompt">{{meeting.upload_prompt}}</textarea>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-4">
