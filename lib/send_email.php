@@ -22,6 +22,7 @@ class SendEmail
         $to = $meeting['attendee_email'];
         $subject = 'Confirmed: ' . $meeting['name'];
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+            'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
@@ -46,6 +47,7 @@ class SendEmail
         $to = $meeting['attendee_email'];
         $subject = 'Updated: ' . $meeting['name'];
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+            'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
@@ -99,6 +101,7 @@ class SendEmail
         $to = $removeOnid . '@oregonstate.edu';
         $subject = 'Removed: ' . trim($eventName);
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+          'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
           'Reply-To: ' . $creatorName . '<' . $creatorOnid . '@oregonstate.edu' . '>' . "\r\n" .
           'X-MAiler: PHP/' . phpversion();
 
@@ -121,6 +124,7 @@ class SendEmail
         $to = $user['attendee_email'];
         $subject = 'Changed: ' . $meeting['name'];
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+            'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
