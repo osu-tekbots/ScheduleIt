@@ -20,3 +20,7 @@
 .fc-day {
   cursor: pointer;
 }
+
+.fc-daygrid-day-events:hover {
+  min-width: fit-content;
+}
