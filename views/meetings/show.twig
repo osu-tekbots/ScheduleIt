@@ -137,13 +137,20 @@
       {% endif %}
       <th class="col-1">Remove</th>
     </tr>
+
+    {# Need to track previous meeting for detecting multiple people signed up for same time slot #}
+    {% set previous = false %}
     {% for a_meeting in attendee_meetings %}
       <tr class="d-flex">
         <td class="col">
-          {{a_meeting.start_time | date("D, F j, Y")}}
+          {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+            {{a_meeting.start_time | date("D, F j, Y")}}
+          {% endif %}
         </td>
         <td class="col">
-          {{a_meeting.start_time| date("g:ia")}}-{{a_meeting.end_time| date("g:ia")}} PST
+          {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+            {{a_meeting.start_time| date("g:ia")}}-{{a_meeting.end_time| date("g:ia")}} PST
+          {% endif %}
         </td>
         <td class="col">
           <a href="mailto:{{a_meeting.attendee_email}}">{{a_meeting.attendee_name}}</a>
@@ -180,6 +187,7 @@
           </button>
         </td>
       </tr>
+      {% set previous = a_meeting %}
     {% endfor %}
   </table>
   <div class="modal fade" id="delete-attendee-modal" tabindex="-1" role="dialog" aria-labelledby="delete-attendee-modal-label" aria-hidden="true">
