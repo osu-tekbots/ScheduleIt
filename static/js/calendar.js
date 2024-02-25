@@ -31,6 +31,11 @@ function calendarInit() {
     const calendar = new FullCalendar.Calendar(calendarElement, {
       events: mappedEvents,
       initialView: "dayGridMonth",
+      headerToolbar: {
+        left: 'dayGridMonth,listWeek',
+        center: 'title'        
+      },
+
       eventContent: (object) => {
         sections = object.event.title.split("\n");
 
