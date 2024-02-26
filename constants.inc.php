@@ -5,11 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('MEETINGS_START_TIME')) {
-    define('MEETINGS_START_TIME', '07:00');
+    define('MEETINGS_START_TIME', '05:00');
 }
 
 if (!defined('MEETINGS_END_TIME')) {
-    define('MEETINGS_END_TIME', '20:00');
+    define('MEETINGS_END_TIME', '22:00');
 }
 
 if (!defined('SITE_DIR')) {
