@@ -1113,6 +1113,35 @@ class DatabaseInterface
     }
 
     /**
+     * Fetch the details for the given timeslot.
+     *
+     * @param string $id
+     * @return array
+     */
+    public function getTimeslot($id)
+    {
+        $timeslots_query = "SELECT
+            meb_timeslot.id,
+            meb_timeslot.hash,
+            meb_timeslot.start_time,
+            meb_timeslot.end_time
+        FROM meb_timeslot
+        WHERE meb_timeslot.id = ?
+        ORDER BY meb_timeslot.start_time ASC;";
+
+        $timeslots = $this->database->prepare($timeslots_query);
+        $timeslots->bind_param("i", $id);
+        $timeslots->execute();
+
+        $result = $timeslots->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $timeslots->close();
+
+        return $list[0];
+    }
+
+    /**
      * Get available timeslots for invite page.
      *
      * @param string $hash

@@ -52,6 +52,9 @@ if ($meeting) {
                 $msg->error('Please upload a valid file to reserve your timeslot.');
             } elseif($meeting['require_message'] && (!isset($_POST['message']) || $_POST['message'] == '')) {
                 $msg->error('Please include a message to reserve your timeslot.');
+            } elseif(strcmp($database->getTimeslot($timeslot_id)['end_time'], date('Y-m-d H:i:s')) == -1) {
+                /* Meeting slot is already in the past */
+                $msg->error('That meeting timeslot is already over. Please pick a different one.');
             } else {
 
                 // Add or update booking
