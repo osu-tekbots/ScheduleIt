@@ -117,7 +117,8 @@
                   {% endif %}
                   {% if meeting.require_message %} (required) {% endif %}
                 </label>
-                <textarea class="form-control mb-4" name="message">{% if booking.message %}{{booking.message}}{% endif %}</textarea>
+                {# WARNING: Could potentially allow XSS vulnerability if not in a <textarea> element because of `|raw` #}
+                <textarea class="form-control mb-4" name="message">{% if booking.message %}{{booking.message|raw}}{% endif %}</textarea>
               </div>
             </div>
           </div>
