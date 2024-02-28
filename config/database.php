@@ -442,7 +442,10 @@ class DatabaseInterface
         meb_event.fk_event_creator AS creator_id,
         meb_timeslot.start_time,
         meb_timeslot.end_time,
+        meb_event.enable_upload,
+        meb_event.enable_message,
         meb_files.path AS attendee_file,
+        meb_booking.message AS attendee_message,
         meb_user.email AS attendee_email,
         CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS attendee_name,
         meb_user.onid AS attendee_onid,
@@ -838,8 +841,10 @@ class DatabaseInterface
         $is_anon = $meeting['is_anon'];
         $enable_message = $meeting['enable_message'];
         $require_message = $meeting['require_message'];
+        $message_prompt = $meeting['message_prompt'];
         $enable_upload = $meeting['enable_upload'];
         $require_upload = $meeting['require_upload'];
+        $upload_prompt = $meeting['upload_prompt'];
 
         $hash = createEventHash($name, $description, $user_id, $location);
         $timeslots = $meeting['timeslots'];
@@ -861,17 +866,19 @@ class DatabaseInterface
                 is_anon,
                 enable_message,
                 require_message,
+                message_prompt,
                 enable_upload,
-                require_upload
+                require_upload,
+                upload_prompt
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiiiiii",
+            "ssssiiiiiisiis",
             $hash,
             $name,
             $description,
@@ -882,8 +889,10 @@ class DatabaseInterface
             $is_anon,
             $enable_message,
             $require_message,
+            $message_prompt,
             $enable_upload,
-            $require_upload
+            $require_upload,
+            $upload_prompt
         );
 
         $statement->execute();
