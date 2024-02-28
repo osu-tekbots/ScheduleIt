@@ -20,7 +20,8 @@ foreach ($upcoming_meetings as $key => $meeting) {
         array_push($current_attendees, [
             'attendee_email' => $meeting['attendee_email'],
             'attendee_name' => $meeting['attendee_name'],
-            'attendee_file' => $meeting['attendee_file']
+            'attendee_file' => $meeting['attendee_file'],
+            'attendee_message' => $meeting['attendee_message']
         ]);
         usort($current_attendees, function ($a, $b) {
             return strcmp($a['attendee_email'], $b['attendee_email']);
@@ -45,12 +46,16 @@ foreach ($upcoming_meetings as $key => $meeting) {
             'attendees' => [
                 [
                     'attendee_email' => $meeting['attendee_email'],
-                    'attendee_name' => $meeting['attendee_name']
+                    'attendee_name' => $meeting['attendee_name'],
+                    'attendee_file' => $meeting['attendee_file'],
+                    'attendee_message' => $meeting['attendee_message']
                 ]
             ],
             'attendees_count' => 1,
             'attendees_files' => [],
-            'attendees_files_count' => 0
+            'attendees_files_count' => 0,
+            'enable_upload' => $meeting['enable_upload'],
+            'enable_message' => $meeting['enable_message']
         ];
     }
 
@@ -73,7 +78,8 @@ foreach ($created_meetings as $key => $meeting) {
         array_push($current_attendees, [
             'attendee_email' => $meeting['attendee_email'],
             'attendee_name' => $meeting['attendee_name'],
-            'attendee_file' => $meeting['attendee_file']
+            'attendee_file' => $meeting['attendee_file'],
+            'attendee_message' => $meeting['attendee_message']
         ]);
         usort($current_attendees, function ($a, $b) {
             return strcmp($a['attendee_email'], $b['attendee_email']);
@@ -99,12 +105,15 @@ foreach ($created_meetings as $key => $meeting) {
                 [
                     'attendee_email' => $meeting['attendee_email'],
                     'attendee_name' => $meeting['attendee_name'],
-                    'attendee_file' => $meeting['attendee_file']
+                    'attendee_file' => $meeting['attendee_file'],
+                    'attendee_message' => $meeting['attendee_message']
                 ]
             ],
             'attendees_count' => 1,
             'attendees_files' => [],
-            'attendees_files_count' => 0
+            'attendees_files_count' => 0,
+            'enable_upload' => $meeting['enable_upload'],
+            'enable_message' => $meeting['enable_message']
         ];
     }
 
@@ -127,7 +136,8 @@ foreach ($past_meetings as $key => $meeting) {
         array_push($current_attendees, [
             'attendee_email' => $meeting['attendee_email'],
             'attendee_name' => $meeting['attendee_name'],
-            'attendee_file' => $meeting['attendee_file']
+            'attendee_file' => $meeting['attendee_file'],
+            'attendee_message' => $meeting['attendee_message']
         ]);
         usort($current_attendees, function ($a, $b) {
             return strcmp($a['attendee_email'], $b['attendee_email']);
@@ -167,12 +177,15 @@ foreach ($past_meetings as $key => $meeting) {
                 [
                     'attendee_email' => $meeting['attendee_email'],
                     'attendee_name' => $meeting['attendee_name'],
-                    'attendee_file' => $meeting['attendee_file']
+                    'attendee_file' => $meeting['attendee_file'],
+                    'attendee_message' => $meeting['attendee_message']
                 ]
             ],
             'attendees_count' => 1,
             'attendees_files' => [],
-            'attendees_files_count' => 0
+            'attendees_files_count' => 0,
+            'enable_upload' => $meeting['enable_upload'],
+            'enable_message' => $meeting['enable_message']
         ];
         /* Ensure only unique dates are included */
         $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
@@ -196,7 +209,8 @@ foreach ($search_meetings as $key => $meeting) {
         array_push($current_attendees, [
             'attendee_email' => $meeting['attendee_email'],
             'attendee_name' => $meeting['attendee_name'],
-            'attendee_file' => $meeting['attendee_file']
+            'attendee_file' => $meeting['attendee_file'],
+            'attendee_message' => $meeting['attendee_message']
         ]);
         $search_meetings_with_attendees[$meeting['id']]['attendees'] = $current_attendees;
         $search_meetings_with_attendees[$meeting['id']]['attendees_count'] = count($current_attendees);
@@ -219,12 +233,15 @@ foreach ($search_meetings as $key => $meeting) {
                 [
                     'attendee_email' => $meeting['attendee_email'],
                     'attendee_name' => $meeting['attendee_name'],
-                    'attendee_file' => $meeting['attendee_file']
+                    'attendee_file' => $meeting['attendee_file'],
+                    'attendee_message' => $meeting['attendee_message']
                 ]
             ],
             'attendees_count' => 1,
             'attendees_files' => [],
-            'attendees_files_count' => 0
+            'attendees_files_count' => 0,
+            'enable_upload' => $meeting['enable_upload'],
+            'enable_message' => $meeting['enable_message']
         ];
     }
 

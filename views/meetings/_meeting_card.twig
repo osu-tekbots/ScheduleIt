@@ -49,35 +49,54 @@
         </a>
       </p>
     {% endif %}
-    {# Show all attendees to each other if meeting is not anonymous and there is more than one attendee #}
-    {# Creator always sees all attendees #}
-    {% if meeting.creator_onid == user_onid or (meeting.is_anon == 0 and meeting.attendees_count > 1) %}
-      <p class="mt-3 mb-0">
-        Attendee{% if meeting.attendees_count > 1 %}s{% endif %}:
-        {% for attendee in meeting.attendees %}
-          <a href="mailto:{{attendee.attendee_email}}">{% if attendee.attendee_email == user_email %}Me{% else %}{{attendee.attendee_name}}{% endif %}</a>{% if loop.index != meeting.attendees_count %}, {% endif %}
-        {% endfor %}
-      </p>
-    {% else %}
-      <p class="mt-3 mb-0">
-        Attendee{% if meeting.attendees_count > 1 %}s{% endif %}:
-        {{ meeting.attendees|length }}
-      </p>
-    {% endif %}
-    {# Show all files to creator #}
-    {% if meeting.creator_onid == user_onid and meeting.attendees_files %}
-      <p class="mb-0">
-        Attendee File{% if meeting.attendees_files_count > 1 %}s{% endif %}:
-        {% for attendee_file in meeting.attendees_files %}
-          <a href="{{uploads_url}}{{attendee_file}}" download="">{{attendee_file | basename}}</a>{% if loop.index != meeting.attendees_files_count %}, {% endif %}
-        {% endfor %}
-      </p>
-    {% endif %}
-    {# Show attendee only their file #}
-    {% if meeting.current_attendee_file %}
-      <p class="mb-0 mt-3">
-        My File: <a href="{{uploads_url}}{{meeting.current_attendee_file}}" download="">{{meeting.current_attendee_file | basename}}</a>
-      </p>
-    {% endif %}
+
+    {# Attendees section #}
+
+    <table class="table mt-2">
+      <tr class="d-flex">
+        <th class="col border-top-0" colspan="2">Attendees</th>
+      </tr>
+
+      {% for index, attendee in meeting.attendees %}
+        <tr class="d-flex">
+          <td class="col">
+            {% if meeting.creator_onid == user_onid or (meeting.is_anon == 0 and meeting.attendees_count > 1) %}
+              <a href="mailto:{{attendee.attendee_email}}">{% if attendee.attendee_email == user_email %}Me{% else %}{{attendee.attendee_name}}{% endif %}</a>
+            {% else %}
+              Attendee {{index + 1}}
+            {% endif %}
+          </td>
+          {% if meeting.enable_upload == true %}
+            <td class="col">
+              {% if meeting.creator_onid == user_onid or (meeting.is_anon == 0 and meeting.attendees_count > 1) %}
+                {% if attendee.attendee_file %}
+                  <a href="{{uploads_url}}{{attendee.attendee_file}}" download="">{{attendee.attendee_file | basename}}</a>
+                {% else %}
+                  <i>No File Provided</i>
+                {% endif %}
+              {% else %}
+                <i>Cannot see file because the meeting is anonymous</i>
+              {% endif %}
+            </td>
+          {% endif %}
+        </tr>
+        <tr>
+          {% if meeting.enable_message == true %}
+            <td class="col border-top-0 pt-0">
+              {% if meeting.creator_onid == user_onid or (meeting.is_anon == 0 and meeting.attendees_count > 1) %}
+                {% if attendee.attendee_message %}
+                  {# WARNING: Could potentially allow XSS vulnerability if not in a <td> element because of `|raw` #}
+                  {{attendee.attendee_message|raw}}
+                {% else %}
+                  <i>No Message Provided</i>
+                {% endif %}
+              {% else %}
+                <i>Cannot see message because the meeting is anonymous</i>
+              {% endif %}
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </table>
   </div>
 </div>
