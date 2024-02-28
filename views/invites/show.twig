@@ -110,12 +110,13 @@
             <div class="card-body pb-0">
               <div class="form-group">
                 <label class="h6">
-                  Reservation Comment
+                  {% if meeting.message_prompt %}
+                    {{meeting.message_prompt}}
+                  {% else %}
+                    Reservation Comment
+                  {% endif %}
                   {% if meeting.require_message %} (required) {% endif %}
                 </label>
-                {% if meeting.message_prompt %}
-                  <p>{{meeting.message_prompt}}</p>
-                {% endif %}
                 <textarea class="form-control mb-4" name="message">{% if booking.message %}{{booking.message}}{% endif %}</textarea>
               </div>
             </div>
@@ -128,21 +129,24 @@
             <div class="card-body pb-0">
               <div class="form-group">
                 <label class="h6">
-                  {% if booking.attendee_file %}
-                    Upload New File
+                  {% if meeting.upload_prompt %}
+                    {{meeting.upload_prompt}} {% if meeting.require_upload %}(required){% endif %}
                   {% else %}
-                    File Upload {% if meeting.require_upload %}(required){% endif %}
+                    {% if booking.attendee_file %}
+                      Upload New File
+                    {% else %}
+                      File Upload {% if meeting.require_upload %}(required){% endif %}
+                    {% endif %}
                   {% endif %}
                 </label>
-                {% if meeting.upload_prompt %}
-                  <p>{{meeting.upload_prompt}}</p>
-                {% endif %}
-                <p>
+                
+                <input class="form-control-file" name="file" type="file">
+                <i>
+                  Allowed file types: {{upload_allowed_filetypes | join}}<br>
                   You may only upload a single file. Uploading a second file will overwrite the first.
                   If you need to upload multiple files combine them into a single zip file.
-                  Allowed file types: {{upload_allowed_filetypes | join}}
-                </p>
-                <input class="form-control-file" name="file" type="file">
+                </i>
+
                 {% if booking.attendee_file %}
                   <h6 class="h6 mt-4">
                     Current File
