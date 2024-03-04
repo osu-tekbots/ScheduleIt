@@ -117,6 +117,9 @@
                   {% endif %}
                   {% if meeting.require_message %} (required) {% endif %}
                 </label>
+                {% if meeting.is_anon %}
+                  <i class="text-secondary mt-0 mb-2 d-block">Only the meeting creator can see your comment</i>
+                {% endif %}
                 {# WARNING: Could potentially allow XSS vulnerability if not in a <textarea> element because of `|raw` #}
                 <textarea class="form-control mb-4" name="message">{% if booking.message %}{{booking.message|raw}}{% endif %}</textarea>
               </div>
@@ -140,6 +143,9 @@
                     {% endif %}
                   {% endif %}
                 </label>
+                {% if meeting.is_anon %}
+                  <i class="text-secondary mt-0 mb-2 d-block">Only the meeting creator can see your file</i>
+                {% endif %}
                 
                 <input class="form-control-file" name="file" type="file">
                 <i>

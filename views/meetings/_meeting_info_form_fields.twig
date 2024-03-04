@@ -38,6 +38,7 @@
   <input class="form-check-input" {% if meeting.is_anon == true %}checked{% endif %} name="is_anon" type="checkbox" value="1" id="is_anon">
   <label class="form-check-label" for="is_anon">
     Anonymous Meeting
+    <i id="anon_desc" {% if meeting.is_anon == false %}style="display:none;" {% endif %}class="text-secondary"><br>Attendees cannot see each other's names, messages, or files</i>
   </label>
 </div>
 <div class="form-check mb-2">

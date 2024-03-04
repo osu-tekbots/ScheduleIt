@@ -337,6 +337,14 @@ const timesSelector = {
   },
 };
 
+function toggleAnonymousDetails(e) {
+  if(e.currentTarget.checked)
+    $('#anon_desc').show();
+  else
+    $('#anon_desc').hide();
+}
+$('#is_anon')?.on('input', toggleAnonymousDetails);
+
 function toggleMessageOptions(e) {
   if(e.currentTarget.checked) {
     $('#require_message').parent().show();
