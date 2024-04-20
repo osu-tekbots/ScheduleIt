@@ -1,6 +1,6 @@
 <?php
 
-$redirect_url = SITE_DIR . '/meetings';
+$redirect_url = SITE_DIR . '/calendar';
 
 // This page is only for local environment
 if (ENVIRONMENT != 'development') {
