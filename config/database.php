@@ -246,7 +246,8 @@ class DatabaseInterface
             duration,
             slot_capacity,
             spaces_available,
-            start_time
+            start_time,
+            end_time
         FROM meb_timeslot
         WHERE fk_event_id = ?
 
@@ -622,11 +623,13 @@ class DatabaseInterface
         meb_event.name,
         meb_event.hash,
         meb_event.location,
+        meb_timeslot.id AS timeslot_id,
         meb_timeslot.start_time,
         meb_timeslot.end_time,
         meb_timeslot.hash AS timeslot_hash,
         meb_booking.message,
         meb_files.path AS attendee_file,
+        meb_user.id AS attendee_id,
         meb_user.email AS attendee_email,
         CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS attendee_name,
         meb_user.onid AS attendee_onid
@@ -1142,8 +1145,10 @@ class DatabaseInterface
             meb_timeslot.id,
             meb_timeslot.hash,
             meb_timeslot.start_time,
-            meb_timeslot.end_time
+            meb_timeslot.end_time,
+            meb_booking.fk_user_id AS attendee_id
         FROM meb_timeslot
+        INNER JOIN meb_booking ON meb_timeslot.id = meb_booking.fk_timeslot_id
         WHERE meb_timeslot.id = ?
         ORDER BY meb_timeslot.start_time ASC;";
 

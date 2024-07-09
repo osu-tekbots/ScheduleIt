@@ -1,4 +1,7 @@
 <?php
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
 
 require_once ABSPATH . 'config/session.php';
 
@@ -29,25 +32,27 @@ foreach ($upcoming_meetings as $key => $meeting) {
         $upcoming_meetings_with_attendees[$meeting['id']]['attendees'] = $current_attendees;
         $upcoming_meetings_with_attendees[$meeting['id']]['attendees_count'] = count($current_attendees);
 
-        if(
-            !in_array(date('D, F j, Y', strtotime($meeting['start_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-            || !in_array(date('D, F j, Y', strtotime($meeting['end_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-        ) {
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
-            $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
-        }
+//added 4/10 to handle error 500 on loading blank page.
+		if (!isset($past_meetings_with_attendees[$meeting['id']]['dates']))
+			$past_meetings_with_attendees[$meeting['id']]['dates'] = [];
+		
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
+        /* Ensure only unique dates are included */
+        $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
     } else {
+        $dates = array_unique(array(
+            date('D, F j, Y', strtotime($meeting['start_time'])),
+            date('D, F j, Y', strtotime($meeting['end_time']))
+        ));
+
         $upcoming_meetings_with_attendees[$meeting['id']] = [
             'id' => $meeting['id'],
             'meeting_hash' => $meeting['meeting_hash'],
             'name' => $meeting['name'],
             'location' => $meeting['location'],
             'description' => $meeting['description'],
-            'dates' => [
-                date('D, F j, Y', strtotime($meeting['start_time'])),
-                date('D, F j, Y', strtotime($meeting['end_time'])),
-            ],
+            'dates' => $dates,
             'start_time' => $meeting['start_time'],
             'end_time' => $meeting['end_time'],
             'is_anon' => $meeting['is_anon'],
@@ -100,25 +105,23 @@ foreach ($created_meetings as $key => $meeting) {
         $created_meetings_with_attendees[$meeting['id']]['attendees'] = $current_attendees;
         $created_meetings_with_attendees[$meeting['id']]['attendees_count'] = count($current_attendees);
 
-        if(
-            !in_array(date('D, F j, Y', strtotime($meeting['start_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-            || !in_array(date('D, F j, Y', strtotime($meeting['end_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-        ) {
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
-            $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
-        }
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
+        /* Ensure only unique dates are included */
+        $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
     } else {
+        $dates = array_unique(array(
+            date('D, F j, Y', strtotime($meeting['start_time'])),
+            date('D, F j, Y', strtotime($meeting['end_time']))
+        ));
+
         $created_meetings_with_attendees[$meeting['id']] = [
             'id' => $meeting['id'],
             'meeting_hash' => $meeting['meeting_hash'],
             'name' => $meeting['name'],
             'location' => $meeting['location'],
             'description' => $meeting['description'],
-            'dates' => [
-                date('D, F j, Y', strtotime($meeting['start_time'])),
-                date('D, F j, Y', strtotime($meeting['end_time'])),
-            ],
+            'dates' => $dates,
             'start_time' => $meeting['start_time'],
             'end_time' => $meeting['end_time'],
             'is_anon' => $meeting['is_anon'],
@@ -158,8 +161,13 @@ foreach ($created_meetings as $key => $meeting) {
 foreach ($past_meetings as $key => $meeting) {
     if (isset($past_meetings_with_attendees[$meeting['id']])) {
         /* Ensure attendees are sorted alphabetically */
-        $current_attendees = $past_meetings_with_attendees[$meeting['id']]['attendees'];
-        array_push($current_attendees, [
+		
+//added 4/10 to handle error 500 on loading blank page.		
+		if (isset($past_meetings_with_attendees[$meeting['id']]['attendees']))
+			$current_attendees = $past_meetings_with_attendees[$meeting['id']]['attendees'];
+        
+		
+		array_push($current_attendees, [
             'attendee_email' => $meeting['attendee_email'],
             'attendee_name' => $meeting['attendee_name'],
             'attendee_file' => $meeting['attendee_file'],
@@ -171,15 +179,16 @@ foreach ($past_meetings as $key => $meeting) {
         $past_meetings_with_attendees[$meeting['id']]['attendees'] = $current_attendees;
         $past_meetings_with_attendees[$meeting['id']]['attendees_count'] = count($current_attendees);
 
-        if(
-            !in_array(date('D, F j, Y', strtotime($meeting['start_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-            || !in_array(date('D, F j, Y', strtotime($meeting['end_time'])), $past_meetings_with_attendees[$meeting['id']]['dates'])
-        ) {
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
-            array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
-            $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
-        }
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['start_time'])));
+        array_push($past_meetings_with_attendees[$meeting['id']]['dates'], date('D, F j, Y', strtotime($meeting['end_time'])));
+        /* Ensure only unique dates are included */
+        $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
     } else {
+        $dates = array_unique(array(
+            date('D, F j, Y', strtotime($meeting['start_time'])),
+            date('D, F j, Y', strtotime($meeting['end_time']))
+        ));
+
         $past_meetings_with_attendees[$meeting['id']] = [
             'id' => $meeting['id'],
             'meeting_hash' => $meeting['meeting_hash'],
@@ -187,10 +196,7 @@ foreach ($past_meetings as $key => $meeting) {
             'location' => $meeting['location'],
             'description' => $meeting['description'],
             /* `dates` used for showing all dates to meeting creator */
-            'dates' => [
-                date('D, F j, Y', strtotime($meeting['start_time'])),
-                date('D, F j, Y', strtotime($meeting['end_time'])),
-            ],
+            'dates' => $dates,
             'start_time' => $meeting['start_time'],
             'end_time' => $meeting['end_time'],
             'is_anon' => $meeting['is_anon'],
@@ -213,8 +219,6 @@ foreach ($past_meetings as $key => $meeting) {
             'enable_upload' => $meeting['enable_upload'],
             'enable_message' => $meeting['enable_message']
         ];
-        /* Ensure only unique dates are included */
-        $past_meetings_with_attendees[$meeting['id']]['dates'] = array_unique($past_meetings_with_attendees[$meeting['id']]['dates']);
     }
 
     if ($meeting['attendee_file']) {

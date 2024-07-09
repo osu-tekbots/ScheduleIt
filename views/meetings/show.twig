@@ -32,7 +32,9 @@
         </h4>
         <p class="card-text-large">
           {% for date in meeting.dates %}
-            {{date.date | date("n/j/y")}}{% if loop.index != meeting.dates_count %}, {% endif %}
+            {% if (loop.index == 1) or (loop.index == meeting.dates_count) %}
+              {% if loop.index != 1 %} to {% endif %}{{date.date | date("n/j/y")}}
+            {% endif %}
           {% endfor %}
         </p>
         <h4 class="h6 mb-1">
@@ -135,6 +137,16 @@
       {% if meeting.enable_upload == true %}
         <th class="col-2">Uploaded File</th>
       {% endif %}
+      <th class="col-2" style="text-align:center;">
+        {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+          <form method="post">
+            <button type="submit" class="btn btn-secondary btn-sm">
+              <input type="hidden" name="timeslot_for_ics" value="test">
+              Download ICS
+            </button>
+          </form>
+        {% endif %}
+      </th>
       <th class="col-1">Remove</th>
     </tr>
 
@@ -173,7 +185,19 @@
             {% endif %}
           </td>
         {% endif %}
-        <td class="col-1">
+
+        <td class="col-2" style="text-align:center;">
+          {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+            <a href="{{a_meeting.google_cal_link}}" target="_blank" class="btn-googlelink">
+              
+            </a>
+            <a href="{{a_meeting.outlook_cal_link}}" target="_blank"  class="btn-outlooklink">
+
+            </a>
+          {% endif %}
+        </td>
+
+        <td class="col-1" style="text-align:center;">
           <button
             class="btn btn-danger btn-sm table-btn"
             data-name="{{a_meeting.name}}"

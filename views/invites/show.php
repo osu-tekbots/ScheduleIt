@@ -3,6 +3,9 @@
 require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/file_upload.php';
 require_once ABSPATH . 'lib/send_email.php';
+require_once ABSPATH . 'lib/ics_file.php';
+require_once ABSPATH . 'lib/google_cal_link.php';
+require_once ABSPATH . 'lib/outlook_cal_link.php';
 
 $meeting_hash = !empty($_GET['key']) ? $_GET['key'] : null;
 
@@ -41,6 +44,9 @@ if ($meeting) {
             $database->deleteInvite($_SESSION['user_onid'], $meeting['id']);
             // Redirect to My Meetings
             $msg->success('You declined "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
+        } elseif (isset($_POST['ics'])) {
+            $ics_file = new IcsFile($meeting['name'],$booking['start_time'],$booking['end_time'],$meeting['description'],$meeting['location'],$meeting['id'],$booking['timeslot_id'],$_SESSION['user_id']);
+            $ics_file->serveIcsFile();
         } elseif ($_SERVER['CONTENT_LENGTH'] > UPLOAD_SIZE_LIMIT) {
             $msg->error('File upload is too large.');
         } elseif (!empty($_POST['timeslot_id'])) {
@@ -113,7 +119,12 @@ if ($meeting) {
             $msg->error('Please select a time.');
         }
     }
-
+    if (!empty($booking)) {
+        $google_cal_link = new GoogleCalLink($meeting['name'],$booking['start_time'],$booking['end_time'],$meeting['description'],$meeting['location']);
+        $booking['google_cal_link'] = $google_cal_link->getlink();
+        $outlook_cal_link = new OutlookCalLink($meeting['name'],$booking['start_time'],$booking['end_time'],$meeting['description'],$meeting['location']);
+        $booking['outlook_cal_link'] = $outlook_cal_link->getlink();
+    }
     echo $twig->render('invites/show.twig', [
         'booking' => $booking,
         'dates' => $dates,

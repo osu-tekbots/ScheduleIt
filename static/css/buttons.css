@@ -13,3 +13,28 @@
   background-color: var(--osu-orange-secondary-hover);
   border-color: var(--osu-orange-secondary-hover);
 }
+
+.btn-outlooklink {
+  background: url(images/outlook-icon.svg);
+  background-size: contain;
+  color: #fff;
+  height: 30px;
+  width: 30px;
+}
+
+.btn-googlelink {
+  background: url(images/google-icon.svg);
+  background-size: contain;
+  color: #fff;
+  height: 30px;
+  width: 30px;
+}
+
+@media (min-width: 30px) {
+  .btn-outlooklink {
+    display: inline-block;
+  }
+  .btn-googlelink {
+    display: inline-block;
+  }
+}

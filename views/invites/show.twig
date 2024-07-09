@@ -50,20 +50,36 @@
     </div>
   </div>
 </div>
+
 <form enctype="multipart/form-data" method="post">
   <div class="mb-3">
     <div class="card">
       <div class="card-body pb-0">
         {% if booking %}
-          <h6 class="h6">
-            Current Timeslot
-          </h6>
-          <p class="mb-4">
-            <label>
-              <input name="timeslot_id" value="{{booking.timeslot_id}}" checked type="radio">
-              {{booking.start_time | date('D, F j, Y g:ia')}}-{{booking.end_time| date('g:ia')}} PST
-            </label>
-          </p>
+            <div class="row">
+              <div class="col-6">
+                <h6 class="h6">
+                  Current Timeslot
+                </h6>
+                <p class="mb-4">
+                  <label>
+                    <input name="timeslot_id" value="{{booking.timeslot_id}}" checked type="radio">
+                    {{booking.start_time | date('D, F j, Y g:ia')}}-{{booking.end_time| date('g:ia')}} PST
+                  </label>
+                </p>
+              </div>
+              <div class="col-6">
+                <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#download-meeting-modal" style="margin-top: -20px;">
+                  Download ICS
+                </button>
+                <a href="{{booking.google_cal_link}}" target="_blank" class="btn-googlelink">
+                  
+                </a>
+                <a href="{{booking.outlook_cal_link}}" target="_blank" class="btn-outlooklink">
+                  
+                </a>
+              </div>
+            </div>
         {% endif %}
         <h6 class="h6 mb-4">
           Select a {% if booking %}New {% endif %}Timeslot
@@ -215,5 +231,32 @@
     </div>
   </div>
 </div>
-
+<div class="modal fade" id="download-meeting-modal" tabindex="-1" role="dialog" aria-labelledby="download-meeting-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="decline-meeting-modal-label">
+          Download Meeting
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post">
+        <div class="modal-body">
+          Download ICS File?
+        </div>
+        <div class="modal-footer">
+          <input name="ics" value="1" type="hidden">
+          <button class="btn btn-secondary" data-dismiss="modal" type="button">
+            Cancel
+          </button>
+          <button class="btn btn-success">
+            Download
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
