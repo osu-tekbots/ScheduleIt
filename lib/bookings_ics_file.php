@@ -46,9 +46,9 @@ class BookingsIcsFile
     {
         header('Content-Type:text/calendar');
         header('Content-Disposition: attachment; filename="'.$this->file_name.'.ics"');
-        header('Content-Length: '.strlen($this->data));
         header('Connection: close');
         echo $this->data;
+        exit;
     }
 }
 ?>

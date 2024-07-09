@@ -10,7 +10,6 @@ $request = $request_queries[0];
 $meeting_show = preg_match('/meetings\/[0-9]+$/i', $request);
 $meeting_edit = preg_match('/meetings\/[0-9]+\/edit$/i', $request);
 $meeting_edit_dates = preg_match('/meetings\/[0-9]+\/dates$/i', $request);
-$meeting_ics = preg_match('/meetings\/[0-9]+\/[0-9]+\/ics$/i', $request);
 $uri = explode('/', $request);
 
 switch ($request) {
@@ -59,11 +58,6 @@ switch ($request) {
         break;
     case '/meetings/remove_attendee':
         require_once ABSPATH . 'views/meetings/remove_attendee.php';
-        break;
-    case ($meeting_ics > 0):
-        $meeting_id = $uri[2];
-        $timeslot_id = $uri[3];
-        require_once ABSPATH . 'views/meetings/get_ics_file.php';
         break;
     default:
         require_once ABSPATH . 'views/errors/error_logged_out.php';
