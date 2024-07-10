@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $msg->success('Sent 1 invite.', SITE_DIR . '/meetings/' . $meeting['id']);
             }
         }
-    } elseif (isset($_POST['timeslot_for_ics'])) {
+    } elseif (isset($_POST['ics'])) {
         $ics_file = new BookingsIcsFile($meeting, $timeslots);
         $ics_file->serveIcsFile();
     }
