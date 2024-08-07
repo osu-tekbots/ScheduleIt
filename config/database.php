@@ -104,6 +104,43 @@ class DatabaseInterface
     }
 
     /**
+     * Get user record by id.
+     *
+     * @param string $id
+     * @return mixed
+     */
+    public function getUserById($id)
+    {
+        $query = "
+
+            SELECT id, onid, email, last_name, first_name
+            FROM meb_user
+            WHERE id = ?
+            LIMIT 1
+
+        ";
+
+        $statement = $this->database->prepare($query);
+
+        $statement->bind_param("i", $id);
+        $statement->execute();
+
+        $result = $statement->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $user = $list[0];
+        } else {
+            $user = null;
+        }
+
+        $result->free();
+        $statement->close();
+
+        return $user;
+    }
+
+    /**
      * Create new user.
      *
      * @param string $onid
@@ -1506,7 +1543,7 @@ class DatabaseInterface
 
         $not_reg_query = "
 
-       SELECT user_onid FROM meb_invites
+       SELECT * FROM meb_invites
        WHERE fk_event_id = ? AND user_onid NOT IN
          (SELECT DISTINCT user_onid FROM meb_invites
          INNER JOIN meb_user ON meb_user.onid = meb_invites.user_onid
@@ -1614,6 +1651,91 @@ class DatabaseInterface
         $slotHash->close();
         $result->free();
         return $hash;
+    }
+
+    /**
+     * Get all admins from meb_admins table
+     *
+     * @return array of admins
+     */
+    public function getAdmins()
+    {
+        $admins_query = "SELECT meb_admins.user_id FROM `meb_admins`;";
+
+        $admins = $this->database->prepare($admins_query);
+
+        $admins->execute();
+
+        $result = $admins->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $admins->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all users from meb_user table
+     *
+     * @return array of users
+     */
+    public function getUsers()
+    {
+        $users_query = "SELECT * FROM `meb_user` ORDER BY id asc;";
+
+        $users = $this->database->prepare($users_query);
+
+        $users->execute();
+
+        $result = $users->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $users->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all events from meb_event table
+     *
+     * @return array of events
+     */
+    public function getEvents()
+    {
+        $events_query = "SELECT * FROM `meb_event` ORDER BY id asc;";
+
+        $events = $this->database->prepare($events_query);
+
+        $events->execute();
+
+        $result = $events->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $events->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all bookings by timeslotid from meb_booking table
+     * 
+     * @return array of bookings
+     */
+    public function getBookingsByTimeslot($timeslotid)
+    {
+        $bookings_query = "SELECT * FROM `meb_booking` WHERE meb_booking.fk_timeslot_id = ? ORDER BY id asc;";
+
+        $bookings = $this->database->prepare($bookings_query);
+
+        $bookings->bind_param("i", $timeslotid);
+        $bookings->execute();
+
+        $result = $bookings->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $bookings->close();
+        $result->free();
+        return $list;
     }
 
     /**
