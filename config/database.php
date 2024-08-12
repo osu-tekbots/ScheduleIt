@@ -1681,7 +1681,7 @@ class DatabaseInterface
      */
     public function getUsers()
     {
-        $users_query = "SELECT * FROM `meb_user` ORDER BY id asc;";
+        $users_query = "SELECT * FROM `meb_user` ORDER BY onid asc;";
 
         $users = $this->database->prepare($users_query);
 
@@ -1735,6 +1735,86 @@ class DatabaseInterface
 
         $bookings->close();
         $result->free();
+        return $list;
+    }
+
+    /**
+     * Get a boolean stating if event is old
+     * @details event is old if latest timeslot is >= 60 days old
+     *
+     * @param object $eventId
+     * @return boolean if event is old
+     */
+    public function getEventIsOld($eventId)
+    {
+
+        $query = "SELECT * FROM `meb_timeslot` WHERE fk_event_id = ? ORDER BY end_time DESC LIMIT 1; ";
+
+        $get = $this->database->prepare($query);
+
+        $get->bind_param("i", $eventId);
+        $get->execute();
+
+        $currentTime = date("Y-m-d H:i:s");
+        $oldEventBound = date('Y-M-d H:i:s', strtotime($currentTime . ' - 100 days')); 
+
+        $result = $get->get_result();
+        if ($result->num_rows > 0) {
+            $resultArray = $result->fetch_all(MYSQLI_ASSOC);
+            $latestTimeslot = $resultArray[0]['end_time'];
+            $isOld = false;
+            if (strtotime($oldEventBound) > strtotime($latestTimeslot)) {
+                $isOld = true;
+            }
+        }
+
+        $get->close();
+        return $isOld;
+    }
+
+    /**
+     * Search meetings by name, location, creator, or attendee for the admins page.
+     *
+     * @param string $search_term
+     * @return array
+     */
+    public function getAllMeetingsBySearchTerm($search_term)
+    {
+        $bookings_query = "
+
+        SELECT
+        meb_event.id,
+        meb_event.hash AS meeting_hash,
+        meb_event.name,
+        meb_event.location,
+        meb_event.description,
+        meb_event.mod_date,
+        meb_event.fk_event_creator AS creator_id,
+        meb_event.enable_upload,
+        meb_event.enable_message,
+        CONCAT(meb_creator.last_name, ', ', meb_creator.first_name) AS creator_name,
+        meb_creator.onid AS creator_onid
+        FROM meb_event
+        INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_event.fk_event_creator
+        WHERE (
+            meb_event.name LIKE ?
+            OR meb_event.location LIKE ?
+            OR CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) LIKE ?
+        )
+        ORDER BY meb_event.id DESC
+        ;";
+
+        $bookings = $this->database->prepare($bookings_query);
+
+        $partial_match = '%' . $search_term . '%';
+        $bookings->bind_param("sss", $partial_match, $partial_match, $partial_match);
+        $bookings->execute();
+
+        $result = $bookings->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $bookings->close();
+
         return $list;
     }
 

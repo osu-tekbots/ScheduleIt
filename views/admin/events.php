@@ -11,12 +11,23 @@ foreach ($admins as $admin) {
     }
 }
 
-$users = $database->getUsers();
-$events = $database->getEvents();
-$currentTime = date("Y-m-d H:i:s");
+$search_term = !empty($_GET['q']) ? $_GET['q'] : '';
+$events = $database->getAllMeetingsBySearchTerm($search_term);
+
+$eventIsOld = array();
+foreach ($events as $key => $event) {
+    $timeslots = $database->getTimeslotsByMeetingId($event['id']);
+    if (!$timeslots) {
+        array_push($eventIsOld, true);
+    } else {
+        array_push($eventIsOld, $database->getEventIsOld($event['id']));
+    }
+}
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($isadmin == 1) {
+
         if (isset($_POST['eventId']) && isset($_POST['deleteEvent'])) {
             $event = $database->getMeetingById($_POST['eventId']);
             $meeting_hash = $event['hash'];
@@ -45,12 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $database->deleteMeeting($meeting_hash);
         }
     }
+    // if (isset($_POST['eventId']))
 }
 
-echo $twig->render('admin/index.twig', [
+echo $twig->render('admin/events.twig', [
     'title' => 'Admininster',
     'id' => $_SESSION['user_id'],
     'isadmin' => $isadmin,
-    'users' => $users,
-    'events' => $events
+    'events' => $events,
+    'eventIsOld' => $eventIsOld
 ]);

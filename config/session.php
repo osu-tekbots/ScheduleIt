@@ -57,6 +57,14 @@ if (!$user) {
 
 $_SESSION['user_id'] = $user['id'];
 
+$_SESSION['is_admin'] = false;
+$admins = $database->getAdmins();
+foreach ($admins as $admin) {
+    if ($admin['user_id'] == $_SESSION['user_id']) {
+        $_SESSION['is_admin'] = true;
+    }
+}
+
 // Set global Twig variables
 require_once ABSPATH . 'config/twig.php';
 
@@ -67,5 +75,6 @@ $twig->addGlobal('user_id', $_SESSION['user_id']);
 $twig->addGlobal('user_firstname', $_SESSION['user_firstname']);
 $twig->addGlobal('user_lastname', $_SESSION['user_lastname']);
 $twig->addGlobal('user_onid', $_SESSION['user_onid']);
+$twig->addGlobal('is_admin', $_SESSION['is_admin']);
 $twig->addGlobal('msg', $msg);
 $twig->addGlobal('invites', $invites);

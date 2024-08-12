@@ -1,0 +1,77 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<div class="align-items-center d-md-flex justify-content-between">
+  <h1 class="h2 mb-4">
+    {{title}}
+  </h1>
+  {{ include('shared/_search_form.twig') }}
+</div>
+
+{% if isadmin != 0 %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav col-12">
+        <a class="nav-link col" href="{{site_url}}/adminusers">Users</a>
+        <a class="nav-link active col" href="{{site_url}}/adminevents">Events</a>
+        <a class="nav-link col" href="{{site_url}}/admininfo">Info</a>
+        <a class="hidden col-6"></a>
+      </div>
+    </div>
+  </nav>
+  <div class="row">
+    <div class="col">
+      <div class="tab-content pt-3">
+        <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="events-tab">
+          <table class="table">
+            <thead>
+              <tr class="d-flex">
+                <th class="col-1">ID</th>
+                <th class="col">Name</th>
+                <th class="col">Creator</th>
+                <th class="col">Location</th>
+                <th class="col">Modified</th>
+                <th class="col-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, event in events %}
+                <tr class="d-flex" {% if eventIsOld[key] == true %} style='color:red;' {% endif %}>
+                  <td class="col-1">
+                    {{event['id']}}
+                  </td>
+                  <td class="col">
+                    {{event['name']}}
+                  </td>
+                  <td class="col">
+                    {{event['creator_name']}}
+                  </td>
+                  <td class="col">
+                    {{event['location']}}
+                  </td>
+                  <td class="col">
+                    {{event['mod_date']}}
+                  </td>
+                  <td class="col-1">
+                    <form method="post">
+                      <input type="hidden" name="deleteEvent" value="1">
+                      <input type="hidden" name="eventId" value="{{event['id']}}">
+                      <button class="btn btn-danger">
+                        Delete
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <p>You do not have access to this page.</p>
+{% endif %}
+
+{% endblock %}

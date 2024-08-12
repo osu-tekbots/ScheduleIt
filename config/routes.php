@@ -20,8 +20,14 @@ switch ($request) {
     case '/calendar':
         require_once ABSPATH . 'views/calendar/index.php';
         break;
-    case '/admin':
-        require_once ABSPATH . 'views/admin/index.php';
+    case '/adminevents':
+        require_once ABSPATH . 'views/admin/events.php';
+        break;
+    case '/adminusers':
+        require_once ABSPATH . 'views/admin/users.php';
+        break;
+    case '/admininfo':
+        require_once ABSPATH . 'views/admin/info.php';
         break;
     case '/login':
         require_once ABSPATH . 'views/home/login.php';
