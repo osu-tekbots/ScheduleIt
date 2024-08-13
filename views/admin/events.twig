@@ -2,11 +2,18 @@
 
 {% block page_content %}
 
-<div class="align-items-center d-md-flex justify-content-between">
-  <h1 class="h2 mb-4">
+<div class="align-items-center d-md-flex flex-row">
+  <h1 class="h2 mb-4 col-6">
     {{title}}
   </h1>
-  {{ include('shared/_search_form.twig') }}
+  {% if isadmin != 0 %}
+    <div class="col mr-4">
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-old-events-modal">
+        Delete Old Events
+      </button>
+    </div>
+    {{ include('shared/_search_form.twig') }}
+  {% endif %}
 </div>
 
 {% if isadmin != 0 %}
@@ -32,12 +39,13 @@
                 <th class="col">Creator</th>
                 <th class="col">Location</th>
                 <th class="col">Modified</th>
-                <th class="col-1"></th>
+                <th class="col-1">
+                </th>
               </tr>
             </thead>
             <tbody>
               {% for key, event in events %}
-                <tr class="d-flex" {% if eventIsOld[key] == true %} style='color:red;' {% endif %}>
+                <tr class="d-flex" {% if event['isOld'] == true %} style='color:red;' {% endif %}>
                   <td class="col-1">
                     {{event['id']}}
                   </td>
@@ -67,6 +75,34 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="delete-old-events-modal" tabindex="-1" role="dialog" aria-labelledby="delete-old-events-modal-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="decline-meeting-modal-label">
+            Delete All Old Events
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form method="post">
+          <div class="modal-body">
+            You are deleting all old events (rows with red text coloring).
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="deleteAllOldEvents" value="1">
+            <button class="btn btn-secondary" data-dismiss="modal" type="button">
+              Cancel
+            </button>
+            <button class="btn btn-danger">
+              Delete
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -10,13 +10,12 @@ if ($_SESSION['is_admin'])
 $search_term = !empty($_GET['q']) ? $_GET['q'] : '';
 $users = $database->getAllUsersBySearchTerm($search_term);
 
-$userIsAdmin = array();
 foreach ($users as $key => $user) {
     $isadmin = $database->getAdminByUserId($user['id']);
     if ($isadmin == null) {
-        $userIsAdmin[$key] = false;
+        $users[$key]['isAdmin'] = false;
     } else {
-        $userIsAdmin[$key] = true;
+        $users[$key]['isAdmin'] = true;
     }
 }
 
@@ -32,6 +31,5 @@ echo $twig->render('admin/users.twig', [
     'title' => 'Admininster',
     'id' => $_SESSION['user_id'],
     'isadmin' => $isadmin,
-    'users' => $users,
-    'userIsAdmin' => $userIsAdmin
+    'users' => $users
 ]);

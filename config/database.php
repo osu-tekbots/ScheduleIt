@@ -604,6 +604,7 @@ class DatabaseInterface
         meb_event.name,
         meb_event.location,
         meb_event.description,
+        meb_event.mod_date,
         meb_event.hash,
         meb_event.capacity,
         meb_event.open_slots,
@@ -1774,7 +1775,7 @@ class DatabaseInterface
 
     /**
      * Get a boolean stating if event is old
-     * @details event is old if latest timeslot is >= 60 days old
+     * @details event is old if latest timeslot is > 100 days old
      *
      * @param object $eventId
      * @return boolean if event is old
@@ -1798,6 +1799,13 @@ class DatabaseInterface
             $latestTimeslot = $resultArray[0]['end_time'];
             $isOld = false;
             if (strtotime($oldEventBound) > strtotime($latestTimeslot)) {
+                $isOld = true;
+            }
+        } else {
+            $event = $this->getMeetingById($eventId);  
+            $eventModified = $event['mod_date'];
+            $isOld = false;
+            if (strtotime($oldEventBound) > strtotime($eventModified)) {
                 $isOld = true;
             }
         }

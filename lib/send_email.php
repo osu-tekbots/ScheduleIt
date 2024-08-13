@@ -20,10 +20,12 @@ class SendEmail
     public function inviteConfirmed($meeting)
     {
         $to = $meeting['attendee_email'];
+        // $to = 'bounce';
         $subject = 'Confirmed: ' . $meeting['name'];
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
             'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
+            // 'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
@@ -49,6 +51,7 @@ class SendEmail
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
             'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
+            //   'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
@@ -77,6 +80,7 @@ class SendEmail
         $subject = 'Invited: ' . $eventName;
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
           'Reply-To: ' . $creatorName . '<' . $creatorOnid . '@oregonstate.edu' . '>' . "\r\n" .
+        //   'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
           'X-MAiler: PHP/' . phpversion();
 
         $message = 'Hi ' . $inviteOnid . ', ' . "\r\n\r\n";
@@ -103,6 +107,7 @@ class SendEmail
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
           'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
           'Reply-To: ' . $creatorName . '<' . $creatorOnid . '@oregonstate.edu' . '>' . "\r\n" .
+        //   'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
           'X-MAiler: PHP/' . phpversion();
 
         $message = 'Hi ' . $removeOnid . ', ' . "\r\n\r\n";
@@ -126,6 +131,7 @@ class SendEmail
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
             'Cc: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
             'Reply-To: ' . $meeting['creator_name'] . '<' . $meeting['creator_email'] . '>' . "\r\n" .
+        //  'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
 
         $message = 'Hi ' . $user['attendee_name'] . ',' . "\r\n\r\n";
