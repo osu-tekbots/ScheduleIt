@@ -1675,24 +1675,58 @@ class DatabaseInterface
     }
 
     /**
-     * Get all users from meb_user table
+     * Get an admin from meb_admins table
      *
-     * @return array of users
+     * @return array of admins
      */
-    public function getUsers()
+    public function getAdminByUserId($userId)
     {
-        $users_query = "SELECT * FROM `meb_user` ORDER BY onid asc;";
+        $query = "SELECT * FROM `meb_admins` where user_id = ?;";
 
-        $users = $this->database->prepare($users_query);
+        $admins = $this->database->prepare($query);
+        $admins->bind_param("i", $userId);
 
-        $users->execute();
+        $admins->execute();
 
-        $result = $users->get_result();
+        $result = $admins->get_result();
         $list = $result->fetch_all(MYSQLI_ASSOC);
-
-        $users->close();
+        
+        $admins->close();
         $result->free();
         return $list;
+    }
+
+    /**
+     * Add an admin to the meb_admins table
+     *
+     * @param int $userId
+     * @return int
+     */
+    public function addAdmin($userId)
+    {
+        $isAdmin = $this->getAdminByUserId($userId);
+
+        // If user is not in database, add user to database
+        if ($isAdmin == null) {
+            $query = "
+
+                INSERT INTO meb_admins(user_id)
+                VALUES (?)
+
+            ";
+
+            $statement = $this->database->prepare($query);
+
+            $statement->bind_param("i", $userId);
+            $statement->execute();
+
+            $result = $statement->affected_rows;
+            $statement->close();
+
+            return $result;
+        }
+
+        return 0;
     }
 
     /**
@@ -1780,7 +1814,7 @@ class DatabaseInterface
      */
     public function getAllMeetingsBySearchTerm($search_term)
     {
-        $bookings_query = "
+        $events_query = "
 
         SELECT
         meb_event.id,
@@ -1804,16 +1838,50 @@ class DatabaseInterface
         ORDER BY meb_event.id DESC
         ;";
 
-        $bookings = $this->database->prepare($bookings_query);
+        $events = $this->database->prepare($events_query);
 
         $partial_match = '%' . $search_term . '%';
-        $bookings->bind_param("sss", $partial_match, $partial_match, $partial_match);
-        $bookings->execute();
+        $events->bind_param("sss", $partial_match, $partial_match, $partial_match);
+        $events->execute();
 
-        $result = $bookings->get_result();
+        $result = $events->get_result();
         $list = $result->fetch_all(MYSQLI_ASSOC);
         $result->free();
-        $bookings->close();
+        $events->close();
+
+        return $list;
+    }
+
+    /**
+     * Search users by name, id, or onid for the admins page.
+     *
+     * @param string $search_term
+     * @return array of users
+     */
+    public function getAllUsersBySearchTerm($search_term)
+    {
+        $users_query = "
+        SELECT
+        meb_user.*
+        FROM meb_user
+        WHERE (
+            meb_user.id LIKE ?
+            OR meb_user.onid LIKE ?
+            OR CONCAT(meb_user.first_name, ' ', meb_user.last_name) LIKE ?
+        )
+        ORDER BY meb_user.onid asc
+        ;";
+
+        $users = $this->database->prepare($users_query);
+
+        $partial_match = '%' . $search_term . '%';
+        $users->bind_param("sss", $partial_match, $partial_match, $partial_match);
+        $users->execute();
+
+        $result = $users->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $users->close();
 
         return $list;
     }

@@ -16,7 +16,7 @@
         <a class="nav-link active col" href="{{site_url}}/adminusers">Users</a>
         <a class="nav-link col" href="{{site_url}}/adminevents">Events</a>
         <a class="nav-link col" href="{{site_url}}/admininfo">Info</a>
-        <a class="hidden col-6"></a>
+        <a class="hidden col-4"></a>
       </div>
     </div>
   </nav>
@@ -31,10 +31,11 @@
                 <th class="col">ONID</th>
                 <th class="col">Name</th>
                 <th class="col">Email</th>
+                <th class="col-1"></th>
               </tr>
             </thead>
             <tbody>
-              {% for user in users %}
+              {% for key, user in users %}
                 <tr class="d-flex">
                   <td class="col-1">
                     {{user['id']}}
@@ -47,6 +48,15 @@
                   </td>
                   <td class="col">
                     {{user['email']}}
+                  </td>
+                  <td class="col-1">
+                    <form method="post">
+                      <input type="hidden" name="makeAdmin" value="1">
+                      <input type="hidden" name="userId" value="{{user['id']}}">
+                      <button class="btn btn-{% if userIsAdmin[key] == true %}secondary{% else %}primary{% endif %}">
+                        Make Admin
+                      </button>
+                    </form>
                   </td>
                 </tr>
               {% endfor %}
