@@ -192,6 +192,17 @@ class FileUpload
             rmdir($dirname);
         }
     }
+    
+    public function getAllUploadFolders() 
+    {   
+        $dirPath = UPLOADS_ABSPATH;
+        $uploads = array(); 
+        $files = scandir($dirPath);
+        foreach ($files as $file) {
+            array_push($uploads, $file);
+        }
+        return $uploads;
+    }
 }
 
 $file_upload = new FileUpload($database);

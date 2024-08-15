@@ -1752,6 +1752,132 @@ class DatabaseInterface
     }
 
     /**
+     * Get all timeslots from meb_timeslot table
+     *
+     * @return array of timeslots
+     */
+    public function getTimeslots()
+    {
+        $timeslots_query = "SELECT * FROM `meb_timeslot` ORDER BY id asc;";
+
+        $timeslots = $this->database->prepare($timeslots_query);
+
+        $timeslots->execute();
+
+        $result = $timeslots->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $timeslots->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all timeslots that are attached to no event
+     *
+     * @return array of timeslots
+     */
+    public function getOrphanedTimeslots()
+    {
+        $timeslots_query = "SELECT * FROM meb_timeslot WHERE fk_event_id NOT IN (SELECT id FROM meb_event);";
+
+        $timeslots = $this->database->prepare($timeslots_query);
+
+        $timeslots->execute();
+
+        $result = $timeslots->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $timeslots->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all bookings from meb_booking table
+     *
+     * @return array of bookings
+     */
+    public function getBookings()
+    {
+        $bookings_query = "SELECT * FROM `meb_booking` ORDER BY id asc;";
+
+        $bookings = $this->database->prepare($bookings_query);
+
+        $bookings->execute();
+
+        $result = $bookings->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $bookings->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all bookings that are attached to no timeslot
+     *
+     * @return array of bookings
+     */
+    public function getOrphanedBookings()
+    {
+        $bookings_query = "SELECT * FROM meb_booking WHERE fk_timeslot_id NOT IN (SELECT id FROM meb_timeslot);";
+
+        $bookings = $this->database->prepare($bookings_query);
+
+        $bookings->execute();
+
+        $result = $bookings->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $bookings->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all invites from meb_invites table
+     *
+     * @return array of invites
+     */
+    public function getAllInvites()
+    {
+        $invites_query = "SELECT * FROM `meb_invites` ORDER BY id asc;";
+
+        $invites = $this->database->prepare($invites_query);
+
+        $invites->execute();
+
+        $result = $invites->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $invites->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
+     * Get all invites that are attached to no event
+     *
+     * @return array of invites
+     */
+    public function getOrphanedInvites()
+    {
+        $invites_query = "SELECT * FROM meb_invites WHERE fk_event_id NOT IN (SELECT id FROM meb_event);";
+
+        $invites = $this->database->prepare($invites_query);
+
+        $invites->execute();
+
+        $result = $invites->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $invites->close();
+        $result->free();
+        return $list;
+    }
+
+    /**
      * Get all bookings by timeslotid from meb_booking table
      * 
      * @return array of bookings

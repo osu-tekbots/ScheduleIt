@@ -9,21 +9,29 @@
 </div>
 
 {% if isadmin != 0 %}
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav col-12">
-        <a class="nav-link col" href="{{site_url}}/adminusers">Users</a>
-        <a class="nav-link col" href="{{site_url}}/adminevents">Events</a>
-        <a class="nav-link active col" href="{{site_url}}/admininfo">Info</a>
-        <a class="hidden col-4"></a>
-      </div>
-    </div>
-  </nav>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link" href="{{site_url}}/adminusers">Users</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{site_url}}/adminevents">Events</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="{{site_url}}/admininfo">Info</a>
+    </li>
+  </ul>
   <div class="row">
     <div class="col">
       <div class="tab-content pt-3">
         <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
-          This page is not implemented yet. It will have orphaned data counters in the future.
+          <p style="font-weight: bold;">{{orphanCounters['uploads']}} orphaned upload folders. </p> 
+          <p>{% for upload in orphanUploads %}  uploads/{{upload}}   {% endfor %}
+          <p style="font-weight: bold;">{{orphanCounters['invites']}} orphaned invites. </p> 
+          <p>{{sql['invites']}}</p>
+          <p style="font-weight: bold;">{{orphanCounters['timeslots']}} orphaned timeslots. </p> 
+          <p>{{sql['timeslots']}}</p>
+          <p style="font-weight: bold;">{{orphanCounters['bookings']}} orphaned bookings. </p> 
+          <p>{{sql['bookings']}}</p>
         </div>
       </div>
     </div>

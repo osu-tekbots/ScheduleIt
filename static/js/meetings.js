@@ -4,7 +4,7 @@ $(function () {
 
 const updateHashOnTabChange = {
   init: function () {
-    $(".nav-tabs a").click(this.showTabOnClick);
+    $(".my-meetings-nav-tabs a").click(this.showTabOnClick);
     $(".navbar-invites-link").click(this.showInvitesTabOnClick);
 
     setTimeout(function () {
