@@ -7,6 +7,7 @@
 $request_uri = str_replace(SITE_DIR, '', $_SERVER['REQUEST_URI']);
 $request_queries = explode('?', $request_uri);
 $request = $request_queries[0];
+$schedule_show = preg_match('/schedule\/[0-9]+$/i', $request);
 $meeting_show = preg_match('/meetings\/[0-9]+$/i', $request);
 $meeting_edit = preg_match('/meetings\/[0-9]+\/edit$/i', $request);
 $meeting_edit_dates = preg_match('/meetings\/[0-9]+\/dates$/i', $request);
@@ -28,6 +29,22 @@ switch ($request) {
         break;
     case '/admininfo':
         require_once ABSPATH . 'views/admin/info.php';
+        break;
+    case '/schedule/create':
+        require_once ABSPATH . 'views/schedule/create.php';
+        break;
+    case '/schedule/available':
+        require_once ABSPATH . 'views/schedule/available.php';
+        break;
+    case '/schedule/invite':
+        require_once ABSPATH . 'views/schedule/invite.php';
+        break;
+    case '/schedule':
+        require_once ABSPATH . 'views/schedule/index.php';
+        break;
+    case ($schedule_show > 0):
+        $schedule_id = $uri[2];
+        require_once ABSPATH . 'views/schedule/show.php';
         break;
     case '/login':
         require_once ABSPATH . 'views/home/login.php';

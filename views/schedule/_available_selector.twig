@@ -1,0 +1,54 @@
+<div class="mb-2">
+  <label class="h6 mb-3">
+    Select Available Times
+  </label>
+  <p>
+    Hold your mouse down to select or deselect multiple times at once.<br>
+  </p>
+  <div class="d-flex">
+    <div class="times-selector-legend-container">
+      <ul class="d-flex list-unstyled">
+        <li id="times-selector-legend">
+          {% for time in time_labels %}
+            <div class="times-label">
+              {{time | date("g:i a")}} PST
+            </div>
+          {% endfor %}
+        </li>
+      </ul>
+    </div>
+    <div class="times-selector-container">
+      <ul class="d-flex list-unstyled" id="times-selector" data-drag-active="false" data-drag-start-cell="true">
+        <li class="times-selector-placeholder {% if dates %}d-none{% endif %}">
+          Select dates first.
+        </li>
+        {% for date in dates %}
+          <li class="time-selector-list-item" id="time-{{date.date}}">
+            <input name="date_vals[]" value="{{date.date}}" type="hidden">
+            <h4 class="date-label mb-0 text-center">
+              {{date.date | date("D, M j")}}
+            </h4>
+            {% for time in time_labels %}
+              {% set date_time = "#{date.date} #{time}" %}
+              <label
+                class="times-label {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-confirm{% endif %}"
+                data-meetings-datetime-label="{{date_time}}"
+                {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
+              >
+                <input
+                  {% if date_time in timeslot_times_scheduled %}checked{% endif %}
+                  {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-confirm="{{date_time}}"{% endif %}
+                  data-meetings-datetime="{{date_time}}"
+                  name="timeslots[]"
+                  type="checkbox"
+                  value="{{date_time}}"
+                >
+                {{time}}
+              </label>
+            {% endfor %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

@@ -53,6 +53,35 @@
 </div>
 <div class="mb-4">
   <label class="h6">
+    Meeting Time Range
+  </label>
+  <p class="text-warning">
+    <i class="fas fa-info-circle text-warning"></i>
+    Values must be between 5:00 AM and 10:00 PM
+  </p>
+  <div class="d-flex align-items-center">
+    <div class="col-lg-1 col-2"> 
+      <label>
+        From
+      </label>
+    </div>
+    <div class="col-1"> 
+      <input id="start-time" type="time" step="3600" min="{{meetings_start_time}}" max="{{meetings_end_time}}" value="{{meetings_start_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    </div>
+    <div class="col-lg-1 col-2"> 
+    </div>
+    <div class="col-lg-1 col-2"> 
+      <label>
+        To
+      </label>
+    </div>
+    <div class="col-1"> 
+      <input id="end-time" type="time" step="3600" min="{{meetings_start_time}}" max="{{meetings_end_time}}" value="{{meetings_end_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    </div>
+  </div>
+</div>
+<div class="mb-4">
+  <label class="h6">
     Select Meeting Dates
   </label>
   {% if edit_dates %}
@@ -68,6 +97,8 @@
     data-dates-saved="{{dates_saved_json}}"
     data-end-time="{{meetings_end_time}}"
     data-start-time="{{meetings_start_time}}"
+    data-max-end-time="{{meetings_max_end_time}}"
+    data-min-start-time="{{meetings_min_start_time}}"
     id="calendar-times-selector"
   >
   </div>

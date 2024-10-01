@@ -39,3 +39,11 @@ function createTimeSlotHash($startDate, $endDate, $eventKey)
 
     return filterHash(processHash($rawHash));
 }
+
+function createScheduleHash($name, $description, $creatorKey)
+{
+    $bigString = $name . $description . $creatorKey . time();
+    $rawHash = password_hash($bigString, PASSWORD_BCRYPT);
+
+    return filterHash(processHash($rawHash));
+}

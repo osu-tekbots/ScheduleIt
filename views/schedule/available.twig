@@ -1,0 +1,17 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<div class="align-items-center d-md-flex justify-content-between">
+  <h1 class="h2 mb-4 col-6">
+    {{title}}
+  </h1>
+</div>
+
+<form enctype="multipart/form-data" method="post">
+
+{{ include('schedule/_available_selector.twig') }}
+
+</form>
+
+{% endblock %}

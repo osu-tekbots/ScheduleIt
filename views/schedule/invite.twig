@@ -1,0 +1,37 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<h1 class="h2 mb-4">
+  {{title}}
+</h1>
+
+{% if exists == 1 %}
+    <form enctype="multipart/form-data" method="post">
+    
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            {{ include('schedule/_available_selector.twig') }}
+        </div>
+        <div class="col-12 col-lg-6">
+            {% if is_anon == 0 %}
+                {{ include('schedule/_available_display.twig') }}
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="pt-4">
+    <button class="btn btn-success">
+        Save Schedule
+    </button>
+    <a class="ml-3" href="{{site_url}}/schedule">
+        Cancel
+    </a>
+    </div>
+
+    </form>
+
+{% endif %}
+
+
+{% endblock %}

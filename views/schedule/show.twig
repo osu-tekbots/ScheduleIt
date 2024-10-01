@@ -1,0 +1,63 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<h1 class="h2 mb-4">
+  {{title}}
+</h1>
+
+<div class="card mb-4 card-mine">
+  <div class="card-body pb-0">
+    <div class="row">
+      <div class="col-6">
+        <h4 class="h6 mb-1">
+          Title
+        </h4>
+        <p class="card-text-large">
+          {{schedule.name}}
+        </p>
+        <h4 class="h6 mb-1">
+          Description
+        </h4>
+        <p class="card-text-large">
+          {{schedule.description}}
+        </p>
+        <h4 class="h6 mb-1">
+          Dates
+        </h4>
+        <p class="card-text-large">
+          {% for date in dates %}
+            {% if (loop.index == 1) or (loop.index == schedule.dates_count) %}
+              {% if loop.index != 1 %} to {% endif %}{{date.date | date("n/j/y")}}
+            {% endif %}
+          {% endfor %}
+        </p>
+        <h4 class="h6 mb-1">
+          Users
+        </h4>
+        <p class="card-text-large">
+          {{schedule.users_count}}
+        </p>
+        <h4 class="h6 mb-1">
+          Anonymous Meeting
+        </h4>
+        <p class="card-text-large">
+          {% if schedule.is_anon == true %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+        </p>
+      </div>
+      <div class="col-6">
+        <p class="card-text-large">
+          <a id="inviteLink" href="{{site_url}}/schedule/invite?key={{schedule.hash}}">Invite Link</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ include('schedule/_available_display.twig') }}
+
+{% endblock %}

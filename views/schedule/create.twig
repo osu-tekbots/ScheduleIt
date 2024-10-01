@@ -1,0 +1,129 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<div class="align-items-center d-md-flex justify-content-between">
+  <h1 class="h2 mb-4 col-6">
+    {{title}}
+  </h1>
+</div>
+
+<form enctype="multipart/form-data" method="post">
+<p>
+  <span class="text-danger">* Required</span>
+</p>
+<div class="mb-3">
+  <label class="h6">Title <span class="text-danger">*</span></label>
+  <div class="row">
+    <div class="col-md-6">
+      <input class="form-control" name="name" required type="text" value="{{schedule.title}}">
+    </div>
+  </div>
+</div>
+<div class="mb-4">
+  <label class="h6">Description</label>
+  <div class="row">
+    <div class="col-md-6">
+      <textarea class="form-control" name="description">{{schedule.description}}</textarea>
+    </div>
+  </div>
+</div>
+<div class="form-check mb-4">
+  <input class="form-check-input" {% if schedule.is_anon == true %}checked{% endif %} name="is_anon" type="checkbox" value="1" id="is_anon">
+  <label class="form-check-label" for="is_anon">
+    Block viewers from seeing others' entries
+    <i id="anon_desc" {% if schedule.is_anon == false %}style="display:none;" {% endif %}class="text-secondary"><br>Attendees cannot see each others' filled timeslots</i>
+  </label>
+</div>
+<div class="mb-4">
+  <label class="h6">
+    Timeslot Duration
+  </label>
+  <p class="text-danger">
+    <i class="fas fa-exclamation-circle text-danger"></i>
+    Changing this value will cause all selected times to be removed.
+  </p>
+  <div class="row">
+    <div class="col-6 col-md-2">
+      <select class="custom-select" id="duration" name="duration" data-create="{% if edit_dates %}false{% else %}true{% endif %}" data-saved-duration="{{schedule.duration}}">
+        <option value="60" {% if schedule.duration == 60 %}selected{% endif %}>
+          1 hour
+        </option>
+        <option value="30" {% if schedule.duration == 30 %}selected{% endif %}>
+          30 minutes
+        </option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="mb-4">
+  <label class="h6">
+    Meeting Time Range
+  </label>
+  <p class="text-warning">
+    <i class="fas fa-info-circle text-warning"></i>
+    Values must be between 5:00 AM and 10:00 PM
+  </p>
+  <div class="d-flex align-items-center">
+    <div class="col-lg-1 col-2"> 
+      <label>
+        From
+      </label>
+    </div>
+    <div class="col-1"> 
+      <input id="start-time" name="start-time" type="time" step="3600" min="{{meetings_min_start_time}}" max="{{meetings_max_end_time}}" value="{{meetings_start_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    </div>
+    <div class="col-lg-1 col-2"> 
+    </div>
+    <div class="col-lg-1 col-2"> 
+      <label>
+        To
+      </label>
+    </div>
+    <div class="col-1"> 
+      <input id="end-time" name="end-time" type="time" step="3600" min="{{meetings_min_start_time}}" max="{{meetings_max_end_time}}" value="{{meetings_end_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    </div>
+  </div>
+</div>
+<div class="mb-4">
+  <label class="h6">
+    Select Meeting Dates
+  </label>
+  {% if edit_dates %}
+    <p class="text-danger">
+      <i class="fas fa-exclamation-circle text-danger"></i>
+      Previously saved dates require confirmation for removal.
+    </p>
+  {% endif %}
+  <div
+    class="times-selector"
+    data-create="{% if edit_dates %}false{% else %}true{% endif %}"
+    data-dates="{{dates_json}}"
+    data-dates-saved="{{dates_saved_json}}"
+    data-end-time="{{meetings_end_time}}"
+    data-start-time="{{meetings_start_time}}"
+    data-max-end-time="{{meetings_max_end_time}}"
+    data-min-start-time="{{meetings_min_start_time}}"
+    id="calendar-times-selector"
+  >
+  </div>
+</div>
+
+  
+
+
+
+{{ include('schedule/_available_selector.twig') }}
+
+<div class="pt-4">
+  <button class="btn btn-success">
+    Save Schedule
+  </button>
+  <a class="ml-3" href="{{site_url}}/schedule">
+    Cancel
+  </a>
+</div>
+
+</form>
+
+{% endblock %}

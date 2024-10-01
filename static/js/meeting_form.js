@@ -61,6 +61,8 @@ const timesSelector = {
       this.selectMultipleTimes.bind(this),
     );
     $("#duration").on("change", this.updateAvailableTimesCheck.bind(this));
+    $("#start-time").on("blur", this.updateAvailableTimesCheck.bind(this));
+    $("#end-time").on("blur", this.updateAvailableTimesCheck.bind(this));
     $("#btn-save-meeting-dates").on(
       "click",
       this.confirmTimesRemoval.bind(this),
@@ -176,6 +178,7 @@ const timesSelector = {
 
     $("#times-selector").append(
       `<li class="time-selector-list-item" id="time-${date}">` +
+        `<input name="date_vals[]" value="${date}" type="hidden">` +
         `<h4 class="date-label mb-0 text-center">${moment(
           date,
           "YYYY-MM-DD",
@@ -215,9 +218,29 @@ const timesSelector = {
   createTimes: function () {
     const times = [];
 
-    let startTime = $("#calendar-times-selector").data("start-time");
-    const endTime = $("#calendar-times-selector").data("end-time");
+    let startTime = $("#start-time").val();
+    let endTime = $("#end-time").val();
     const duration = $("#duration").val();
+
+    let minStartTime = $("#calendar-times-selector").data("min-start-time");
+    let maxEndTime = $("#calendar-times-selector").data("max-end-time");
+
+    if ((startTime < minStartTime) || (startTime > maxEndTime)) {
+      $("#start-time").val(minStartTime);
+      startTime = $("#start-time").val();
+    }
+
+    if ((endTime > maxEndTime) || (endTime < minStartTime)) {
+      $("#end-time").val(maxEndTime);
+      endTime = $("#end-time").val();
+    }
+
+    if (startTime > endTime) {
+      $("#end-time").val(maxEndTime);
+      endTime = $("#end-time").val();
+      $("#start-time").val(minStartTime);
+      startTime = $("#start-time").val();
+    }
 
     while (startTime < endTime) {
       times.push(moment(startTime, "HH:mm:ss").format("HH:mm:ss"));
@@ -317,6 +340,8 @@ const timesSelector = {
   updateAvailableTimesCheck: function (event) {
     const _this = this;
     event.preventDefault();
+
+
 
     if ($("#change-duration-modal").length) {
       $("#change-duration-modal").modal("show");

@@ -2041,6 +2041,456 @@ class DatabaseInterface
 
         return $result;
     }
+
+    /**
+     * Add a new schedule.
+     *
+     * @param int $user_id
+     * @param object $schedule
+     * @return int
+     */
+    public function addSchedule($user_id, $schedule)
+    {
+        $name = $schedule['name'];
+        $description = $schedule['description'];
+        $start_time = $schedule['start_time'];
+        $end_time = $schedule['end_time'];
+        $slot_duration = $schedule['slot_duration'];
+        $is_anon = $schedule['is_anon'];
+
+        $hash = createScheduleHash($name, $description, $user_id);
+
+        $query = "
+
+            INSERT INTO meb_schedule(
+                hash,
+                name,
+                description,
+                start_time,
+                end_time,
+                slot_duration,
+                is_anon,
+                fk_schedule_creator
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+        ";
+
+        $statement = $this->database->prepare($query);
+
+        $statement->bind_param(
+            "sssssiii",
+            $hash,
+            $name,
+            $description,
+            $start_time,
+            $end_time,
+            $slot_duration,
+            $is_anon,
+            $user_id
+        );
+
+        $statement->execute();
+
+        $new_schedule_id = $this->database->insert_id;
+
+        $result = $new_schedule_id;
+
+        $statement->close();
+
+        return $result;
+    }
+
+    /**
+     * Get schedule by id for show and edit.
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function getScheduleById($id)
+    {
+        $schedule_query = "
+
+        SELECT
+        *
+        FROM meb_schedule
+        WHERE id = ?
+        LIMIT 1
+
+        ;";
+
+        $schedule = $this->database->prepare($schedule_query);
+
+        $schedule->bind_param("i", $id);
+        $schedule->execute();
+
+        $result = $schedule->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $schedule_result = $list[0];
+        } else {
+            $schedule_result = null;
+        }
+
+        $result->free();
+        $schedule->close();
+
+        return $schedule_result;
+    }
+
+    /**
+     * Get schedule by hash for invite.
+     *
+     * @param string $hash
+     * @return mixed
+     */
+    public function getScheduleByHash($hash)
+    {
+        $schedule_query = "
+
+        SELECT
+        *
+        FROM meb_schedule
+        WHERE hash = ?
+        LIMIT 1
+
+        ;";
+
+        $schedule = $this->database->prepare($schedule_query);
+
+        $schedule->bind_param("s", $hash);
+        $schedule->execute();
+
+        $result = $schedule->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $schedule_result = $list[0];
+        } else {
+            $schedule_result = null;
+        }
+
+        $result->free();
+        $schedule->close();
+
+        return $schedule_result;
+    }
+
+    /**
+     * Add new schedule dates.
+     *
+     * @param int $user_id
+     * @param int $schedule_id
+     * @param array of strings $dates
+     * @param array of strings $availabilities
+     * @param int $duration
+     * @return int
+     */
+    public function addDates($user_id, $schedule_id, $dates, $availabilities, $duration)
+    {
+        $query = "
+
+            INSERT INTO
+            meb_date(
+                date,
+                fk_schedule_id
+            )
+            VALUES (?, ?)
+
+        ";
+
+        $statement = $this->database->prepare($query);
+
+        $statement->bind_param(
+            "si",
+            $date,
+            $schedule_id
+        );
+
+        $result = 0;
+
+        foreach ($dates as $date) {
+
+            $statement->execute(); 
+            $new_date_id = $this->database->insert_id;
+
+            if (!empty($availabilities)) {
+                $this->addAvailabilities($user_id, $new_date_id, $date, $availabilities, $duration);
+            }
+
+            $result += $statement->affected_rows;
+        }
+
+        $statement->close();
+
+        return $result;
+    }
+
+    /**
+     * Get dates by schedule id for show and edit.
+     *
+     * @param int $schedule_id
+     * @return mixed
+     */
+    public function getDatesByScheduleId($schedule_id)
+    {
+        $dates_query = "
+
+        SELECT
+        *
+        FROM meb_date
+        WHERE fk_schedule_id = ?
+
+        ;";
+
+        $dates = $this->database->prepare($dates_query);
+
+        $dates->bind_param("i", $schedule_id);
+        $dates->execute();
+
+        $result = $dates->get_result();
+
+        if ($result->num_rows > 0) {
+            $dates_result = array();
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            foreach ($list as $item) {
+                array_push($dates_result, $item);
+            }
+        } else {
+            $dates_result = false;
+        }
+
+        $result->free();
+        $dates->close();
+
+        return $dates_result;
+    }
+
+    /**
+     * Delete availabilities based on their user_id and schedule_id
+     *
+     * @param int $schedule_id
+     * @param int $user_id
+     * @return int $result
+     */
+    public function deleteScheduleAvailabilitiesForUser($schedule_id, $user_id)
+    {
+        $query = "
+        DELETE meb_availability
+        FROM meb_availability
+        INNER JOIN meb_date
+        ON meb_availability.fk_date_id = meb_date.id
+        WHERE meb_date.fk_schedule_id = ? AND meb_availability.fk_user_id = ?;
+        ";
+
+        $statement = $this->database->prepare($query);
+
+        $statement->bind_param("ii", $schedule_id, $user_id);
+        $statement->execute();
+
+        $result = $statement->affected_rows;
+
+        $statement->close();
+
+        return $result;
+    }
+
+    /**
+     * Add new availabilities.
+     *
+     * @param int $user_id
+     * @param object $availabilities
+     * @return int
+     */
+    public function addAvailabilities($user_id, $date_id, $date_val, $availabilities, $duration)
+    {
+        $query = "
+
+            INSERT INTO
+            meb_availability(
+                start_time,
+                end_time,
+                duration,
+                fk_date_id,
+                fk_user_id
+            )
+            VALUES (?, ?, ?, ?, ?)
+
+        ";
+
+        $statement = $this->database->prepare($query);
+
+        $statement->bind_param(
+            "ssiii",
+            $start_time,
+            $end_time,
+            $duration,
+            $date_id,
+            $user_id
+        );
+
+        $result = 0;
+
+        foreach ($availabilities as $availability) {
+            $timestamp = strtotime($availability);
+            $date = date('Y-m-d', $timestamp); 
+            if ($date == $date_val) {
+                $start_time = $availability;
+                $end_time = date('Y-m-d H:i:s', strtotime('+' . $duration . ' mins', strtotime($start_time)));
+
+                $statement->execute();
+                $result += $statement->affected_rows;
+            }
+        }
+
+        $statement->close();
+
+        return $result;
+    }
+
+    /**
+     * Get availabilities by schedule id for show and edit.
+     *
+     * @param int $schedule_id
+     * @return mixed
+     */
+    public function getAvailabilitiesByScheduleId($schedule_id)
+    {
+        $availabilities_query = "
+        SELECT meb_availability.*
+        FROM meb_availability
+        INNER JOIN meb_date on meb_date.id = meb_availability.fk_date_id
+        WHERE fk_schedule_id = ?;
+        ;";
+
+        $availabilities = $this->database->prepare($availabilities_query);
+
+        $availabilities->bind_param("i", $schedule_id);
+        $availabilities->execute();
+
+        $result = $availabilities->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $availabilities_result = $list;
+        } else {
+            $availabilities_result = false;
+        }
+
+        $result->free();
+        $availabilities->close();
+
+        return $availabilities_result;
+    }
+
+    /**
+     * Get schedules by user id for index page.
+     *
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getUpcomingSchedulesByCreator($user_id)
+    {
+        $schedules_query = "
+        SELECT meb_schedule.*
+        FROM meb_schedule
+        WHERE fk_schedule_creator = ?;
+        ;";
+
+        $schedules = $this->database->prepare($schedules_query);
+
+        $schedules->bind_param("i", $user_id);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $schedules_result = $list;
+        } else {
+            $schedules_result = false;
+        }
+
+        $result->free();
+        $schedules->close();
+
+        return $schedules_result;
+    }
+
+    /**
+     * Get availabilities by schedule id for show and edit.
+     *
+     * @param int $schedule_id
+     * @param int $user_id
+     * @return mixed
+     */
+    public function getAvailabilitiesByScheduleIdandUserId($schedule_id, $user_id)
+    {
+        $availabilities_query = "
+        SELECT meb_availability.*
+        FROM meb_availability
+        INNER JOIN meb_date on meb_date.id = meb_availability.fk_date_id
+        WHERE fk_schedule_id = ? AND fk_user_id = ?;
+        ;";
+
+        $availabilities = $this->database->prepare($availabilities_query);
+
+        $availabilities->bind_param("ii", $schedule_id, $user_id);
+        $availabilities->execute();
+
+        $result = $availabilities->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $availabilities_result = $list;
+        } else {
+            $availabilities_result = false;
+        }
+
+        $result->free();
+        $availabilities->close();
+
+        return $availabilities_result;
+    }
+
+    /**
+     * Get users by schedule id for show and edit.
+     *
+     * @param int $schedule_id
+     * @return mixed
+     */
+    public function getUsersByScheduleId($schedule_id)
+    {
+        $users_query = "
+        SELECT DISTINCT meb_availability.fk_user_id
+        FROM meb_availability
+        INNER JOIN meb_date on meb_date.id = meb_availability.fk_date_id
+        WHERE fk_schedule_id = ?;
+        ;";
+
+        $users = $this->database->prepare($users_query);
+
+        $users->bind_param("i", $schedule_id);
+        $users->execute();
+
+        $result = $users->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $users_result = array();
+            foreach ($list as $item) {
+                array_push($users_result, $item['fk_user_id']);
+            }
+        } else {
+            $users_result = false;
+        }
+
+        $result->free();
+        $users->close();
+
+        return $users_result;
+    }
 }
 
 $database = new DatabaseInterface();

@@ -84,5 +84,7 @@ echo $twig->render('meetings/create.twig', [
     'timeslot_times' => $timeslot_times,
     'meetings_end_time' => MEETINGS_END_TIME,
     'meetings_start_time' => MEETINGS_START_TIME,
+    'meetings_max_end_time' => MEETINGS_MAX_END_TIME,
+    'meetings_min_start_time' => MEETINGS_MIN_START_TIME,
     'title' => 'Create Meeting',
 ]);

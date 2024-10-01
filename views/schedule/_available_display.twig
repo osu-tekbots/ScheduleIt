@@ -1,0 +1,51 @@
+<div class="mb-2">
+    <label class="h6 mb-3">
+        Other's Availabilities
+    </label>
+    <p>
+        <br>
+    </p>
+  <div class="d-flex">
+    <div class="times-selector-legend-container">
+      <ul class="d-flex list-unstyled">
+        <li id="times-selector-legend">
+          {% for time in time_labels %}
+            <div class="times-label">
+              {{time | date("g:i a")}} PST
+            </div>
+          {% endfor %}
+        </li>
+      </ul>
+    </div>
+
+    <div class="times-selector-container">
+      <ul class="d-flex list-unstyled" >
+        <li class="times-selector-placeholder {% if dates %}d-none{% endif %}">
+          Select dates first.
+        </li>
+        {% for date in dates %}
+          <li>
+            <h4 class="date-label mb-0 text-center">
+              {{date.date | date("D, M j")}}
+            </h4>
+            {% for time in time_labels %}
+              {% set date_time = "#{date.date} #{time}" %}
+              <label 
+                {% set count = 0 %}
+                {% for timeslot_time_saved in timeslot_times_saved %}
+                  {% if timeslot_time_saved == date_time %}
+                    {% set count = count + 1 %}
+                  {% endif %}
+                {% endfor %}
+                class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
+                style="opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}">
+                
+                {{time}}
+              </label>
+            {% endfor %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div> 
