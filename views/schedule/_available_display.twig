@@ -38,7 +38,7 @@
                   {% endif %}
                 {% endfor %}
                 class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
-                style="opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}">
+                style="background-color:green;opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}">
                 
                 {{time}}
               </label>

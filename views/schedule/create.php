@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 echo $twig->render('schedule/create.twig', [
-    'title' => 'Create Schedule',
+    'title' => 'Create Find-A-Time',
     'dates' => $dates,
     'dates_json' => json_encode($dates),
     'schedule' => $schedule,
