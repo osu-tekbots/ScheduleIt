@@ -4,7 +4,9 @@ require_once ABSPATH . 'config/session.php';
 
 $schedule = $database->getScheduleById($schedule_id);
 $dates = $database->getDatesByScheduleId($schedule_id);
-$schedule['dates_count'] = count($dates);
+if ($dates) {
+    $schedule['dates_count'] = count($dates);
+}
 $users = $database->getUsersByScheduleId($schedule_id);
 if($users) {
     $schedule['users_count'] = count($users);

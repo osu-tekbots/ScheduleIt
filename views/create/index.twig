@@ -1,0 +1,22 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<h1 class="h2 mb-4">
+  {{title}}
+</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <a class="btn btn-primary" href="{{site_url}}/meetings/create">
+            Create Meeting
+        </a>
+    </div>
+    <div class="col-md-6">
+        <a class="btn btn-primary" href="{{site_url}}/schedule/create">
+            Create Find-A-Time
+        </a>
+    </div>
+</div>
+
+{% endblock %}

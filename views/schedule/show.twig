@@ -26,11 +26,13 @@
           Dates
         </h4>
         <p class="card-text-large">
+          {% if dates %}
           {% for date in dates %}
             {% if (loop.index == 1) or (loop.index == schedule.dates_count) %}
               {% if loop.index != 1 %} to {% endif %}{{date.date | date("n/j/y")}}
             {% endif %}
           {% endfor %}
+          {% endif %}
         </p>
         <h4 class="h6 mb-1">
           Users

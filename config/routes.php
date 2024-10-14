@@ -42,6 +42,9 @@ switch ($request) {
     case '/schedule':
         require_once ABSPATH . 'views/schedule/index.php';
         break;
+    case '/create':
+        require_once ABSPATH . 'views/create/index.php';
+        break;
     case ($schedule_show > 0):
         $schedule_id = $uri[2];
         require_once ABSPATH . 'views/schedule/show.php';

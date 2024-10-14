@@ -81,6 +81,11 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="sidebar-link {{ meetings_page == true ? 'active' }}" href="{{site_url}}/schedule">
+                  My Find-A-Times
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="sidebar-link {{ calendar_page == true ? 'active' }}" href="{{site_url}}/calendar">
                   Calendar
                 </a>
@@ -91,8 +96,8 @@
                 </a>
               </li>
               <li class="nav-item p-4">
-                <a class="btn btn-primary" href="{{site_url}}/meetings/create">
-                  Create Meeting
+                <a class="btn btn-block btn-primary" href="{{site_url}}/create">
+                  Create
                 </a>
               </li>
             </ul>

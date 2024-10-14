@@ -23,6 +23,7 @@
         <li class="times-selector-placeholder {% if dates %}d-none{% endif %}">
           Select dates first.
         </li>
+        {% if dates %}
         {% for date in dates %}
           <li>
             <h4 class="date-label mb-0 text-center">
@@ -45,6 +46,7 @@
             {% endfor %}
           </li>
         {% endfor %}
+        {% endif %}
       </ul>
     </div>
   </div>
