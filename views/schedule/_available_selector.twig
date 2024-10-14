@@ -22,6 +22,7 @@
         <li class="times-selector-placeholder {% if dates %}d-none{% endif %}">
           Select dates first.
         </li>
+        {% if dates %}
         {% for date in dates %}
           <li class="time-selector-list-item" id="time-{{date.date}}">
             <input name="date_vals[]" value="{{date.date}}" type="hidden">
@@ -48,6 +49,7 @@
             {% endfor %}
           </li>
         {% endfor %}
+        {% endif %}
       </ul>
     </div>
   </div>

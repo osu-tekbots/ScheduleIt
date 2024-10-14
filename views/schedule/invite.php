@@ -13,7 +13,9 @@ if ($schedule){
     $title = $schedule['name'];
 
     $dates = $database->getDatesByScheduleId($schedule['id']);
-    $schedule['dates_count'] = count($dates);
+    if ($dates) {
+        $schedule['dates_count'] = count($dates);
+    }
     $users = $database->getUsersByScheduleId($schedule['id']);
     if ($users) {  
         $schedule['users_count'] = count($users);
