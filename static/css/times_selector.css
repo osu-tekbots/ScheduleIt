@@ -65,6 +65,11 @@
   color: #fff;
 }
 
+.schedule-times-selector-label--checked {
+  background-color:green;
+  color: #fff;
+}
+
 .times-selector-container .times-label--checked.times-label--checked-confirm {
   background-color: #000;
   color: #fff;

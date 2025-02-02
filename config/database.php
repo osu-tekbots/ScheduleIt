@@ -615,6 +615,8 @@ class DatabaseInterface
         meb_event.enable_upload,
         meb_event.require_upload,
         meb_event.upload_prompt,
+        meb_event.start_time,
+        meb_event.end_time,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,
         meb_user.email AS creator_email,
@@ -899,6 +901,8 @@ class DatabaseInterface
         $hash = createEventHash($name, $description, $user_id, $location);
         $timeslots = $meeting['timeslots'];
         $duration = $meeting['duration'];
+        $event_start_time = $meeting['start_time'];
+        $event_end_time = $meeting['end_time'];
         $slot_capacity = $meeting['slot_capacity'];
         $capacity = $slot_capacity * count($timeslots);
         $open_slots = $capacity;
@@ -919,16 +923,18 @@ class DatabaseInterface
                 message_prompt,
                 enable_upload,
                 require_upload,
-                upload_prompt
+                upload_prompt,
+                start_time,
+                end_time
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiiiisiis",
+            "ssssiiiiiisiisss",
             $hash,
             $name,
             $description,
@@ -942,7 +948,9 @@ class DatabaseInterface
             $message_prompt,
             $enable_upload,
             $require_upload,
-            $upload_prompt
+            $upload_prompt,
+            $event_start_time,
+            $event_end_time
         );
 
         $statement->execute();
@@ -978,6 +986,8 @@ class DatabaseInterface
         $require_upload = $meeting['require_upload'];
         $upload_prompt = $meeting['upload_prompt'];
         $capacity = $meeting['capacity'];
+        $start_time = $meeting['start_time'];
+        $end_time = $meeting['end_time'];
 
         $query = "
 
@@ -992,7 +1002,9 @@ class DatabaseInterface
             require_message = ?,
             enable_upload = ?,
             require_upload = ?,
-            capacity = ?
+            capacity = ?,
+            start_time = ?,
+            end_time = ?
             WHERE id = ?
             AND fk_event_creator = ?
 
@@ -1001,7 +1013,7 @@ class DatabaseInterface
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "sssssiiiiiiii",
+            "sssssiiiiiissii",
             $name,
             $location,
             $description,
@@ -1013,6 +1025,8 @@ class DatabaseInterface
             $enable_upload,
             $require_upload,
             $capacity,
+            $start_time,
+            $end_time,
             $id,
             $user_id
         );
@@ -1150,7 +1164,7 @@ class DatabaseInterface
     {
         $timeslots_query = "
 
-        SELECT DISTINCT DATE_FORMAT(start_time, '%Y-%m-%d') AS date
+        SELECT DISTINCT DATE_FORMAT(meb_timeslot.start_time, '%Y-%m-%d') AS date
         FROM meb_timeslot
         INNER JOIN meb_event ON meb_event.id = meb_timeslot.fk_event_id
         WHERE meb_event.hash = ?
@@ -1313,6 +1327,24 @@ class DatabaseInterface
 
         $statement = $this->database->prepare($query);
         $statement->bind_param("si", $message, $booking_id);
+        $statement->execute();
+
+        $result = $statement->affected_rows;
+        $statement->close();
+
+        return $result;
+    }
+
+    public function updateMeetingStartEndTimes($meeting_id, $start_time, $end_time) {
+
+        $query = "UPDATE meb_event
+            SET `start_time` = ?,
+            `end_time` = ?
+            WHERE `id` = ?
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param("ssi", $start_time, $end_time, $meeting_id);
         $statement->execute();
 
         $result = $statement->affected_rows;
@@ -2395,7 +2427,8 @@ class DatabaseInterface
         $schedules_query = "
         SELECT meb_schedule.*
         FROM meb_schedule
-        WHERE fk_schedule_creator = ?;
+        WHERE fk_schedule_creator = ?
+		ORDER BY meb_schedule.mod_date DESC;
         ;";
 
         $schedules = $this->database->prepare($schedules_query);
@@ -2472,6 +2505,46 @@ class DatabaseInterface
         $users = $this->database->prepare($users_query);
 
         $users->bind_param("i", $schedule_id);
+        $users->execute();
+
+        $result = $users->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $users_result = array();
+            foreach ($list as $item) {
+                array_push($users_result, $item['fk_user_id']);
+            }
+        } else {
+            $users_result = false;
+        }
+
+        $result->free();
+        $users->close();
+
+        return $users_result;
+    }
+
+    /**
+     * Get users by date and start time and schedule id for show and edit.
+     *
+     * @param int $schedule_id
+     * @param int $start_time
+     * @return mixed
+     */
+    public function getUsersByDateandTimeslot($schedule_id, $start_time)
+    {
+        $users_query = "
+        SELECT DISTINCT meb_availability.fk_user_id
+        FROM meb_availability
+        INNER JOIN meb_date on meb_date.id = meb_availability.fk_date_id
+        WHERE fk_schedule_id = ?
+        AND start_time = ?;
+        ;";
+
+        $users = $this->database->prepare($users_query);
+
+        $users->bind_param("is", $schedule_id, $start_time);
         $users->execute();
 
         $result = $users->get_result();

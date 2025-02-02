@@ -32,6 +32,8 @@ if ($meeting) {
             $meeting['enable_upload'] = $_POST['enable_upload'] == '1';
             $meeting['require_upload'] = $_POST['require_upload'] == '1';
             $meeting['upload_prompt'] = $_POST['upload_prompt'];
+            $meeting['start_time'] = $_POST['event_start_time'];
+            $meeting['end_time'] = $_POST['event_end_time'];
 
             if (empty($_POST['name']) || empty($_POST['location'])) {
                 $msg->error('Please fill out all required fields.');

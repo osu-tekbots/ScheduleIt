@@ -1,5 +1,4 @@
 <?php
-
 require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/file_upload.php';
 require_once ABSPATH . 'lib/send_email.php';

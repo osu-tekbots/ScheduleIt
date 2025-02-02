@@ -31,18 +31,19 @@
             </h4>
             {% for time in time_labels %}
               {% set date_time = "#{date.date} #{time}" %}
-              <label 
+              <button 
                 {% set count = 0 %}
                 {% for timeslot_time_saved in timeslot_times_saved %}
                   {% if timeslot_time_saved == date_time %}
                     {% set count = count + 1 %}
                   {% endif %}
                 {% endfor %}
-                class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
-                style="background-color:green;opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}">
+				{# This on mouse over is in development #}
+                onmouseover="showGroupAvailability(this);" data-timeTag="{{date_time}}" class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
+                style="background-color:green;opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}"
                 
                 {{time}}
-              </label>
+              </button>
             {% endfor %}
           </li>
         {% endfor %}

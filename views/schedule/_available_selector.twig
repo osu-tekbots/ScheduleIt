@@ -1,6 +1,6 @@
 <div class="mb-2">
   <label class="h6 mb-3">
-    Select Available Times
+    Select Your Available Times
   </label>
   <p>
     Hold your mouse down to select or deselect multiple times at once.<br>
@@ -10,7 +10,7 @@
       <ul class="d-flex list-unstyled">
         <li id="times-selector-legend">
           {% for time in time_labels %}
-            <div class="times-label">
+            <div class="times-label times-label-{{time}}" id="{{time}}">
               {{time | date("g:i a")}} PST
             </div>
           {% endfor %}
@@ -32,9 +32,10 @@
             {% for time in time_labels %}
               {% set date_time = "#{date.date} #{time}" %}
               <label
-                class="times-label {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-confirm{% endif %}"
+                class="times-label times-label-{{time}} {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-confirm{% endif %}"
                 data-meetings-datetime-label="{{date_time}}"
                 {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
+                id="{{date_time}}"
               >
                 <input
                   {% if date_time in timeslot_times_scheduled %}checked{% endif %}

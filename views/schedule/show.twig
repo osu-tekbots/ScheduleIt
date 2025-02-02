@@ -60,6 +60,44 @@
   </div>
 </div>
 
-{{ include('schedule/_available_display.twig') }}
+<div class="row">
+  <div class="col-6">
+    {{ include('schedule/_available_display_show_page.twig') }}
+  </div>
+  <div class="col-6" style="text-align: center;">
+    {% if timeslot %}
+    <h1 class="h2 mb-4">
+    {{number_available}}/{{schedule.users_count}} Available
+    </h1>
+    <label class="h6 mb-3">
+    {{ date(timeslot)|date('l, M d Y h:i:s A ') }} PST
+    </label>
+    <br>
+    <div class="row">
+      <div class="col-6">
+      <label class="h6 mb-3">
+      Available
+      </label>
+      {% if available_users %}
+        {% for available_user in available_users %}
+          <br>
+          {{available_user}}
+        {% endfor %}
+      {% endif %}
+      </div>
+      <div class="col-6">
+      <label class="h6 mb-3">
+      Unavailable
+      </label>
+      {% if not_available_users %}
+        {% for not_available_user in not_available_users %}
+          <br>
+          {{not_available_user}}
+        {% endfor %}
+      {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
 
 {% endblock %}

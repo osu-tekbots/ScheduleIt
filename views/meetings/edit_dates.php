@@ -35,8 +35,8 @@ if ($meeting) {
     // Create time labels
     $time_labels = [];
 
-    $start_time = strtotime(MEETINGS_START_TIME);
-    $end_time = strtotime(MEETINGS_END_TIME);
+    $start_time = strtotime(MEETINGS_MIN_START_TIME);
+    $end_time = strtotime(MEETINGS_MAX_END_TIME);
 
     $current = time();
     $add_time = strtotime('+' . $meeting['duration'] . ' mins', $current);
@@ -54,6 +54,10 @@ if ($meeting) {
         $deleted_timeslots = [];
         $current_timeslots = [];
         $new_timeslots = [];
+        $event_start_time = $_POST['event_start_time'];
+        $event_end_time = $_POST['event_end_time'];
+
+        $database->updateMeetingStartEndTimes($meeting_id, $event_start_time, $event_end_time);
 
         // Same duration
         if ($duration == $meeting['duration']) {
@@ -128,6 +132,8 @@ if ($meeting) {
         'meeting' => $meeting,
         'meetings_end_time' => MEETINGS_END_TIME,
         'meetings_start_time' => MEETINGS_START_TIME,
+        'meetings_max_end_time' => MEETINGS_MAX_END_TIME,
+        'meetings_min_start_time' => MEETINGS_MIN_START_TIME,
         'time_labels' => $time_labels,
         'timeslot_times' => $timeslot_times,
         'timeslot_times_saved' => $timeslot_times_saved,

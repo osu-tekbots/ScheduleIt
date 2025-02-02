@@ -2,12 +2,44 @@
 
 require_once ABSPATH . 'config/session.php';
 
+$timeslot = !empty($_GET['time']) ? $_GET['time'] : null;
+$user_ids_in_timeslot = NULL;
+if ($timeslot) {
+    $user_ids_in_timeslot = $database->getUsersByDateandTimeslot($schedule_id, $timeslot);
+}
+
+if ($user_ids_in_timeslot) {
+    $number_available = count($user_ids_in_timeslot);
+} else {
+    $number_available = 0;
+}
+
+$available_users = [];
+
+foreach ($user_ids_in_timeslot as $key => $user_id_in_timeslot) {
+    $user = $database->getUserById($user_id_in_timeslot);
+    array_push($available_users, $user['first_name'] . ' ' . $user['last_name']);
+}
+
 $schedule = $database->getScheduleById($schedule_id);
 $dates = $database->getDatesByScheduleId($schedule_id);
 if ($dates) {
     $schedule['dates_count'] = count($dates);
 }
+
 $users = $database->getUsersByScheduleId($schedule_id);
+$not_available_users = [];
+foreach ($users as $key => $user) {
+    if ($user_ids_in_timeslot){ 
+        if (!in_array($user, $user_ids_in_timeslot)) {
+            $not_available_user = $database->getUserById($user);
+            array_push($not_available_users, $not_available_user['first_name'] . ' ' . $not_available_user['last_name']);
+        }
+    } else {
+        $not_available_user = $database->getUserById($user);
+        array_push($not_available_users, $not_available_user['first_name'] . ' ' . $not_available_user['last_name']);
+    }
+}
 if($users) {
     $schedule['users_count'] = count($users);
 } else {
@@ -41,5 +73,9 @@ echo $twig->render('schedule/show.twig', [
     'schedule' => $schedule,
     'time_labels' => $time_labels,
     'dates' => $dates,
-    'timeslot_times_saved' => $timeslot_times_saved
+    'timeslot_times_saved' => $timeslot_times_saved,
+    'timeslot' => $timeslot,
+    'number_available' => $number_available,
+    'available_users' => $available_users,
+    'not_available_users' => $not_available_users
 ]);

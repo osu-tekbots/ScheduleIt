@@ -13,8 +13,8 @@ $timeslot_times = [];
 // Create time labels
 $time_labels = [];
 
-$start_time = strtotime(MEETINGS_START_TIME);
-$end_time = strtotime(MEETINGS_END_TIME);
+$start_time = strtotime(MEETINGS_MIN_START_TIME);
+$end_time = strtotime(MEETINGS_MAX_END_TIME);
 
 $current = time();
 $add_time = strtotime('+' . $meeting['duration'] . ' mins', $current);
@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $meeting['upload_prompt'] = $_POST['upload_prompt'];
     $meeting['slot_capacity'] = $_POST['slot_capacity'];
     $meeting['duration'] = $_POST['duration'];
+    $meeting['start_time'] = $_POST['event_start_time'];
+    $meeting['end_time'] = $_POST['event_end_time'];
     $meeting['timeslots'] = $timeslot_times;
 
     foreach ($timeslot_times as $key => $timeslot) {

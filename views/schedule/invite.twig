@@ -10,12 +10,16 @@
     <form enctype="multipart/form-data" method="post">
     
     <div class="row">
-        <div class="col-12 col-lg-6">
+		{# This hidden div is in development #}
+        <div id="groupAvailability" class="col-12 col-lg-6" style="display: none;">
+            Not visible!
+        </div>
+		<div id="myTimeSelector" class="col-12 col-lg-6" style="display: inline-block;">
             {{ include('schedule/_available_selector.twig') }}
         </div>
         <div class="col-12 col-lg-6">
             {% if is_anon == 0 %}
-                {{ include('schedule/_available_display.twig') }}
+                {{ include('schedule/_available_display_invite_page.twig') }}
             {% endif %}
         </div>
     </div>

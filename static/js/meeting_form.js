@@ -61,8 +61,8 @@ const timesSelector = {
       this.selectMultipleTimes.bind(this),
     );
     $("#duration").on("change", this.updateAvailableTimesCheck.bind(this));
-    $("#start-time").on("blur", this.updateAvailableTimesCheck.bind(this));
-    $("#end-time").on("blur", this.updateAvailableTimesCheck.bind(this));
+    $("#start-time").on("change", this.updateTimeslots.bind(this));
+    $("#end-time").on("change", this.updateTimeslots.bind(this));
     $("#btn-save-meeting-dates").on(
       "click",
       this.confirmTimesRemoval.bind(this),
@@ -171,7 +171,7 @@ const timesSelector = {
     times.forEach((time) => {
       const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
       timeCheckboxes +=
-        `<label class="times-label" data-meetings-datetime-label="${date} ${time}">` +
+        `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
         `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox"> ${timeLabel}` +
         "</label>";
     });
@@ -199,8 +199,49 @@ const timesSelector = {
 
     $(".times-selector-placeholder").addClass("d-none");
   },
-  addToRemovedTimes: function (e) {
+  addTime(time) {
+    const dates_list_items = document.querySelectorAll('.time-selector-list-item');
+    let dates = [];
+    dates_list_items.forEach(dates_list_item => {
+      const date = dates_list_item.id.slice(5);
+      dates.push(date);
+    }); 
+    const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
+    const timeSelectorLabel = moment(time, "HH:mm:ss").format("h:mm a");
 
+    $(`#times-selector-legend`).append(
+      `<div class="times-label times-label-${time}" id="${time}">` +
+      `${timeSelectorLabel} PST` +
+      "</div>"
+    );
+    const sorted = $(`#times-selector-legend div`).sort((a, b) => {
+      return a.id > b.id ? 1 : -1;
+    });
+    sorted.each(function () {
+      const elem = $(this);
+      elem.remove();
+      $(elem).appendTo(`#times-selector-legend`);
+    });
+
+    dates.forEach((date) => {
+      $(`#time-${date}`).append(
+        `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
+        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox"> ${timeLabel}` +
+        "</label>"
+      );
+      const sorted = $(`#time-${date} label`).sort((a, b) => {
+        return a.id > b.id ? 1 : -1;
+      });
+      sorted.each(function () {
+        const elem = $(this);
+        elem.remove();
+        $(elem).appendTo(`#time-${date}`);
+      });
+    });
+
+  },
+  addToRemovedTimes: function (e) {
+    
   },
   confirmTimesRemoval: function (e) {
     e.preventDefault();
@@ -222,26 +263,6 @@ const timesSelector = {
     let endTime = $("#end-time").val();
     const duration = $("#duration").val();
 
-    let minStartTime = $("#calendar-times-selector").data("min-start-time");
-    let maxEndTime = $("#calendar-times-selector").data("max-end-time");
-
-    if ((startTime < minStartTime) || (startTime > maxEndTime)) {
-      $("#start-time").val(minStartTime);
-      startTime = $("#start-time").val();
-    }
-
-    if ((endTime > maxEndTime) || (endTime < minStartTime)) {
-      $("#end-time").val(maxEndTime);
-      endTime = $("#end-time").val();
-    }
-
-    if (startTime > endTime) {
-      $("#end-time").val(maxEndTime);
-      endTime = $("#end-time").val();
-      $("#start-time").val(minStartTime);
-      startTime = $("#start-time").val();
-    }
-
     while (startTime < endTime) {
       times.push(moment(startTime, "HH:mm:ss").format("HH:mm:ss"));
       startTime = moment(startTime, "HH:mm:ss")
@@ -253,6 +274,13 @@ const timesSelector = {
   },
   removeDate: function (date) {
     $(`#time-${date}`).remove();
+  },
+  removeTime: function (time) {
+    var row = document.getElementsByClassName(`times-label-${time}`);
+
+    while(row[0]) {
+      row[0].parentNode.removeChild(row[0]);
+    };
   },
   savedDates: [],
   selectMultipleTimes: function (event) {
@@ -325,7 +353,7 @@ const timesSelector = {
 
     times.forEach((time) => {
       const timeLabel = moment(time, "HH:mm:ss").format("h:mm a");
-      timeLabels += `<div class="times-label">${timeLabel}</div>`;
+      timeLabels += `<div class="times-label" times-label-${time}" id="${time}">${timeLabel}</div>`;
     });
 
     $("#times-selector-legend").html(timeLabels);
@@ -336,6 +364,34 @@ const timesSelector = {
     this.selectedDates.forEach((date) => {
       this.addDate(date);
     });
+  },
+  updateTimeslots: function () {
+
+    let startTime = moment($("#start-time").val(), ['HH:mm']).format("HH:mm:ss");
+    let endTime = moment($("#end-time").val(), ['HH:mm']).format("HH:mm:ss");
+    const duration = $("#duration").val();
+
+    let minStartTime = $("#calendar-times-selector").data("min-start-time");
+    let maxEndTime = $("#calendar-times-selector").data("max-end-time");
+    
+
+    var timeCount = moment(minStartTime, ['HH:mm']).format("HH:mm:ss");
+    var stop = moment(maxEndTime, ['HH:mm']).format("HH:mm:ss");
+    while (timeCount < stop) {
+      var row = document.getElementById(`${timeCount}`);
+      if ((startTime > timeCount) || (endTime <= timeCount)) {
+        if (row) {
+          this.removeTime(timeCount);
+        };
+      } else {
+        if (!row) {
+          this.addTime(timeCount);
+        };
+      };
+      var test = moment(timeCount, ['HH:mm:ss']).add(duration, 'm').toDate();
+      timeCount = moment(test).format('HH:mm:ss');
+    };
+
   },
   updateAvailableTimesCheck: function (event) {
     const _this = this;
@@ -395,3 +451,7 @@ function toggleFileRequiredOption(e) {
   }
 }
 $('#enable_upload')?.on('input', toggleFileRequiredOption);
+
+window.onload = function() {
+  timesSelector.updateTimeslots();
+};

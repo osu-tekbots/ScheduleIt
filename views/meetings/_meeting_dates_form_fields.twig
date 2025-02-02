@@ -65,8 +65,16 @@
         From
       </label>
     </div>
-    <div class="col-1"> 
-      <input id="start-time" type="time" step="3600" min="{{meetings_start_time}}" max="{{meetings_end_time}}" value="{{meetings_start_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    <div class="col-2"> 
+      <select class="custom-select" id="start-time" name="event_start_time">
+        {% for i in meetings_min_start_time|date('H') .. meetings_max_end_time|date('H') %}
+          {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
+          
+          <option value="{{value_time}}" {% if meeting.start_time %}{% if meeting.start_time|date('H:i') == value_time %}selected{% endif %}{% else %}{% if meetings_min_start_time == value_time %}selected{% endif %}{% endif %}>
+            {{ value_time|date('h:i a') }}
+          </option>
+        {% endfor %}
+      </select>
     </div>
     <div class="col-lg-1 col-2"> 
     </div>
@@ -75,8 +83,16 @@
         To
       </label>
     </div>
-    <div class="col-1"> 
-      <input id="end-time" type="time" step="3600" min="{{meetings_start_time}}" max="20:00" value="{{meetings_end_time}}" style="border-radius: 5px; background: #fff; border: 1px solid #ccc; outline:none; padding: 6px;"/>
+    <div class="col-2"> 
+      <select class="custom-select" id="end-time" name="event_end_time">
+        {% for i in meetings_min_start_time|date('H') .. meetings_max_end_time|date('H') %}
+          {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
+          
+          <option value="{{value_time}}" {% if meeting.end_time %}{% if meeting.end_time|date('H:i') == value_time %}selected{% endif %}{% else %}{% if meetings_max_end_time == value_time %}selected{% endif %}{% endif %}>
+            {{ value_time|date('h:i a') }}
+          </option>
+        {% endfor %}
+      </select>
     </div>
   </div>
 </div>
@@ -116,7 +132,7 @@
       <ul class="d-flex list-unstyled">
         <li id="times-selector-legend">
           {% for time in time_labels %}
-            <div class="times-label">
+            <div class="times-label times-label-{{time}}" id="{{time}}">
               {{time | date("g:i a")}} PST
             </div>
           {% endfor %}
@@ -136,9 +152,10 @@
             {% for time in time_labels %}
               {% set date_time = "#{date} #{time}" %}
               <label
-                class="times-label {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_saved %}times-label--checked times-label--checked-confirm{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-scheduled{% endif %}"
+                class="times-label times-label-{{time}} {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_saved %}times-label--checked times-label--checked-confirm{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-scheduled{% endif %}"
                 data-meetings-datetime-label="{{date_time}}"
                 {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
+                id="{{date_time}}"
               >
                 <input
                   {% if date_time in timeslot_times %}checked{% endif %}
