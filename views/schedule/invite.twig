@@ -11,8 +11,31 @@
     
     <div class="row">
 		{# This hidden div is in development #}
-        <div id="groupAvailability" class="col-12 col-lg-6" style="display: none;">
-            Not visible!
+        <div id="groupAvailability" class="col-12 col-lg-6" style="display: none; text-align: center;">
+    {# need to add something like "2/7 available"#}
+            <h1 id="ratio_of_group_availability" class="h2 mb-4">
+                
+            </h1>
+            <label id="time_display_group_availability" class="h6 mb-3">
+
+            </label>
+            <br>
+            <div class="row">
+            <div class="col-6">
+                <label class="h6 mb-3">
+                Available
+                </label>
+                <p id="available_users_group_availability">
+                </p>
+            </div>
+            <div class="col-6">
+                <label class="h6 mb-3">
+                Unavailable
+                </label>
+                <p id="unavailable_users_group_availability">
+                </p>
+            </div>
+            </div>
         </div>
 		<div id="myTimeSelector" class="col-12 col-lg-6" style="display: inline-block;">
             {{ include('schedule/_available_selector.twig') }}
@@ -37,5 +60,56 @@
 
 {% endif %}
 
+<script>
+  function showGroupAvailability(date_time, available_users_string) {
+    $("#myTimeSelector").hide();
+    $("#groupAvailability").show();
+
+    const total_users_string = "{{usernames}}";
+    const total_users = total_users_string.split("/");
+
+    const available_users = available_users_string.split("/");
+    let available_count = 0;
+    available_users.forEach((available_user) => {
+        if (available_user != "") {
+            $('#available_users_group_availability').append(available_user + "<br>");
+            available_count ++;
+        }
+    });
+
+    let total_count = 0;
+    total_users.forEach((user) => {
+        if (user != "") {
+            if (!available_users.includes(user)) {
+                $('#unavailable_users_group_availability').append(user + "<br>");
+            }
+            total_count ++;
+        }
+    });
+
+    const date_time_display = new Date(date_time);
+    const formattedDate = date_time_display.toLocaleString("en-US", {
+        weekday: "long", 
+        month: "short", 
+        day: "2-digit", 
+        year: "numeric", 
+        hour: "2-digit", 
+        minute: "2-digit", 
+        second: "2-digit", 
+        timeZoneName: "short",
+        hour12: true
+    });
+
+    $('#time_display_group_availability').text(formattedDate);
+    $('#ratio_of_group_availability').text(available_count + "/" + total_count + " Available")
+  };
+  function showTimeSelector() {
+    $("#myTimeSelector").show();
+    $("#groupAvailability").hide();
+    $('#time_display_group_availability').text("");
+    $('#available_users_group_availability').text("");
+    $('#unavailable_users_group_availability').text("");
+  };
+</script>
 
 {% endblock %}

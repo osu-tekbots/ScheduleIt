@@ -7,6 +7,6 @@ $created_schedules = $database->getUpcomingSchedulesByCreator($_SESSION['user_id
 
 
 echo $twig->render('schedule/index.twig', [
-    'title' => 'My Schedules',
+    'title' => 'My Find-A-Times',
     'schedules' => $created_schedules
 ]);

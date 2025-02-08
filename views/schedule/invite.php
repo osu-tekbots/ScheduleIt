@@ -16,7 +16,15 @@ if ($schedule){
     if ($dates) {
         $schedule['dates_count'] = count($dates);
     }
+
     $users = $database->getUsersByScheduleId($schedule['id']);
+    $usernames = "";
+    foreach ($users as $user) {
+        $user_from_table = $database->getUserById($user);
+        $username = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
+        $usernames = $usernames . "/" . $username;
+    }
+
     if ($users) {  
         $schedule['users_count'] = count($users);
     } else {
@@ -41,9 +49,12 @@ if ($schedule){
     }
 
     $timeslot_times_saved = [];
+    $availabilities['user_name'] = [];
 
-    foreach ($availabilities as $key => $availability) {
+    foreach ($availabilities as $key => &$availability) {
         array_push($timeslot_times_saved, $availability['start_time']);
+        $user = $database->getUserById($availability['fk_user_id']);
+        $availability['user_name'] = $user['first_name'] . " " . $user['last_name'];
     }
 
     $user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedule['id'], $_SESSION['user_id']);
@@ -83,5 +94,7 @@ echo $twig->render('schedule/invite.twig', [
     'dates_json' => json_encode($dates),
     'dates' => $dates,
     'timeslot_times_saved' => $timeslot_times_saved,
-    'timeslot_times_scheduled' => $timeslot_times_scheduled
+    'timeslot_times_scheduled' => $timeslot_times_scheduled,
+    'availabilities' => $availabilities,
+    'usernames' => $usernames
 ]);
