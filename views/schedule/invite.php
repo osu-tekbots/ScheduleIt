@@ -67,13 +67,13 @@ if ($schedule){
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        $availabilities = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
+        $availabilities_input = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
 
         $database->deleteScheduleAvailabilitiesForUser($schedule['id'], $_SESSION['user_id']);
 
         foreach ($dates as $date) {
-            if (!empty($availabilities)) {
-                $database->addAvailabilities($_SESSION['user_id'], $date['id'], $date['date'], $availabilities, $schedule['slot_duration']);
+            if (!empty($availabilities_input)) {
+                $database->addAvailabilities($_SESSION['user_id'], $date['id'], $date['date'], $availabilities_input, $schedule['slot_duration']);
             }
         }
 

@@ -40,6 +40,13 @@ foreach ($users as $key => $user) {
         array_push($not_available_users, $not_available_user['first_name'] . ' ' . $not_available_user['last_name']);
     }
 }
+
+$usernames = "";
+foreach ($users as $user) {
+    $user_from_table = $database->getUserById($user);
+    $username = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
+    $usernames = $usernames . "/" . $username;
+}
 if($users) {
     $schedule['users_count'] = count($users);
 } else {
@@ -64,9 +71,16 @@ while ($start_time < $end_time) {
 
 $timeslot_times_saved = [];
 
-foreach ($availabilities as $key => $availability) {
+$timeslot_times_saved = [];
+$availabilities['user_name'] = [];
+
+foreach ($availabilities as $key => &$availability) {
     array_push($timeslot_times_saved, $availability['start_time']);
+    $user = $database->getUserById($availability['fk_user_id']);
+    $availability['user_name'] = $user['first_name'] . " " . $user['last_name'];
 }
+
+$user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedule['id'], $_SESSION['user_id']);
 
 echo $twig->render('schedule/show.twig', [
     'title' => $schedule['name'],
@@ -75,7 +89,11 @@ echo $twig->render('schedule/show.twig', [
     'dates' => $dates,
     'timeslot_times_saved' => $timeslot_times_saved,
     'timeslot' => $timeslot,
+
     'number_available' => $number_available,
     'available_users' => $available_users,
-    'not_available_users' => $not_available_users
+    'not_available_users' => $not_available_users,
+
+    'availabilities' => $availabilities,
+    'usernames' => $usernames
 ]);

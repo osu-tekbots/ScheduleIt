@@ -41,7 +41,6 @@
                     {% set available_user_names = previous_names ~ "/" ~ availability.user_name %}
                   {% endif %}
                 {% endfor %}
-				{# This on mouse over is in development #}
                 onmouseover="showGroupAvailability('{{date_time}}', '{{available_user_names}}');" onmouseleave="showTimeSelector()" data-available_users="{{available_user_names}}" class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
                 style="background-color:green;opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}"
                 

@@ -8,11 +8,9 @@
 
 {% if exists == 1 %}
     <form enctype="multipart/form-data" method="post">
-    
     <div class="row">
-		{# This hidden div is in development #}
-        <div id="groupAvailability" class="col-12 col-lg-6" style="display: none; text-align: center;">
-    {# need to add something like "2/7 available"#}
+        <div id="groupAvailability" class="col-lg-6" style="display: none; text-align: center;">
+        <div style="position: fixed;">
             <h1 id="ratio_of_group_availability" class="h2 mb-4">
                 
             </h1>
@@ -37,10 +35,11 @@
             </div>
             </div>
         </div>
-		<div id="myTimeSelector" class="col-12 col-lg-6" style="display: inline-block;">
+        </div>
+		<div id="myTimeSelector" class="col-lg-6" style="display: inline-block;">
             {{ include('schedule/_available_selector.twig') }}
         </div>
-        <div class="col-12 col-lg-6">
+        <div class="col-lg-6" style="float: right;">
             {% if is_anon == 0 %}
                 {{ include('schedule/_available_display_invite_page.twig') }}
             {% endif %}

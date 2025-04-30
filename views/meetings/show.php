@@ -52,9 +52,16 @@ if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
     $meeting['dates_count'] = count($meeting['dates']);
     $attendee_meetings = $database->getMeetingAttendees($meeting['id']);
     foreach ($attendee_meetings as $key => $timeslot) {
-        $google_cal_link = new GoogleCalLink($meeting['name'],$attendee_meetings[$key]['start_time'],$attendee_meetings[$key]['end_time'],$meeting['description'],$meeting['location']);
+		$event_title = urlencode($meeting['name'] . ": ". $attendee_meetings[$key]['attendee_name']);
+		$description = urlencode($attendee_meetings[$key]['attendee_name'] . "<BR><BR>" . $attendee_meetings[$key]['message']);
+// These dates being passed for the Google link produce the worng times. Likely due to UTC vs. current Timezone
+        $google_cal_link = new GoogleCalLink($event_title,$attendee_meetings[$key]['start_time'],$attendee_meetings[$key]['end_time'],$description,$meeting['location']);
         $attendee_meetings[$key]['google_cal_link'] = $google_cal_link->getlink();
-        $outlook_cal_link = new OutlookCalLink($meeting['name'],$attendee_meetings[$key]['start_time'],$attendee_meetings[$key]['end_time'],$meeting['description'],$meeting['location']);
+        $outlook_cal_link = new OutlookCalLink($event_title,
+												$attendee_meetings[$key]['start_time'],
+												$attendee_meetings[$key]['end_time'],
+												$description,
+												$meeting['location']);
         $attendee_meetings[$key]['outlook_cal_link'] = $outlook_cal_link->getlink();
     }
 

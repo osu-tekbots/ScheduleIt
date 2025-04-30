@@ -2,6 +2,11 @@
 
 session_start();
 
+$logdate = date("My") . ".log";
+ini_set("error_log", "/nfs/ca/info/eecs_www/education/schedule-it/.private/" . $logdate);
+ini_set("log_errors", 1);
+error_reporting(E_ALL);
+
 // Flash alerts use sessions
 $msg = new \Plasticbrain\FlashMessages\FlashMessages();
 
