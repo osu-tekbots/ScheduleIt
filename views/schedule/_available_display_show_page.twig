@@ -31,7 +31,7 @@
             </h4>
             {% for time in time_labels %}
               {% set date_time = "#{date.date} #{time}" %}
-              <input 
+              <label 
                 {% set count = 0 %}
                 {% set available_user_names = "" %}
                 {% for availability in availabilities %}
@@ -44,7 +44,9 @@
                 onmouseover="showGroupAvailability('{{date_time}}', '{{available_user_names}}');" onmouseleave="showTimeSelector()" data-available_users="{{available_user_names}}" class="times-label {% if count > 0 %}times-label--checked times-label--checked-confirm"
                 style="background-color:green;opacity:{{(((count) * 100) // schedule.users_count)}}%; {% endif %}"
                 {{time}}
-              </input>
+                <input>
+                </input>
+              </label>
             {% endfor %}
           </li>
         {% endfor %}

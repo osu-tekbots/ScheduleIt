@@ -10,7 +10,7 @@
     <form enctype="multipart/form-data" method="post">
     <div class="row">
         <div id="groupAvailability" class="col-lg-6" style="display: none; text-align: center;">
-        <div style="position: fixed;">
+        <div id="groupAvailabilityDiv" class="col-lg-4">
             <h1 id="ratio_of_group_availability" class="h2 mb-4">
                 
             </h1>
@@ -36,10 +36,10 @@
             </div>
         </div>
         </div>
-		<div id="myTimeSelector" class="col-lg-6" style="display: inline-block;">
+		<div id="myTimeSelector" class="col-lg-6 col-10" style="display: inline-block;">
             {{ include('schedule/_available_selector.twig') }}
         </div>
-        <div class="col-lg-6" style="float: right;">
+        <div class="col-lg-6 col-10" style="float: right;">
             {% if is_anon == 0 %}
                 {{ include('schedule/_available_display_invite_page.twig') }}
             {% endif %}

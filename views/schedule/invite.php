@@ -61,8 +61,8 @@ if ($schedule){
 
     $timeslot_times_scheduled = [];
 
-    foreach ($user_availabilities as $key => $availability) {
-        array_push($timeslot_times_scheduled, $availability['start_time']);
+    foreach ($user_availabilities as $key => $user_availability) {
+        array_push($timeslot_times_scheduled, $user_availability['start_time']);
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

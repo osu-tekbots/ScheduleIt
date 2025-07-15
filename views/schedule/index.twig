@@ -10,23 +10,23 @@
   <table class="table">
     <thead>
       <tr class="d-flex">
-        <th class="col-2">Title</th>
-        <th class="col-2">Invite Link</th>
-        <th class="col-2">Last Modified</th>
+        <th class="col-3">Title</th>
+        <th class="col-3">Invite Link</th>
+        <th class="col-3">Last Modified</th>
       </tr>
     </thead>
     <tbody>
       {% for schedule in schedules %}
         <tr class="d-flex">
-          <td class="col-2">
+          <td class="col-3">
             <a href="{{site_url}}/schedule/{{schedule.id}}">{{schedule.name}}</a>
           </td>
-          <td class="col-2">
+          <td class="col-3">
             <button class="btn btn-secondary btn-sm copy-btn" data-link="{{site_url}}/schedule/invite?key={{schedule.hash}}">
               <i class="fas fa-clipboard"></i> Copy
             </button>
           </td>
-          <td class="col-2">
+          <td class="col-3">
             {{schedule.mod_date | date("n/j/y g:ia")}} PST
           </td>
         </tr>

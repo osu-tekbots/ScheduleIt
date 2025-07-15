@@ -15,6 +15,20 @@ html {
   html {
     scroll-padding-top: calc(var(--navbar-height-desktop) + 50px);
   }
+  #groupAvailabilityDiv {
+    position: fixed;
+    top: 20 em;
+  }
+}
+
+@media (max-width: 768px) {
+  #myTimeSelector {
+    max-height: 500px;
+    overflow-y: scroll;
+  }
+  #groupAvailability {
+    height: 500px;
+  }
 }
 
 body {
