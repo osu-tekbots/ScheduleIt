@@ -19,6 +19,10 @@ html {
     position: fixed;
     top: 20 em;
   }
+  #groupAvailabilityShow{
+    position: fixed;
+    top: 20 em;
+  }
 }
 
 @media (max-width: 768px) {
