@@ -226,7 +226,7 @@ const timesSelector = {
     dates.forEach((date) => {
       $(`#time-${date}`).append(
         `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
-        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox"> ${timeLabel}` +
+        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox">${timeLabel}` +
         "</label>"
       );
       const sorted = $(`#time-${date} label`).sort((a, b) => {
@@ -353,7 +353,7 @@ const timesSelector = {
 
     times.forEach((time) => {
       const timeLabel = moment(time, "HH:mm:ss").format("h:mm a");
-      timeLabels += `<div class="times-label" times-label-${time}" id="${time}">${timeLabel}</div>`;
+      timeLabels += `<div class="times-label times-label-${time}" id="${time}">${timeLabel}</div>`;
     });
 
     $("#times-selector-legend").html(timeLabels);
