@@ -63,7 +63,12 @@ if ($meeting) {
             } else {
 
                 // Add or update booking
-                $updated_booking = $database->addBooking($_SESSION['user_id'], $timeslot_id);
+                $booking_update_status = $database->addBooking($_SESSION['user_id'], $timeslot_id);
+
+                // Update booking timeslot for email
+                $new_timeslot = $database->getTimeslot($timeslot_id);
+                $booking['start_time'] = $new_timeslot['start_time'];
+                $booking['end_time'] = $new_timeslot['end_time'];
     
                 // If no booking id from POST, it's a new booking
                 if (empty($booking_id)) {
@@ -100,7 +105,7 @@ if ($meeting) {
                         $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
                     }
                 // No file uploaded, just booking update
-                } elseif ($updated_booking > -1) {
+                } elseif ($booking_update_status > -1) {
                     // Delete invite, if one exists
                     $database->deleteInvite($_SESSION['user_onid'], $meeting['id']);
                     // Send confirmation email only if time updated
