@@ -64,7 +64,7 @@
                 <p class="mb-4">
                   <label>
                     <input name="timeslot_id" value="{{booking.timeslot_id}}" checked type="radio">
-                    {{booking.start_time | date('D, F j, Y g:ia')}}-{{booking.end_time| date('g:ia')}} PST
+                    {{booking.start_time | date('D, F j, Y g:ia', user_timezone)}}-{{booking.end_time| date('g:ia T (\\G\\M\\T P)', user_timezone)}}
                   </label>
                 </p>
               </div>
@@ -96,7 +96,7 @@
                     <li>
                       <label>
                         <input name="timeslot_id" value="{{time_and_attendees.timeslot.id}}" type="radio">
-                        {{time_and_attendees.timeslot.start_time| date('g:ia')}}-{{time_and_attendees.timeslot.end_time| date('g:ia')}} PST
+                        {{time_and_attendees.timeslot.start_time| date('g:ia', user_timezone)}}-{{time_and_attendees.timeslot.end_time| date('g:ia T (\\G\\M\\T P)', user_timezone)}}
                         <br>
                         {% if meeting.is_anon == 0 %}
                           {{ time_and_attendees.attendees|map(a => a.attendee_name)|join(', ', ', and') }}

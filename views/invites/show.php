@@ -14,11 +14,18 @@ if ($meeting) {
     $dates = [];
     $results = $database->getAvailableDates($meeting_hash);
 
+    $timezone = new DateTimeZone($_SESSION['user_timezone']);
+    $timeslots = $database->getAvailableTimeslots($meeting_hash);
+    $next_timeslot = 0;
+
     // Create date and timeslots objects
     foreach ($results as $key => $date) {
         $timeslots_and_attendees = [];
-        $timeslots = $database->getAvailableTimeslots($meeting_hash, $date['date']);
-        foreach($timeslots as $timeslot) {
+        for (; $next_timeslot < count($timeslots); $next_timeslot++) {
+            $timeslot = $timeslots[$next_timeslot];
+            if ($date['date'] != (new DateTime($timeslot['start_time']))->setTimezone($timezone)->format('Y-m-d'))
+                break;
+
             $attendees = $database->getAttendeesByTimeslot($timeslot['hash']);
             array_push($timeslots_and_attendees, ['timeslot' => $timeslot, 'attendees' => $attendees]);
         }

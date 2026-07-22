@@ -60,7 +60,7 @@
                     {{event['location']}}
                   </td>
                   <td class="col">
-                    {{event['mod_date']}}
+                    {{event['mod_date'] | date('Y/m/d H:i:s T (\\G\\M\\T P)', user_timezone)}}
                   </td>
                   <td class="col-1">
                     <form method="post">

@@ -27,7 +27,7 @@
             </button>
           </td>
           <td class="col-3">
-            {{schedule.mod_date | date("n/j/y g:ia")}} PST
+            {{schedule.mod_date | date("n/j/y g:ia T (\\G\\M\\T P)", user_timezone)}}
           </td>
         </tr>
       {% endfor %}

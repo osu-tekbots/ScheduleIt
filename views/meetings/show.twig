@@ -151,12 +151,12 @@
       <tr class="d-flex">
         <td class="col">
           {% if (previous == false or previous.start_time != a_meeting.start_time) %}
-            {{a_meeting.start_time | date("D, F j, Y")}}
+            {{a_meeting.start_time | date("D, F j, Y", user_timezone)}}
           {% endif %}
         </td>
         <td class="col">
           {% if (previous == false or previous.start_time != a_meeting.start_time) %}
-            {{a_meeting.start_time| date("g:ia")}}-{{a_meeting.end_time| date("g:ia")}} PST
+            {{a_meeting.start_time| date("g:ia", user_timezone)}}-{{a_meeting.end_time| date("g:ia T (\\G\\M\\T P)", user_timezone)}}
           {% endif %}
         </td>
         <td class="col">
@@ -248,7 +248,7 @@
           {{ list.user_onid }}
         </td>
         <td class="col-6">
-          {{ list.mod_date | date("n/j/y g:ia")}} PST
+          {{ list.mod_date | date("n/j/y g:ia T (\\G\\M\\T P)", user_timezone)}}
         </td>
       </tr>
     {% endfor %}

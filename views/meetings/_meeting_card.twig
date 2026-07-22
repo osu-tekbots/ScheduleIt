@@ -23,7 +23,7 @@
           {{meeting.start_time | date("D, F j, Y")}}
         </span>
         <span class="d-block d-md-inline mt-2 mt-md-0">
-          {{meeting.start_time| date("g:ia")}}-{{meeting.end_time| date("g:ia")}} PST
+          {{meeting.start_time | date("g:ia", user_timezone)}}-{{meeting.end_time| date("g:ia T (\\G\\M\\T P)", user_timezone)}}
         </span>
       {% endif %}
     </h3>

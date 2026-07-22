@@ -8,6 +8,7 @@ $twig->addGlobal('site_name', SITE_NAME);
 $twig->addGlobal('site_url', SITE_URL);
 $twig->addGlobal('upload_allowed_filetypes', unserialize(UPLOAD_ALLOWED_FILETYPES));
 $twig->addGlobal('uploads_url', UPLOADS_URL);
+$twig->addGlobal('php_timezones', DateTimeZone::listIdentifiers());
 
 $basename_filter = new \Twig\TwigFilter('basename', function ($string) {
     return basename($string);

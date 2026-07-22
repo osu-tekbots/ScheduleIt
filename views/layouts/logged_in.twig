@@ -7,6 +7,7 @@
     {{ include('layouts/_head.twig') }}
     {% block page_head %}
     {% endblock %}
+    <script>USER_TIMEZONE = '{{ user_timezone }}';</script>
   </head>
   <body>
     {{msg.display()}}

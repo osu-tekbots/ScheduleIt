@@ -19,6 +19,11 @@ class SendEmail
      */
     public function inviteConfirmed($meeting)
     {
+        $start_time = new DateTime($meeting['start_time']);
+        $end_time = new DateTime($meeting['end_time']);
+        $start_time->setTimezone(new DateTimeZone($_SESSION['user_timezone']));
+        $end_time->setTimezone(new DateTimeZone($_SESSION['user_timezone']));
+
         $to = $meeting['attendee_email'];
         // $to = 'bounce';
         $subject = 'Confirmed: ' . $meeting['name'];
@@ -30,7 +35,7 @@ class SendEmail
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
         $message .= 'You have reserved a timeslot for "' . $meeting['name'] . '".' . "\r\n\r\n";
-        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . " PST\r\n";
+        $message .= 'Date: ' . $start_time->format('D, F j, Y g:ia') . '-' . $end_time->format('g:ia T (\G\M\T P)') . "\r\n";
         $message .= 'Location: ' . $meeting['location'] . "\r\n";
         $message .= 'Creator: ' . $meeting['creator_name'] . "\r\n\r\n";
         $message .= 'Meeting Info: ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";
@@ -46,6 +51,11 @@ class SendEmail
      */
     public function inviteUpdated($meeting)
     {
+        $start_time = new DateTime($meeting['start_time']);
+        $end_time = new DateTime($meeting['end_time']);
+        $start_time->setTimezone(new DateTimeZone($_SESSION['user_timezone']));
+        $end_time->setTimezone(new DateTimeZone($_SESSION['user_timezone']));
+
         $to = $meeting['attendee_email'];
         $subject = 'Updated: ' . $meeting['name'];
         $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
@@ -56,7 +66,7 @@ class SendEmail
 
         $message = 'Hi ' . $meeting['attendee_name'] . ',' . "\r\n\r\n";
         $message .= 'You have updated your timeslot for "' . $meeting['name'] . '".' . "\r\n\r\n";
-        $message .= 'Date: ' . date('D, F j, Y g:ia', strtotime($meeting['start_time'])) . '-' . date('g:ia', strtotime($meeting['end_time'])) . " PST\r\n";
+        $message .= 'Date: ' . $start_time->format('D, F j, Y g:ia') . '-' . $end_time->format('g:ia T (\G\M\T P)') . "\r\n";
         $message .= 'Location: ' . $meeting['location'] . "\r\n";
         $message .= 'Creator: ' . $meeting['creator_name'] . "\r\n\r\n";
         $message .= 'Meeting Info: ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";

@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $dates = !empty($_POST['date_vals']) ? $_POST['date_vals'] : [];
     $availabilities = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
-    // $dates = ['2024-08-30', '2024-08-31'];
 
     if (empty($_POST['name']) || (count($dates) == 0)) {
         $msg->error('Please fill out all required fields.');

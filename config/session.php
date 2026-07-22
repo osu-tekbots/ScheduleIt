@@ -61,6 +61,7 @@ if (!$user) {
 }
 
 $_SESSION['user_id'] = $user['id'];
+$_SESSION['user_timezone'] = $user['timezone'];
 
 $_SESSION['is_admin'] = false;
 $admins = $database->getAdmins();
@@ -80,6 +81,7 @@ $twig->addGlobal('user_id', $_SESSION['user_id']);
 $twig->addGlobal('user_firstname', $_SESSION['user_firstname']);
 $twig->addGlobal('user_lastname', $_SESSION['user_lastname']);
 $twig->addGlobal('user_onid', $_SESSION['user_onid']);
+$twig->addGlobal('user_timezone', $_SESSION['user_timezone']);
 $twig->addGlobal('is_admin', $_SESSION['is_admin']);
 $twig->addGlobal('msg', $msg);
 $twig->addGlobal('invites', $invites);

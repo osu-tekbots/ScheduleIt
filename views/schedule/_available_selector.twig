@@ -11,7 +11,7 @@
         <li id="times-selector-legend">
           {% for time in time_labels %}
             <div class="times-label times-label-{{time}}" id="{{time}}">
-              {{time | date("g:i a")}} PST
+              {{time | date("g:i a T", user_timezone)}}
             </div>
           {% endfor %}
         </li>

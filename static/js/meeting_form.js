@@ -207,11 +207,11 @@ const timesSelector = {
       dates.push(date);
     }); 
     const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
-    const timeSelectorLabel = moment(time, "HH:mm:ss").format("h:mm a");
+    const timeSelectorLabel = moment(time, "HH:mm:ss").tz(USER_TIMEZONE).format("h:mm a z");
 
     $(`#times-selector-legend`).append(
       `<div class="times-label times-label-${time}" id="${time}">` +
-      `${timeSelectorLabel} PST` +
+      timeSelectorLabel +
       "</div>"
     );
     const sorted = $(`#times-selector-legend div`).sort((a, b) => {
@@ -352,7 +352,7 @@ const timesSelector = {
     let timeLabels = "";
 
     times.forEach((time) => {
-      const timeLabel = moment(time, "HH:mm:ss").format("h:mm a");
+      const timeLabel = moment(time, "HH:mm:ss").tz(USER_TIMEZONE).format("h:mm a z");
       timeLabels += `<div class="times-label times-label-${time}" id="${time}">${timeLabel}</div>`;
     });
 

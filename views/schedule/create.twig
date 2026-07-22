@@ -56,13 +56,21 @@
     </div>
   </div>
 </div>
+{# 
+NOTE: very similar to meetings (_meeting_dates_form_fields.twig), but work differently
+under the hood. Find-a-times only care about storing the valid dates and the creator's
+time selections are maintained separately. Meetings don't care about dates at all and
+store only the time selections. This means they need to handle timezone localization
+differently, despite sharing a very similar UI.
+#}
 <div class="mb-4">
   <label class="h6">
     Meeting Time Range
   </label>
   <p class="text-warning">
     <i class="fas fa-info-circle text-warning"></i>
-    Values must be between 5:00 am PST and 10:00 pm PST
+    Values must be between {{ meetings_min_start_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
+    and {{ meetings_max_end_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
   </p>
   <div class="d-flex align-items-center">
     <div class="col-lg-1 col-2"> 
@@ -76,7 +84,7 @@
           {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
           
           <option value="{{value_time}}" {% if meetings_start_time == value_time %}selected{% endif %}>
-            {{ value_time|date('h:i a') }} PST
+            {{ value_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
           </option>
         {% endfor %}
       </select>
@@ -94,7 +102,7 @@
           {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
           
           <option value="{{value_time}}" {% if meetings_end_time == value_time %}selected{% endif %}>
-            {{ value_time|date('h:i a') }} PST
+            {{ value_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
           </option>
         {% endfor %}
       </select>
