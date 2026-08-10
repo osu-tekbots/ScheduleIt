@@ -29,7 +29,7 @@
           {% if dates %}
           {% for date in dates %}
             {% if (loop.index == 1) or (loop.index == schedule.dates_count) %}
-              {% if loop.index != 1 %} to {% endif %}{{date.date | date("n/j/y")}}
+              {% if loop.index != 1 %} to {% endif %}{{date | date("n/j/y")}}
             {% endif %}
           {% endfor %}
           {% endif %}
@@ -94,57 +94,5 @@
 
   </div>
 </div>
-
-<script>
-  function showGroupAvailability(date_time, available_users_string) {
-    $("#myTimeSelector").hide();
-    $("#groupAvailability").show();
-
-    const total_users_string = "{{usernames}}";
-    const total_users = total_users_string.split("/");
-
-    const available_users = available_users_string.split("/");
-    let available_count = 0;
-    available_users.forEach((available_user) => {
-        if (available_user != "") {
-            $('#available_users_group_availability').append(available_user + "<br>");
-            available_count ++;
-        }
-    });
-
-    let total_count = 0;
-    total_users.forEach((user) => {
-        if (user != "") {
-            if (!available_users.includes(user)) {
-                $('#unavailable_users_group_availability').append(user + "<br>");
-            }
-            total_count ++;
-        }
-    });
-
-    const date_time_display = new Date(date_time);
-    const formattedDate = date_time_display.toLocaleString("en-US", {
-        weekday: "long", 
-        month: "short", 
-        day: "2-digit", 
-        year: "numeric", 
-        hour: "2-digit", 
-        minute: "2-digit", 
-        second: "2-digit", 
-        timeZoneName: "short",
-        hour12: true
-    });
-
-    $('#time_display_group_availability').text(formattedDate);
-    $('#ratio_of_group_availability').text(available_count + "/" + total_count + " Available")
-  };
-  function showTimeSelector() {
-    $("#myTimeSelector").show();
-    $("#groupAvailability").hide();
-    $('#time_display_group_availability').text("");
-    $('#available_users_group_availability').text("");
-    $('#unavailable_users_group_availability').text("");
-  };
-</script>
 
 {% endblock %}

@@ -1,6 +1,7 @@
 <?php
 
 require_once ABSPATH . 'config/session.php';
+require_once ABSPATH . 'lib/dates.php';
 
 $schedule_hash = !empty($_GET['key']) ? $_GET['key'] : null;
 
@@ -8,93 +9,111 @@ if(isset($schedule_hash)) {
     $schedule = $database->getScheduleByHash($schedule_hash);
 }
 
-if ($schedule){
-    $exists = true;
-    $title = $schedule['name'];
+if (!$schedule){
+    echo $twig->render('schedule/invite.twig', [
+        'title' => "This schedule doesn't exist",
+        'exists' => false
+    ]);
+    die();
+}
 
-    $dates = $database->getDatesByScheduleId($schedule['id']);
-    if ($dates) {
-        $schedule['dates_count'] = count($dates);
-    }
+$title = $schedule['name'];
 
-    $users = $database->getUsersByScheduleId($schedule['id']);
-    $usernames = "";
-    foreach ($users as $user) {
-        $user_from_table = $database->getUserById($user);
-        $username = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
-        $usernames = $usernames . "/" . $username;
-    }
 
-    if ($users) {  
-        $schedule['users_count'] = count($users);
-    } else {
-        $schedule['users_count'] = 0;
+// 
+// Data for showing all users' availability
+// 
+
+$server_dates_table = $database->getDatesByScheduleId($schedule['id']);
+if ($server_dates_table) {
+    $server_dates = array_map(fn ($d) => $d['date'], $server_dates_table);
+    $raw_dates = [];
+    foreach ($server_dates as $date) {
+        $raw_dates[] = new DateTime("{$date} {$schedule['start_time']}");
+        $raw_dates[] = new DateTime("{$date} {$schedule['end_time']}");
     }
+    $localized_dates = getUniqueDates($raw_dates, $_SESSION['user_timezone']);
+
+    $schedule['dates_count'] = count($server_dates);
+}
+
+$time_labels = getTimeLabels($schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone']);
+
+$users = $database->getUsersByScheduleId($schedule['id']);
+$schedule['users_count'] = $users ? count($users) : 0;
+
+$usernames = [];
+foreach ($users as $user) {
+    $user_from_table = $database->getUserById($user);
+    $usernames[] = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
+}
+
+$availabilities = $database->getAvailabilitiesByScheduleId($schedule['id']);
+$timeslot_availabilities = [];
+
+foreach ($availabilities as $key => &$availability) {
+    $user = $database->getUserById($availability['fk_user_id']);
     
-    $availabilities = $database->getAvailabilitiesByScheduleId($schedule['id']);
-
-    // Create time labels
-    $time_labels = [];
-
-    $start_time = strtotime($schedule['start_time']);
-    $end_time = strtotime($schedule['end_time']);
-
-    $current = time();
-    $add_time = strtotime('+' . $schedule['slot_duration'] . ' mins', $current);
-    $diff = $add_time - $current;
-
-    while ($start_time < $end_time) {
-        array_push($time_labels, date('H:i:s', $start_time));
-        $start_time += $diff;
+    if (! isset($timeslot_availabilities[$availability['start_time']])) {
+        $timeslot_availabilities[$availability['start_time']] = [];
     }
 
-    $timeslot_times_saved = [];
-    $availabilities['user_name'] = [];
+    $timeslot_availabilities[$availability['start_time']][] = $user['first_name'] . " " . $user['last_name'];
+}
 
-    foreach ($availabilities as $key => &$availability) {
-        array_push($timeslot_times_saved, $availability['start_time']);
-        $user = $database->getUserById($availability['fk_user_id']);
-        $availability['user_name'] = $user['first_name'] . " " . $user['last_name'];
+$timeslots = [];
+foreach ($localized_dates as $date) {
+    foreach ($time_labels[0] as $time) {
+        $yesterday = yesterday($date);
+
+        $timeslots[$date][$time]['is_valid'] = in_array($yesterday, $server_dates);
+        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$yesterday $time"] ?? [];
+        $timeslots[$date][$time]['formatted_date'] = localizeDate("$yesterday $time", $_SESSION['user_timezone'])
+                                                        ->format('l, M j, Y \a\t g:i A T');
     }
 
-    $user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedule['id'], $_SESSION['user_id']);
-
-    $timeslot_times_scheduled = [];
-
-    foreach ($user_availabilities as $key => $user_availability) {
-        array_push($timeslot_times_scheduled, $user_availability['start_time']);
+    foreach ($time_labels[1] as $time) {
+        $timeslots[$date][$time]['is_valid'] = in_array($date, $server_dates);
+        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$date $time"] ?? [];
+        $timeslots[$date][$time]['formatted_date'] = localizeDate("$date $time", $_SESSION['user_timezone'])
+                                                        ->format('l, M j, Y \a\t g:i A T');
     }
+}
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        $availabilities_input = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
+// 
+// Data for showing current user's selections
+// 
 
-        $database->deleteScheduleAvailabilitiesForUser($schedule['id'], $_SESSION['user_id']);
+$user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedule['id'], $_SESSION['user_id']);
 
-        foreach ($dates as $date) {
-            if (!empty($availabilities_input)) {
-                $database->addAvailabilities($_SESSION['user_id'], $date['id'], $date['date'], $availabilities_input, $schedule['slot_duration']);
-            }
+$timeslot_times_scheduled = [];
+foreach ($user_availabilities as $key => $user_availability) {
+    array_push($timeslot_times_scheduled, $user_availability['start_time']);
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $availabilities_input = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
+
+    $database->deleteScheduleAvailabilitiesForUser($schedule['id'], $_SESSION['user_id']);
+
+    foreach ($server_dates_table as $date) {
+        if (!empty($availabilities_input)) {
+            $database->addAvailabilities($_SESSION['user_id'], $date['id'], $date['date'], $availabilities_input, $schedule['slot_duration']);
         }
-
-        header("Refresh:0");
     }
 
-} else {
-    $exists = false;
-    $title = "This schedule doesn't exist";
+    header("Refresh:0");
 }
 
 echo $twig->render('schedule/invite.twig', [
+    'exists' => true,
     'title' => $title,
-    'exists' => $exists,
     'is_anon' => $schedule['is_anon'],
     'schedule' => $schedule,
     'time_labels' => $time_labels,
-    'dates_json' => json_encode($dates),
-    'dates' => $dates,
-    'timeslot_times_saved' => $timeslot_times_saved,
-    'timeslot_times_scheduled' => $timeslot_times_scheduled,
-    'availabilities' => $availabilities,
-    'usernames' => $usernames
+    'dates' => $localized_dates,
+    'timeslots' => $timeslots,
+    'usernames' => $usernames,
+    'timeslot_times_scheduled' => $timeslot_times_scheduled
 ]);

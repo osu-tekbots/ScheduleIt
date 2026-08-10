@@ -1,99 +1,71 @@
 <?php
 
 require_once ABSPATH . 'config/session.php';
+require_once ABSPATH . 'lib/dates.php';
 
-$timeslot = !empty($_GET['time']) ? $_GET['time'] : null;
-$user_ids_in_timeslot = NULL;
-if ($timeslot) {
-    $user_ids_in_timeslot = $database->getUsersByDateandTimeslot($schedule_id, $timeslot);
-}
-
-if ($user_ids_in_timeslot) {
-    $number_available = count($user_ids_in_timeslot);
-} else {
-    $number_available = 0;
-}
-
-$available_users = [];
-
-foreach ($user_ids_in_timeslot as $key => $user_id_in_timeslot) {
-    $user = $database->getUserById($user_id_in_timeslot);
-    array_push($available_users, $user['first_name'] . ' ' . $user['last_name']);
-}
 
 $schedule = $database->getScheduleById($schedule_id);
-$dates = $database->getDatesByScheduleId($schedule_id);
-if ($dates) {
-    $schedule['dates_count'] = count($dates);
+
+$server_dates = $database->getDatesByScheduleId($schedule_id);
+if ($server_dates) {
+    $server_dates = array_map(fn ($d) => $d['date'], $server_dates);
+    $raw_dates = [];
+    foreach ($server_dates as $date) {
+        $raw_dates[] = new DateTime("{$date} {$schedule['start_time']}");
+        $raw_dates[] = new DateTime("{$date} {$schedule['end_time']}");
+    }
+    $localized_dates = getUniqueDates($raw_dates, $_SESSION['user_timezone']);
+
+    $schedule['dates_count'] = count($localized_dates);
 }
+
+$time_labels = getTimeLabels($schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone']);
 
 $users = $database->getUsersByScheduleId($schedule_id);
-$not_available_users = [];
-foreach ($users as $key => $user) {
-    if ($user_ids_in_timeslot){ 
-        if (!in_array($user, $user_ids_in_timeslot)) {
-            $not_available_user = $database->getUserById($user);
-            array_push($not_available_users, $not_available_user['first_name'] . ' ' . $not_available_user['last_name']);
-        }
-    } else {
-        $not_available_user = $database->getUserById($user);
-        array_push($not_available_users, $not_available_user['first_name'] . ' ' . $not_available_user['last_name']);
-    }
-}
+$schedule['users_count'] = $users ? count($users) : 0;
 
-$usernames = "";
+$usernames = [];
 foreach ($users as $user) {
     $user_from_table = $database->getUserById($user);
-    $username = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
-    $usernames = $usernames . "/" . $username;
+    $usernames[] = $user_from_table['first_name'] . " " . $user_from_table['last_name'];
 }
-if($users) {
-    $schedule['users_count'] = count($users);
-} else {
-    $schedule['users_count'] = 0;
-}
+
 $availabilities = $database->getAvailabilitiesByScheduleId($schedule_id);
-
-// Create time labels
-$time_labels = [];
-
-$start_time = strtotime($schedule['start_time']);
-$end_time = strtotime($schedule['end_time']);
-
-$current = time();
-$add_time = strtotime('+' . $schedule['slot_duration'] . ' mins', $current);
-$diff = $add_time - $current;
-
-while ($start_time < $end_time) {
-    array_push($time_labels, date('H:i:s', $start_time));
-    $start_time += $diff;
-}
-
-$timeslot_times_saved = [];
-
-$timeslot_times_saved = [];
-$availabilities['user_name'] = [];
-
-foreach ($availabilities as $key => &$availability) {
-    array_push($timeslot_times_saved, $availability['start_time']);
+$timeslot_availabilities = [];
+foreach ($availabilities as $key => $availability) {
     $user = $database->getUserById($availability['fk_user_id']);
-    $availability['user_name'] = $user['first_name'] . " " . $user['last_name'];
+    
+    if (! isset($timeslot_availabilities[$availability['start_time']])) {
+        $timeslot_availabilities[$availability['start_time']] = [];
+    }
+
+    $timeslot_availabilities[$availability['start_time']][] = $user['first_name'] . " " . $user['last_name'];
 }
 
-$user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedule['id'], $_SESSION['user_id']);
+$timeslots = [];
+foreach ($localized_dates as $date) {
+    foreach ($time_labels[0] as $time) {
+        $yesterday = yesterday($date);
+
+        $timeslots[$date][$time]['is_valid'] = in_array($yesterday, $server_dates);
+        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$yesterday $time"] ?? [];
+        $timeslots[$date][$time]['formatted_date'] = localizeDate("$yesterday $time", $_SESSION['user_timezone'])
+                                                        ->format('l, M j, Y \a\t g:i A T');
+    }
+
+    foreach ($time_labels[1] as $time) {
+        $timeslots[$date][$time]['is_valid'] = in_array($date, $server_dates);
+        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$date $time"] ?? [];
+        $timeslots[$date][$time]['formatted_date'] = localizeDate("$date $time", $_SESSION['user_timezone'])
+                                                        ->format('l, M j, Y \a\t g:i A T');
+    }
+}
 
 echo $twig->render('schedule/show.twig', [
     'title' => $schedule['name'],
     'schedule' => $schedule,
     'time_labels' => $time_labels,
-    'dates' => $dates,
-    'timeslot_times_saved' => $timeslot_times_saved,
-    'timeslot' => $timeslot,
-
-    'number_available' => $number_available,
-    'available_users' => $available_users,
-    'not_available_users' => $not_available_users,
-
-    'availabilities' => $availabilities,
+    'dates' => $localized_dates,
+    'timeslots' => $timeslots,
     'usernames' => $usernames
 ]);

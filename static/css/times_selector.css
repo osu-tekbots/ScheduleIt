@@ -39,6 +39,12 @@
   padding: 20px;
 }
 
+.times-label-spacer {
+  border: none;
+  height: 36px;
+  margin: 0;
+}
+
 .times-label {
   border: 1px solid #ddd;
   font-size: 0.8rem;
@@ -63,6 +69,12 @@
 .times-selector-container .times-label--checked {
   background-color: var(--osu-orange-secondary);
   color: #fff;
+}
+
+.times-selector-container .times-label--disabled {
+  background-color: transparent;
+  border: transparent;
+  cursor: default;
 }
 
 .schedule-times-selector-label--checked {
