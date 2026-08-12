@@ -178,6 +178,33 @@ class DatabaseInterface
     }
 
     /**
+     * Updates the given user's timezone.
+     * 
+     * @param int $user_id The user to update
+     * @param string $timezone The timezone to set (should be from IANA Time Zone
+     *      Database, i.e. member of `DateTimeZone::listIdentifiers()`)
+     * @return int The number of rows affected (`0` if error)
+     */
+    public function updateUserTimezone($user_id, $timezone)
+    {
+        $query = "
+            UPDATE meb_user
+            SET timezone = ?
+            WHERE id = ?
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param('si', $timezone, $user_id);
+        $statement->execute();
+
+        $result = $statement->affected_rows;
+
+        $statement->close();
+
+        return $result;
+    }
+
+    /**
      * Get meetings created by user for the manage page.
      *
      * @param string $onid

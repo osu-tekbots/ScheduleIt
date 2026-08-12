@@ -24,4 +24,15 @@
   {{user_email}}
 </p>
 
+<form method="POST">
+  <label for="timezone" class="h6 d-block">
+    Timezone
+  </label>
+  <select id="timezone" name="timezone" onchange="this.form.submit()">
+  {% for tz in php_timezones %}
+    <option value="{{tz}}" {% if user_timezone == tz %}selected{% endif %}>{{tz}}</option>
+  {% endfor %}
+  </select>
+</form>
+
 {% endblock %}
