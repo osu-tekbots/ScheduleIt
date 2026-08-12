@@ -22,10 +22,10 @@
       <a class="nav-link" href="{{site_url}}/adminusers">Users</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="{{site_url}}/adminevents">Meetings</a>
+      <a class="nav-link" href="{{site_url}}/adminevents">Meetings</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{site_url}}/adminfindatimes">Find-a-Times</a>
+      <a class="nav-link active" aria-current="page" href="{{site_url}}/adminfindatimes">Find-a-Times</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{{site_url}}/admininfo">Info</a>
@@ -41,7 +41,6 @@
                 <th class="col-1">ID</th>
                 <th class="col">Name</th>
                 <th class="col">Creator</th>
-                <th class="col">Location</th>
                 <th class="col">Modified</th>
                 <th class="col-1">
                 </th>
@@ -58,9 +57,6 @@
                   </td>
                   <td class="col">
                     {{event['creator_name']}}
-                  </td>
-                  <td class="col">
-                    {{event['location']}}
                   </td>
                   <td class="col">
                     {{event['mod_date'] | date('Y/m/d H:i:s T (\\G\\M\\T P)', user_timezone)}}

@@ -2036,6 +2036,47 @@ class DatabaseInterface
     }
 
     /**
+     * Get a boolean stating if find-a-time is old
+     * @details event is old if latest timeslot is > 100 days old
+     *
+     * @param object $findATimeId
+     * @return boolean if find-a-time is old
+     */
+    public function getFindATimeIsOld($findATimeId)
+    {
+
+        $query = "SELECT MAX(`date`) as `date` FROM `meb_date` WHERE fk_schedule_id = ?; ";
+
+        $get = $this->database->prepare($query);
+
+        $get->bind_param("i", $findATimeId);
+        $get->execute();
+
+        $currentTime = date("Y-m-d H:i:s");
+        $oldEventBound = date('Y-M-d H:i:s', strtotime($currentTime . ' - 100 days')); 
+
+        $result = $get->get_result();
+        if ($result->num_rows > 0) {
+            $resultArray = $result->fetch_all(MYSQLI_ASSOC);
+            $latestTimeslot = $resultArray[0]['date'];
+            $isOld = false;
+            if (strtotime($oldEventBound) > strtotime($latestTimeslot)) {
+                $isOld = true;
+            }
+        } else {
+            $event = $this->getScheduleById($findATimeId);  
+            $eventModified = $event['mod_date'];
+            $isOld = false;
+            if (strtotime($oldEventBound) > strtotime($eventModified)) {
+                $isOld = true;
+            }
+        }
+
+        $get->close();
+        return $isOld;
+    }
+
+    /**
      * Search meetings by name, location, creator, or attendee for the admins page.
      *
      * @param string $search_term
@@ -2071,6 +2112,48 @@ class DatabaseInterface
 
         $partial_match = '%' . $search_term . '%';
         $events->bind_param("sss", $partial_match, $partial_match, $partial_match);
+        $events->execute();
+
+        $result = $events->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $events->close();
+
+        return $list;
+    }
+
+    /**
+     * Search find-a-times by name or creator for the admins page.
+     *
+     * @param string $search_term
+     * @return array
+     */
+    public function getAllFindATimesBySearchTerm($search_term)
+    {
+        $events_query = "
+
+        SELECT
+        meb_schedule.id,
+        meb_schedule.hash AS schedule_hash,
+        meb_schedule.name,
+        meb_schedule.description,
+        meb_schedule.mod_date,
+        meb_schedule.fk_schedule_creator AS creator_id,
+        CONCAT(meb_creator.last_name, ', ', meb_creator.first_name) AS creator_name,
+        meb_creator.onid AS creator_onid
+        FROM meb_schedule
+        INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_schedule.fk_schedule_creator
+        WHERE (
+            meb_schedule.name LIKE ?
+            OR CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) LIKE ?
+        )
+        ORDER BY meb_schedule.id DESC
+        ;";
+
+        $events = $this->database->prepare($events_query);
+
+        $partial_match = '%' . $search_term . '%';
+        $events->bind_param("ss", $partial_match, $partial_match);
         $events->execute();
 
         $result = $events->get_result();
@@ -2633,6 +2716,37 @@ class DatabaseInterface
         $users->close();
 
         return $users_result;
+    }
+
+
+    /**
+     * Deletes a find-a-time and all dependent records (e.g. dates, availabilities)
+     * 
+     * @param int $schedule_id
+     * @return int $affected_rows
+     */
+    public function deleteFindATime($schedule_id)
+    {
+        $affected_rows = 0;
+
+        $queries = [
+            'DELETE FROM meb_availability WHERE fk_date_id IN (
+                SELECT id FROM meb_date WHERE fk_schedule_id = ?
+            );',
+            'DELETE FROM meb_date WHERE fk_schedule_id = ?;',
+            'DELETE FROM meb_schedule WHERE id = ?;',
+        ];
+
+        foreach ($queries as $query) {
+            $statement = $this->database->prepare($query);
+            $statement->bind_param("s", $schedule_id);
+            $statement->execute();
+            
+            $affected_rows += $statement->affected_rows;
+            $statement->close();
+        }
+
+        return $affected_rows;
     }
 }
 

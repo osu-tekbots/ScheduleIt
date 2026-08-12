@@ -24,6 +24,9 @@ switch ($request) {
     case '/adminevents':
         require_once ABSPATH . 'views/admin/events.php';
         break;
+    case '/adminfindatimes':
+        require_once ABSPATH . 'views/admin/findatimes.php';
+        break;
     case '/adminusers':
         require_once ABSPATH . 'views/admin/users.php';
         break;
