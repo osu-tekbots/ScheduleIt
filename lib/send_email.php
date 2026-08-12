@@ -37,8 +37,8 @@ class SendEmail
         $message .= 'You have reserved a timeslot for "' . $meeting['name'] . '".' . "\r\n\r\n";
         $message .= 'Date: ' . $start_time->format('D, F j, Y g:ia') . '-' . $end_time->format('g:ia T (\G\M\T P)') . "\r\n";
         $message .= 'Location: ' . $meeting['location'] . "\r\n";
-        $message .= 'Creator: ' . $meeting['creator_name'] . "\r\n\r\n";
-        $message .= 'Meeting Info: ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";
+        $message .= 'Creator: ' . $meeting['creator_name'] . ' (' . $meeting['creator_email'] . ")\r\n\r\n";
+        $message .= 'Meeting Info (including add-to-calendar links): ' . SITE_URL . '/invite?key=' . $meeting['meeting_hash'] . "\r\n";
 
         mail($to, $subject, $message, $headers);
     }
@@ -93,9 +93,12 @@ class SendEmail
         //   'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
           'X-MAiler: PHP/' . phpversion();
 
+        // TODO: get username
         $message = 'Hi ' . $inviteOnid . ', ' . "\r\n\r\n";
-        $message .= $creatorName . ' has invited you to the "' . $eventName . '" meeting.' . "\r\n";
-        $message .= 'Please follow the link below to reserve a spot.' . "\r\n\r\n";
+        $message .= $creatorName . ' has invited you to select an appointment time for the event "' . $eventName . '" meeting.' . "\r\n";
+        $message .= 'This appointment is on the Oregon State scheduling tool Schedule-It.' . "\r\n";
+        $message .= 'To go directly to this meeting appointment, follow the link below.' . "\r\n";
+        $message .= 'You may also view all meeting invites after logging into Schedule-It at https://eecs.engineering.oregonstate.edu/education/schedule-it.' . "\r\n\r\n";
         $message .= 'Sign Up: ' . $link . "\r\n";
 
         mail($to, $subject, $message, $headers);

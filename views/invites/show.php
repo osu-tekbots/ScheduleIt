@@ -109,7 +109,7 @@ if ($meeting) {
                         if (!empty($timeslot_id) && $timeslot_id != $booking['timeslot_id']) {
                             $send_email->inviteUpdated($booking);
                         }
-                        $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
+                        $msg->success('Your appointment has been set for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
                     }
                 // No file uploaded, just booking update
                 } elseif ($booking_update_status > -1) {
@@ -119,7 +119,7 @@ if ($meeting) {
                     if (!empty($timeslot_id) && $timeslot_id != $booking['timeslot_id']) {
                         $send_email->inviteUpdated($booking);
                     }
-                    $msg->success('Your settings have been saved for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
+                    $msg->success('Your appointment has been set for "' . $meeting['name'] . '".', SITE_DIR . '/meetings');
                 } else {
                     $msg->error('That timeslot is no longer available.');
                 }
