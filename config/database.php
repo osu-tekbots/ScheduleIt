@@ -100,6 +100,15 @@ class DatabaseInterface
         $result->free();
         $statement->close();
 
+        if (isset($user)) {
+            $query = 'UPDATE meb_user SET last_present = NOW() WHERE onid = ?;';
+            $statement = $this->database->prepare($query);
+
+            $statement->bind_param('s', $onid);
+            $statement->execute();
+            $statement->close();
+        }
+
         return $user;
     }
 
