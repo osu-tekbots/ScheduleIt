@@ -7,6 +7,13 @@
 </h1>
 
 {% if exists == 1 %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        Your timezone is currently set to <b>{{user_timezone}}</b>. If you are in a
+        different timezone, visit <a href="{{site_url}}/profile">your profile page</a>
+        change the timezone this information is displayed in.
+    </div>
+
     <form enctype="multipart/form-data" method="post">
     <div class="row">
         <div id="groupAvailability" class="col-lg-6" style="display: none; text-align: center;">
