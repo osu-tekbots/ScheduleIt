@@ -52,9 +52,6 @@ function initLocationInput() {
 
 const timesSelector = {
   init: function () {
-    $("body").on("click", "[data-meetings-datetime]", function (event) {
-      // event.preventDefault();
-    });
     $("body").on(
       "click mousedown mouseover",
       "[data-meetings-datetime-label]",
@@ -170,9 +167,10 @@ const timesSelector = {
 
     times.forEach((time) => {
       const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
+      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", USER_TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
       timeCheckboxes +=
         `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
-        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox"> ${timeLabel}` +
+        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${jsonDate}" type="checkbox"> ${timeLabel}` +
         "</label>";
     });
 
@@ -207,7 +205,7 @@ const timesSelector = {
       dates.push(date);
     }); 
     const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
-    const timeSelectorLabel = moment(time, "HH:mm:ss").tz(USER_TIMEZONE).format("h:mm a z");
+    const timeSelectorLabel = moment.tz(time, "HH:mm:ss", USER_TIMEZONE).format("h:mm a z");
 
     $(`#times-selector-legend`).append(
       `<div class="times-label times-label-${time}" id="${time}">` +
@@ -224,9 +222,10 @@ const timesSelector = {
     });
 
     dates.forEach((date) => {
+      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", USER_TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
       $(`#time-${date}`).append(
         `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
-        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${date} ${time}" type="checkbox">${timeLabel}` +
+        `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${jsonDate}" type="checkbox">${timeLabel}` +
         "</label>"
       );
       const sorted = $(`#time-${date} label`).sort((a, b) => {
@@ -259,15 +258,13 @@ const timesSelector = {
   createTimes: function () {
     const times = [];
 
-    let startTime = $("#start-time").val();
-    let endTime = $("#end-time").val();
+    let startTime = moment.parseZone($("#start-time").val(), 'HH:mm Z');
+    let endTime = moment.parseZone($("#end-time").val(), 'HH:mm Z');
     const duration = $("#duration").val();
 
     while (startTime < endTime) {
-      times.push(moment(startTime, "HH:mm:ss").format("HH:mm:ss"));
-      startTime = moment(startTime, "HH:mm:ss")
-        .add(duration, "minutes")
-        .format("HH:mm:ss");
+      times.push(startTime.format("HH:mm:ss"));
+      startTime = startTime.add(duration, "minutes");
     }
 
     return times;
@@ -352,7 +349,7 @@ const timesSelector = {
     let timeLabels = "";
 
     times.forEach((time) => {
-      const timeLabel = moment(time, "HH:mm:ss").tz(USER_TIMEZONE).format("h:mm a z");
+      const timeLabel = moment.tz(time, "HH:mm:ss", USER_TIMEZONE).format("h:mm a z");
       timeLabels += `<div class="times-label times-label-${time}" id="${time}">${timeLabel}</div>`;
     });
 
@@ -367,8 +364,8 @@ const timesSelector = {
   },
   updateTimeslots: function () {
 
-    let startTime = moment($("#start-time").val(), ['HH:mm']).format("HH:mm:ss");
-    let endTime = moment($("#end-time").val(), ['HH:mm']).format("HH:mm:ss");
+    let startTime = moment.parseZone($("#start-time").val(), 'HH:mm Z').format("HH:mm:ss");
+    let endTime = moment.parseZone($("#end-time").val(), 'HH:mm Z').format("HH:mm:ss");
     const duration = $("#duration").val();
 
     let minStartTime = $("#calendar-times-selector").data("min-start-time");

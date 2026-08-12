@@ -1,6 +1,7 @@
 <?php
 
 require_once ABSPATH . 'config/session.php';
+require_once ABSPATH . 'lib/dates.php';
 
 $dates = [];
 $availabilities = [];
@@ -12,44 +13,50 @@ $schedule = [
 $duration = 60;
 $timeslot_times = [];
 
-// Create time labels
+$user_tz = new DateTimeZone($_SESSION['user_timezone']);
+
+$start_time = new DateTime(MEETINGS_START_TIME, $user_tz);
+$end_time = new DateTime(MEETINGS_END_TIME, $user_tz);
+
 $time_labels = [];
-
-$start_time = strtotime(MEETINGS_START_TIME);
-$end_time = strtotime(MEETINGS_END_TIME);
-
-$current = time();
-$add_time = strtotime('+' . $schedule['duration'] . ' mins', $current);
-$diff = $add_time - $current;
-
 while ($start_time < $end_time) {
-    array_push($time_labels, date('H:i:s', $start_time));
-    $start_time += $diff;
+    array_push($time_labels, clone $start_time);
+    $start_time->modify("+{$schedule['duration']} minutes");
 }
+$time_labels = [[], $time_labels]; // Standardize format for _available_selector.twig
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $server_tz = new DateTimeZone(date_default_timezone_get());
+    
     $schedule['name'] = $_POST['name'];
     $schedule['description'] = $_POST['description'];
     $schedule['is_anon'] = !empty($_POST['is_anon']) ? 1 : 0;
 
-    $schedule['start_time'] = $_POST['start-time'];
-    $schedule['end_time'] = $_POST['end-time'];
+    $schedule['start_time'] = (new DateTimeImmutable($_POST['start-time']))->setTimezone($server_tz)->format('H:i:s');
+    $schedule['end_time'] = (new DateTimeImmutable($_POST['end-time']))->setTimezone($server_tz)->format('H:i:s');
     $schedule['slot_duration'] = $_POST['duration'];
 
-    $dates = !empty($_POST['date_vals']) ? $_POST['date_vals'] : [];
+    $user_dates = !empty($_POST['date_vals']) ? $_POST['date_vals'] : [];
     $availabilities = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
 
-    if (empty($_POST['name']) || (count($dates) == 0)) {
+    $server_dates = array_map(
+        fn ($d) => localizeDate("$d {$_POST['start-time']}", date_default_timezone_get())->format('Y-m-d'),
+        $user_dates
+    );
+
+    if (empty($_POST['name']) || (count($server_dates) == 0)) {
         $msg->error('Please fill out all required fields.');
     } else {
         $new_schedule_id = $database->addSchedule($_SESSION['user_id'], $schedule);
 
         if ($new_schedule_id > 0) {
-            if (!empty($dates)) {
-                $database->addDates($_SESSION['user_id'], $new_schedule_id, $dates, $availabilities, $schedule['slot_duration']);
-                
-                $msg->success('"' . $schedule['name'] . '" has been created.', SITE_DIR . '/schedule/' . $new_schedule_id);
+            if (!empty($server_dates)) {
+                $database->addDates(
+                    $_SESSION['user_id'], $new_schedule_id, $server_dates, $schedule['start_time'],
+                    $schedule['end_time'], $availabilities, $schedule['slot_duration']
+                );
             }
+            $msg->success('"' . $schedule['name'] . '" has been created.', SITE_DIR . '/schedule/' . $new_schedule_id);
         } else {
             $msg->error('Could not create schedule.');
         }
@@ -64,8 +71,8 @@ echo $twig->render('schedule/create.twig', [
     'dates_json' => json_encode($dates),
     'schedule' => $schedule,
     'time_labels' => $time_labels,
-    'meetings_end_time' => MEETINGS_END_TIME,
-    'meetings_start_time' => MEETINGS_START_TIME,
-    'meetings_max_end_time' => MEETINGS_MAX_END_TIME,
-    'meetings_min_start_time' => MEETINGS_MIN_START_TIME,
+    'meetings_end_time' => new DateTimeImmutable(MEETINGS_END_TIME, $user_tz),
+    'meetings_start_time' => new DateTimeImmutable(MEETINGS_START_TIME, $user_tz),
+    'meetings_max_end_time' => new DateTimeImmutable(MEETINGS_MAX_END_TIME, $user_tz),
+    'meetings_min_start_time' => new DateTimeImmutable(MEETINGS_MIN_START_TIME, $user_tz),
 ]);

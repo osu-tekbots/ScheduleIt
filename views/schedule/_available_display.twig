@@ -6,20 +6,16 @@
     <div class="times-selector-legend-container">
       <ul class="d-flex list-unstyled">
         <li id="times-selector-legend">
-          {% for time in time_labels[0] %}
-            <div class="times-label">
-              {{time | date("g:i a T", user_timezone)}}
-            </div>
-          {% endfor %}
+          {% for label_group in time_labels %}
+            {% for time in label_group %}
+              <div class="times-label">
+                {{time | date("g:i a T", user_timezone)}}
+              </div>
+            {% endfor %}
 
-          {% if time_labels[0] is not empty %}
-            <div class="times-label-spacer"></div>
-          {% endif %}
-          
-          {% for time in time_labels[1] %}
-            <div class="times-label">
-              {{time | date("g:i a T", user_timezone)}}
-            </div>
+            {% if label_group is not empty and not loop.last %}
+              <div class="times-label-spacer"></div>
+            {% endif %}
           {% endfor %}
         </li>
       </ul>
@@ -36,39 +32,26 @@
             <h4 class="date-label mb-0 text-center">
               {{date | date("D, M j")}}
             </h4>
-            {% for time in time_labels[0] %}
-              {% if timeslots[date][time].is_valid %}
-                <label
-                  onmouseover='showGroupAvailability("{{timeslots[date][time].formatted_date}}", {{timeslots[date][time].available | json_encode | raw}});' onmouseleave="showTimeSelector()"
-                  class="times-label {% if timeslots[date][time].available | length > 0 %}times-label--checked times-label--checked-confirm"
-                  style="background-color:green;opacity:{{(((timeslots[date][time].available | length) * 100) // schedule.users_count)}}%; {% endif %}">
-                  {{time}}
-                  <input>
-                </label>
-              {% else %}
-                <label class="times-label times-label--disabled">
-                  <input disabled>
-                </label>
-              {% endif %}
-            {% endfor %}
+            {% for label_group in time_labels %}
+              {% for time in label_group %}
+                {% set user_time = time | date('H:i:s', user_timezone) %}
+                {% if timeslots[date][user_time] is defined %}
+                  <label
+                    onmouseover='showGroupAvailability("{{timeslots[date][user_time].formatted_date}}", {{timeslots[date][user_time].available | json_encode | raw}});' onmouseleave="showTimeSelector()"
+                    class="times-label {% if timeslots[date][user_time].available | length > 0 %}times-label--checked times-label--checked-confirm"
+                    style="background-color:green;opacity:{{(((timeslots[date][user_time].available | length) * 100) // schedule.users_count)}}%; {% endif %}">
+                    {{user_time}}
+                    <input>
+                  </label>
+                {% else %}
+                  <label class="times-label times-label--disabled">
+                    <input disabled>
+                  </label>
+                {% endif %}
+              {% endfor %}
 
-            {% if time_labels[0] is not empty %}
-              <div class="times-label-spacer"></div>
-            {% endif %}
-
-            {% for time in time_labels[1] %}
-              {% if timeslots[date][time].is_valid %}
-                <label
-                  onmouseover='showGroupAvailability("{{timeslots[date][time].formatted_date}}", {{timeslots[date][time].available | json_encode | raw}});' onmouseleave="showTimeSelector()"
-                  class="times-label {% if timeslots[date][time].available | length > 0 %}times-label--checked times-label--checked-confirm"
-                  style="background-color:green;opacity:{{(((timeslots[date][time].available | length) * 100) // schedule.users_count)}}%; {% endif %}">
-                  {{time}}
-                  <input>
-                </label>
-              {% else %}
-                <label class="times-label times-label--disabled">
-                  <input disabled>
-                </label>
+              {% if label_group is not empty and not loop.last %}
+                <div class="times-label-spacer"></div>
               {% endif %}
             {% endfor %}
           </li>

@@ -1,8 +1,11 @@
 <?php
 
 require_once ABSPATH . 'config/session.php';
+require_once ABSPATH . 'lib/dates.php';
 require_once ABSPATH . 'lib/file_upload.php';
 require_once ABSPATH . 'lib/send_email.php';
+
+$server_tz = new DateTimeZone(date_default_timezone_get());
 
 $meeting = $database->getMeetingById($meeting_id, $_SESSION['user_onid']);
 
@@ -19,10 +22,12 @@ if ($meeting) {
     $timeslot_times_scheduled = [];
 
     foreach ($timeslots as $key => $timeslot) {
-        array_push($timeslot_times, $timeslot['start_time']);
-        array_push($timeslot_times_saved, $timeslot['start_time']);
+        $start_time = localizeDate($timeslot['start_time'], $meeting['creation_timezone'])->format('Y-m-d H:i:s');
+
+        array_push($timeslot_times, $start_time);
+        array_push($timeslot_times_saved, $start_time);
         if($timeslot['spaces_available'] != $timeslot['slot_capacity']) {
-            array_push($timeslot_times_scheduled, $timeslot['start_time']);
+            array_push($timeslot_times_scheduled, $start_time);
         }
         $timeslot_hashes[$timeslot['start_time']] = $timeslot['hash'];
     }
@@ -32,19 +37,15 @@ if ($meeting) {
         array_push($dates_saved, $date['date']);
     }
 
-    // Create time labels
+    $meeting_tz = new DateTimeZone($meeting['creation_timezone']);
+
+    $start_time = (new DateTime($meeting['start_time']))->setTimezone($meeting_tz);
+    $end_time = (new DateTime($meeting['end_time']))->setTimezone($meeting_tz);
+
     $time_labels = [];
-
-    $start_time = strtotime(MEETINGS_MIN_START_TIME);
-    $end_time = strtotime(MEETINGS_MAX_END_TIME);
-
-    $current = time();
-    $add_time = strtotime('+' . $meeting['duration'] . ' mins', $current);
-    $diff = $add_time - $current;
-
     while ($start_time < $end_time) {
-        array_push($time_labels, date('H:i:s', $start_time));
-        $start_time += $diff;
+        array_push($time_labels, clone $start_time);
+        $start_time->modify("+{$meeting['duration']} minutes");
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -54,15 +55,20 @@ if ($meeting) {
         $deleted_timeslots = [];
         $current_timeslots = [];
         $new_timeslots = [];
-        $event_start_time = $_POST['event_start_time'];
-        $event_end_time = $_POST['event_end_time'];
+        $event_start_time = (new DateTimeImmutable($_POST['event_start_time']))->setTimezone($server_tz)->format('H:i:s');
+        $event_end_time = (new DateTimeImmutable($_POST['event_end_time']))->setTimezone($server_tz)->format('H:i:s');
+
+        $timeslot_times_saved_server_tz = array_map(
+            fn ($t) => (new DateTime($t, $meeting_tz))->setTimezone($server_tz)->format('Y-m-d H:i:s'),
+            $timeslot_times_saved
+        );
 
         $database->updateMeetingStartEndTimes($meeting_id, $event_start_time, $event_end_time);
 
         // Same duration
         if ($duration == $meeting['duration']) {
-            foreach ($timeslot_times_saved as $key => $timeslot) {
-                if (in_array($timeslot, $updated_timeslots)) {
+            foreach ($timeslot_times_saved_server_tz as $key => $timeslot) {
+                if (! empty(array_filter($updated_timeslots, fn ($t) => new DateTime($t) == new DateTime($timeslot)))) {
                     array_push($current_timeslots, $timeslot);
                 } else {
                     array_push($deleted_timeslots, $timeslot);
@@ -70,13 +76,14 @@ if ($meeting) {
             }
 
             foreach ($updated_timeslots as $key => $timeslot) {
-                if (!in_array($timeslot, $current_timeslots)) {
+                
+                if (empty(array_filter($current_timeslots, fn ($t) => new DateTime($t) == new DateTime($timeslot)))) {
                     array_push($new_timeslots, $timeslot);
                 }
             }
         } else {
             // Duration changed, delete all current timeslots and create all new ones
-            $deleted_timeslots = $timeslot_times_saved;
+            $deleted_timeslots = $timeslot_times_saved_server_tz;
             $new_timeslots = $updated_timeslots;
         }
 
@@ -107,8 +114,8 @@ if ($meeting) {
         foreach ($new_timeslots as $key => $timeslot) {
             $new_timeslot['duration'] = $duration;
             $new_timeslot['capacity'] = $slot_capacity;
-            $new_timeslot['start_time'] = $timeslot;
-            $new_timeslot['end_time'] = date('Y-m-d H:i:s', strtotime('+' . $duration . ' mins', strtotime($timeslot)));
+            $new_timeslot['start_time'] = (new DateTimeImmutable($timeslot))->setTimezone($server_tz)->format('Y-m-d H:i:s');
+            $new_timeslot['end_time'] = (new DateTimeImmutable($timeslot))->modify('+' . $duration . ' mins')->setTimezone($server_tz)->format('Y-m-d H:i:s');
             $error_code = $database->addTimeslot($meeting['hash'], $new_timeslot);
 
             if ($error_code != 0) {
@@ -130,10 +137,10 @@ if ($meeting) {
         'dates_saved_json' => json_encode($dates_saved),
         'edit_dates' => true,
         'meeting' => $meeting,
-        'meetings_end_time' => MEETINGS_END_TIME,
-        'meetings_start_time' => MEETINGS_START_TIME,
-        'meetings_max_end_time' => MEETINGS_MAX_END_TIME,
-        'meetings_min_start_time' => MEETINGS_MIN_START_TIME,
+        'meetings_end_time' => new DateTimeImmutable(MEETINGS_END_TIME, $meeting_tz),
+        'meetings_start_time' => new DateTimeImmutable(MEETINGS_START_TIME, $meeting_tz),
+        'meetings_max_end_time' => new DateTimeImmutable(MEETINGS_MAX_END_TIME, $meeting_tz),
+        'meetings_min_start_time' => new DateTimeImmutable(MEETINGS_MIN_START_TIME, $meeting_tz),
         'time_labels' => $time_labels,
         'timeslot_times' => $timeslot_times,
         'timeslot_times_saved' => $timeslot_times_saved,

@@ -6,23 +6,20 @@ require_once ABSPATH . 'lib/file_upload.php';
 $dates = [];
 $meeting = [
     'slot_capacity' => 1,
-    'duration' => 60
+    'duration' => 60,
+    'creation_timezone' => $_SESSION['user_timezone']
 ];
 $timeslot_times = [];
 
-// Create time labels
+$user_tz = new DateTimeZone($_SESSION['user_timezone']);
+
+$start_time = new DateTime(MEETINGS_START_TIME, $user_tz);
+$end_time = new DateTime(MEETINGS_END_TIME, $user_tz);
+
 $time_labels = [];
-
-$start_time = strtotime(MEETINGS_MIN_START_TIME);
-$end_time = strtotime(MEETINGS_MAX_END_TIME);
-
-$current = time();
-$add_time = strtotime('+' . $meeting['duration'] . ' mins', $current);
-$diff = $add_time - $current;
-
 while ($start_time < $end_time) {
-    array_push($time_labels, date('H:i:s', $start_time));
-    $start_time += $diff;
+    array_push($time_labels, clone $start_time);
+    $start_time->modify("+{$meeting['duration']} minutes");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -43,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $meeting['duration'] = $_POST['duration'];
     $meeting['start_time'] = $_POST['event_start_time'];
     $meeting['end_time'] = $_POST['event_end_time'];
+    $meeting['creation_timezone'] = $_POST['creation_timezone'];
     $meeting['timeslots'] = $timeslot_times;
 
     foreach ($timeslot_times as $key => $timeslot) {
@@ -84,9 +82,9 @@ echo $twig->render('meetings/create.twig', [
     'meeting' => $meeting,
     'time_labels' => $time_labels,
     'timeslot_times' => $timeslot_times,
-    'meetings_end_time' => MEETINGS_END_TIME,
-    'meetings_start_time' => MEETINGS_START_TIME,
-    'meetings_max_end_time' => MEETINGS_MAX_END_TIME,
-    'meetings_min_start_time' => MEETINGS_MIN_START_TIME,
+    'meetings_end_time' => new DateTimeImmutable(MEETINGS_END_TIME, $user_tz),
+    'meetings_start_time' => new DateTimeImmutable(MEETINGS_START_TIME, $user_tz),
+    'meetings_max_end_time' => new DateTimeImmutable(MEETINGS_MAX_END_TIME, $user_tz),
+    'meetings_min_start_time' => new DateTimeImmutable(MEETINGS_MIN_START_TIME, $user_tz),
     'title' => 'Create Meeting',
 ]);

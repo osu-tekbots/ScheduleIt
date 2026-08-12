@@ -57,8 +57,8 @@
   </label>
   <p class="text-warning">
     <i class="fas fa-info-circle text-warning"></i>
-    Values must be between {{ meetings_min_start_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
-    and {{ meetings_max_end_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
+    Values must be between {{ meetings_min_start_time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
+    and {{ meetings_max_end_time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
   </p>
   <div class="d-flex align-items-center">
     <div class="col-lg-1 col-2"> 
@@ -68,11 +68,9 @@
     </div>
     <div class="col-2"> 
       <select class="custom-select" id="start-time" name="event_start_time">
-        {% for i in meetings_min_start_time|date('H') .. meetings_max_end_time|date('H') %}
-          {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
-          
-          <option value="{{value_time}}" {% if meeting.start_time %}{% if meeting.start_time|date('H:i') == value_time %}selected{% endif %}{% else %}{% if meetings_start_time == value_time %}selected{% endif %}{% endif %}>
-            {{ value_time|date('h:i a T (\\G\\M\\T P)', user_timezone) }}
+        {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
+          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.start_time %}{% if meeting.start_time|date('U') == time %}selected{% endif %}{% else %}{% if meetings_start_time|date('U') == time %}selected{% endif %}{% endif %}>
+            {{ time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
           </option>
         {% endfor %}
       </select>
@@ -86,11 +84,9 @@
     </div>
     <div class="col-2"> 
       <select class="custom-select" id="end-time" name="event_end_time">
-        {% for i in meetings_min_start_time|date('H') .. meetings_max_end_time|date('H') %}
-          {% if i < 10 %}{% set value_time = '0' ~ i ~ ':00' %}{% else %}{% set value_time = i ~ ':00' %}{% endif %}
-          
-          <option value="{{value_time}}" {% if meeting.end_time %}{% if meeting.end_time|date('H:i') == value_time %}selected{% endif %}{% else %}{% if meetings_end_time == value_time %}selected{% endif %}{% endif %}>
-            {{ value_time|date('h:i a T (\\G\\M\\T P)', user_timezone) }}
+        {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
+          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.end_time %}{% if meeting.end_time|date('U') == time %}selected{% endif %}{% else %}{% if meetings_end_time|date('U') == time %}selected{% endif %}{% endif %}>
+            {{ time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
           </option>
         {% endfor %}
       </select>
@@ -112,10 +108,10 @@
     data-create="{% if edit_dates %}false{% else %}true{% endif %}"
     data-dates="{{dates_json}}"
     data-dates-saved="{{dates_saved_json}}"
-    data-end-time="{{meetings_end_time}}"
-    data-start-time="{{meetings_start_time}}"
-    data-max-end-time="{{meetings_max_end_time}}"
-    data-min-start-time="{{meetings_min_start_time}}"
+    data-end-time="{{meetings_end_time|date('H:i', meeting.creation_timezone)}}"
+    data-start-time="{{meetings_start_time|date('H:i', meeting.creation_timezone)}}"
+    data-max-end-time="{{meetings_max_end_time|date('H:i', meeting.creation_timezone)}}"
+    data-min-start-time="{{meetings_min_start_time|date('H:i', meeting.creation_timezone)}}"
     id="calendar-times-selector"
   >
   </div>
@@ -140,8 +136,8 @@ differently, despite sharing a very similar UI.
       <ul class="d-flex list-unstyled">
         <li id="times-selector-legend">
           {% for time in time_labels %}
-            <div class="times-label times-label-{{time}}" id="{{time}}">
-              {{time | date("g:i a T", user_timezone)}}
+            <div class="times-label times-label-{{time|date('H:i:s', meeting.creation_timezone)}}" id="{{time|date('H:i:s', meeting.creation_timezone)}}">
+              {{time | date("g:i a T", meeting.creation_timezone)}}
             </div>
           {% endfor %}
         </li>
@@ -158,9 +154,9 @@ differently, despite sharing a very similar UI.
               {{date | date("D, M j")}}
             </h4>
             {% for time in time_labels %}
-              {% set date_time = "#{date} #{time}" %}
+              {% set date_time = "#{date} #{time|date('H:i:s', meeting.creation_timezone)}" %}
               <label
-                class="times-label times-label-{{time}} {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_saved %}times-label--checked times-label--checked-confirm{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-scheduled{% endif %}"
+                class="times-label times-label-{{time|date('H:i:s', meeting.creation_timezone)}} {% if date_time in timeslot_times %}times-label--checked{% endif %} {% if date_time in timeslot_times_saved %}times-label--checked times-label--checked-confirm{% endif %} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-scheduled{% endif %}"
                 data-meetings-datetime-label="{{date_time}}"
                 {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
                 id="{{date_time}}"
@@ -171,9 +167,9 @@ differently, despite sharing a very similar UI.
                   data-meetings-datetime="{{date_time}}"
                   name="timeslots[]"
                   type="checkbox"
-                  value="{{date_time}}"
+                  value="{{date}}T{{time|date('H:i:sP', meeting.creation_timezone)}}"
                 >
-                {{time}}
+                {{time|date('H:i:s', meeting.creation_timezone)}}
               </label>
             {% endfor %}
           </li>

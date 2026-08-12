@@ -9,20 +9,16 @@
     <div class="times-selector-legend-container">
       <ul class="d-flex list-unstyled">
         <li id="times-selector-legend">
-          {% for time in time_labels[0] %}
-            <div class="times-label">
-              {{time | date("g:i a T", user_timezone)}}
-            </div>
-          {% endfor %}
+          {% for label_group in time_labels %}
+            {% for time in label_group %}
+              <div class="times-label times-label-{{time|date('H:i:s', user_timezone)}}" id="{{time|date('H:i:s', user_timezone)}}">
+                {{time | date("g:i a T", user_timezone)}}
+              </div>
+            {% endfor %}
 
-          {% if time_labels[0] is not empty %}
-            <div class="times-label-spacer"></div>
-          {% endif %}
-
-          {% for time in time_labels[1] %}
-            <div class="times-label times-label-{{time}}" id="{{time}}">
-              {{time | date("g:i a T", user_timezone)}}
-            </div>
+            {% if label_group is not empty and not loop.last %}
+              <div class="times-label-spacer"></div>
+            {% endif %}
           {% endfor %}
         </li>
       </ul>
@@ -39,60 +35,35 @@
             <h4 class="date-label mb-0 text-center">
               {{date | date("D, M j")}}
             </h4>
-            {% for time in time_labels[0] %}
-              {% if timeslots[date][time].is_valid %}
-                {% set yesterday = date | date_modify("-1 day") | date("Y-m-d") %}
-                {% set date_time = "#{yesterday} #{time}" %}
-                <label
-                  class="times-label times-label-{{time}} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-confirm{% endif %}"
-                  data-meetings-datetime-label="{{date_time}}"
-                  {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
-                  id="{{date_time}}"
-                >
-                  <input
-                    {% if date_time in timeslot_times_scheduled %}checked{% endif %}
-                    {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-confirm="{{date_time}}"{% endif %}
-                    data-meetings-datetime="{{date_time}}"
-                    name="timeslots[]"
-                    type="checkbox"
-                    value="{{date_time}}"
+            {% for label_group in time_labels %}
+              {% for time in label_group %}
+                {% if timeslots[date][time|date('H:i:s', user_timezone)] is defined %}
+                  {% set date_time = "#{date} #{time|date('H:i:s', user_timezone)}" %}
+                  <label
+                    class="times-label times-label-{{time|date('H:i:s', user_timezone)}} {% if date_time in timeslot_times_scheduled|map(d => d|date('Y-m-d H:i:s', user_timezone)) %}times-label--checked times-label--checked-confirm{% endif %}"
+                    data-meetings-datetime-label="{{date_time}}"
+                    {% if date_time in timeslot_times_scheduled|map(d => d|date('Y-m-d H:i:s', user_timezone)) %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
+                    id="{{date_time}}"
                   >
-                  {{time}}
-                </label>
-              {% else %}
-                <label class="times-label times-label-{{time}} times-label--disabled">
-                  <input disabled>
-                </label>
-              {% endif %}
-            {% endfor %}
+                    <input
+                      {% if date_time in timeslot_times_scheduled|map(d => d|date('Y-m-d H:i:s', user_timezone)) %}checked{% endif %}
+                      {% if date_time in timeslot_times_scheduled|map(d => d|date('Y-m-d H:i:s', user_timezone)) %}data-meetings-datetime-confirm="{{date_time}}"{% endif %}
+                      data-meetings-datetime="{{date_time}}"
+                      name="timeslots[]"
+                      type="checkbox"
+                      value="{{date}}T{{time|date('H:i:sP', user_timezone)}}"
+                    >
+                    {{time|date('H:i:s', user_timezone)}}
+                  </label>
+                {% else %}
+                  <label class="times-label times-label-{{time|date('H:i:s', user_timezone)}} times-label--disabled">
+                    <input disabled>
+                  </label>
+                {% endif %}
+              {% endfor %}
 
-            {% if time_labels[0] is not empty %}
-              <div class="times-label-spacer"></div>
-            {% endif %}
-
-            {% for time in time_labels[1] %}
-              {% if timeslots[date][time].is_valid %}
-                {% set date_time = "#{date} #{time}" %}
-                <label
-                  class="times-label times-label-{{time}} {% if date_time in timeslot_times_scheduled %}times-label--checked times-label--checked-confirm{% endif %}"
-                  data-meetings-datetime-label="{{date_time}}"
-                  {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-label-confirm="{{date_time}}"{% endif %}
-                  id="{{date_time}}"
-                >
-                  <input
-                    {% if date_time in timeslot_times_scheduled %}checked{% endif %}
-                    {% if date_time in timeslot_times_scheduled %}data-meetings-datetime-confirm="{{date_time}}"{% endif %}
-                    data-meetings-datetime="{{date_time}}"
-                    name="timeslots[]"
-                    type="checkbox"
-                    value="{{date_time}}"
-                  >
-                  {{time}}
-                </label>
-              {% else %}
-                <label class="times-label times-label-{{time}} times-label--disabled">
-                  <input disabled>
-                </label>
+              {% if label_group is not empty and not loop.last %}
+                <div class="times-label-spacer"></div>
               {% endif %}
             {% endfor %}
           </li>

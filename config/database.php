@@ -632,6 +632,7 @@ class DatabaseInterface
         meb_event.upload_prompt,
         meb_event.start_time,
         meb_event.end_time,
+        meb_event.creation_timezone,
         meb_event.event_file AS creator_file,
         meb_event.fk_event_creator AS creator_id,
         meb_user.email AS creator_email,
@@ -753,9 +754,11 @@ class DatabaseInterface
         $result = 0;
         $full = 0;
 
+        $server_tz = new DateTimeZone(date_default_timezone_get());
+
         foreach ($timeslots as $timeslot) {
-            $start_time = $timeslot;
-            $end_time = date('Y-m-d H:i:s', strtotime('+' . $duration . ' mins', strtotime($timeslot)));
+            $start_time = (new DateTimeImmutable($timeslot))->setTimezone($server_tz)->format('Y-m-d H:i:s');
+            $end_time = (new DateTimeImmutable($timeslot))->setTimezone($server_tz)->modify('+' . $duration . ' mins')->format('Y-m-d H:i:s');
             $spaces_available = $capacity;
 
             $hash = createTimeSlotHash($start_time, $end_time, $meeting_id);
@@ -902,6 +905,8 @@ class DatabaseInterface
      */
     public function addMeeting($user_id, $meeting)
     {
+        $server_tz = new DateTimeImmutable(date_default_timezone_get());
+
         $name = $meeting['name'];
         $location = $meeting['location'];
         $description = $meeting['description'];
@@ -918,6 +923,7 @@ class DatabaseInterface
         $duration = $meeting['duration'];
         $event_start_time = $meeting['start_time'];
         $event_end_time = $meeting['end_time'];
+        $creation_timezone = $meeting['creation_timezone'];
         $slot_capacity = $meeting['slot_capacity'];
         $capacity = $slot_capacity * count($timeslots);
         $open_slots = $capacity;
@@ -940,16 +946,17 @@ class DatabaseInterface
                 require_upload,
                 upload_prompt,
                 start_time,
-                end_time
+                end_time,
+                creation_timezone
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "ssssiiiiiisiisss",
+            "ssssiiiiiisiissss",
             $hash,
             $name,
             $description,
@@ -964,8 +971,9 @@ class DatabaseInterface
             $enable_upload,
             $require_upload,
             $upload_prompt,
-            $event_start_time,
-            $event_end_time
+            (new DateTimeImmutable($event_start_time))->setTimezone($server_tz)->format('H:i:s'),
+            (new DateTimeImmutable($event_end_time))->setTimezone($server_tz)->format('H:i:s'),
+            $creation_timezone
         );
 
         $statement->execute();
@@ -2247,7 +2255,7 @@ class DatabaseInterface
      * @param int $duration
      * @return int
      */
-    public function addDates($user_id, $schedule_id, $dates, $availabilities, $duration)
+    public function addDates($user_id, $schedule_id, $dates, $start_time, $end_time, $availabilities, $duration)
     {
         $query = "
 
@@ -2276,7 +2284,7 @@ class DatabaseInterface
             $new_date_id = $this->database->insert_id;
 
             if (!empty($availabilities)) {
-                $this->addAvailabilities($user_id, $new_date_id, $date, $availabilities, $duration);
+                $this->addAvailabilities($user_id, $new_date_id, $date, $start_time, $end_time, $availabilities, $duration);
             }
 
             $result += $statement->affected_rows;
@@ -2363,8 +2371,17 @@ class DatabaseInterface
      * @param object $availabilities
      * @return int
      */
-    public function addAvailabilities($user_id, $date_id, $date_val, $availabilities, $duration)
+    public function addAvailabilities($user_id, $date_id, $date_val, $start_time, $end_time, $availabilities, $duration)
     {
+        // The date associated with a given timeslot may actually be the date before the timeslot's date. This happens
+        // when the time range wraps past midnight (server time) and some times end up on the next day (server time).
+        // Adding another date to the database for this would make it impossible to tell whether all timeslots on that
+        // date are valid or just the ones that wrapped from midnight the night before. Instead, we must associate these
+        // wrapped timeslots with the previous day.
+        $start = strtotime("$date_val $start_time");
+        $end = strtotime("$date_val $end_time");
+        if ($start > $end) $end = strtotime("+1 day", $end);
+
         $query = "
 
             INSERT INTO
@@ -2393,11 +2410,9 @@ class DatabaseInterface
         $result = 0;
 
         foreach ($availabilities as $availability) {
-            $timestamp = strtotime($availability);
-            $date = date('Y-m-d', $timestamp); 
-            if ($date == $date_val) {
-                $start_time = $availability;
-                $end_time = date('Y-m-d H:i:s', strtotime('+' . $duration . ' mins', strtotime($start_time)));
+            if (strtotime($availability) >= $start && strtotime($availability) < $end) {
+                $start_time = date('Y-m-d H:i:s', strtotime($availability));
+                $end_time = date('Y-m-d H:i:s', strtotime('+' . $duration . ' mins', strtotime($availability)));
 
                 $statement->execute();
                 $result += $statement->affected_rows;
@@ -2435,7 +2450,7 @@ class DatabaseInterface
             $list = $result->fetch_all(MYSQLI_ASSOC);
             $availabilities_result = $list;
         } else {
-            $availabilities_result = false;
+            $availabilities_result = [];
         }
 
         $result->free();
@@ -2506,7 +2521,7 @@ class DatabaseInterface
             $list = $result->fetch_all(MYSQLI_ASSOC);
             $availabilities_result = $list;
         } else {
-            $availabilities_result = false;
+            $availabilities_result = [];
         }
 
         $result->free();
@@ -2544,7 +2559,7 @@ class DatabaseInterface
                 array_push($users_result, $item['fk_user_id']);
             }
         } else {
-            $users_result = false;
+            $users_result = [];
         }
 
         $result->free();

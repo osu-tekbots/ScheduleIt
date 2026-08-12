@@ -6,6 +6,7 @@
   {{title}}
 </h1>
 <form enctype="multipart/form-data" method="post">
+  <input type="hidden" name="creation_timezone" value="{{meeting.creation_timezone}}">
   {{ include('meetings/_meeting_info_form_fields.twig') }}
   {{ include('meetings/_meeting_dates_form_fields.twig') }}
   <div class="pt-4">

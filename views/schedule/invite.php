@@ -25,17 +25,10 @@ $title = $schedule['name'];
 // 
 
 $server_dates_table = $database->getDatesByScheduleId($schedule['id']);
-if ($server_dates_table) {
-    $server_dates = array_map(fn ($d) => $d['date'], $server_dates_table);
-    $raw_dates = [];
-    foreach ($server_dates as $date) {
-        $raw_dates[] = new DateTime("{$date} {$schedule['start_time']}");
-        $raw_dates[] = new DateTime("{$date} {$schedule['end_time']}");
-    }
-    $localized_dates = getUniqueDates($raw_dates, $_SESSION['user_timezone']);
+$server_dates = array_map(fn ($d) => $d['date'], $server_dates_table);
 
-    $schedule['dates_count'] = count($server_dates);
-}
+$localized_dates = getUniqueDatesFromRange($server_dates, $schedule['start_time'], $schedule['end_time'], $_SESSION['user_timezone']);
+$schedule['dates_count'] = count($server_dates);
 
 $time_labels = getTimeLabels($schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone']);
 
@@ -49,36 +42,17 @@ foreach ($users as $user) {
 }
 
 $availabilities = $database->getAvailabilitiesByScheduleId($schedule['id']);
-$timeslot_availabilities = [];
 
+$timeslot_availabilities = [];
 foreach ($availabilities as $key => &$availability) {
     $user = $database->getUserById($availability['fk_user_id']);
-    
-    if (! isset($timeslot_availabilities[$availability['start_time']])) {
-        $timeslot_availabilities[$availability['start_time']] = [];
-    }
-
     $timeslot_availabilities[$availability['start_time']][] = $user['first_name'] . " " . $user['last_name'];
 }
 
-$timeslots = [];
-foreach ($localized_dates as $date) {
-    foreach ($time_labels[0] as $time) {
-        $yesterday = yesterday($date);
-
-        $timeslots[$date][$time]['is_valid'] = in_array($yesterday, $server_dates);
-        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$yesterday $time"] ?? [];
-        $timeslots[$date][$time]['formatted_date'] = localizeDate("$yesterday $time", $_SESSION['user_timezone'])
-                                                        ->format('l, M j, Y \a\t g:i A T');
-    }
-
-    foreach ($time_labels[1] as $time) {
-        $timeslots[$date][$time]['is_valid'] = in_array($date, $server_dates);
-        $timeslots[$date][$time]['available'] = $timeslot_availabilities["$date $time"] ?? [];
-        $timeslots[$date][$time]['formatted_date'] = localizeDate("$date $time", $_SESSION['user_timezone'])
-                                                        ->format('l, M j, Y \a\t g:i A T');
-    }
-}
+$timeslots = getTimeslots(
+    $server_dates, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'],
+    $timeslot_availabilities, $_SESSION['user_timezone']
+);
 
 
 // 
@@ -89,7 +63,7 @@ $user_availabilities = $database->getAvailabilitiesByScheduleIdandUserId($schedu
 
 $timeslot_times_scheduled = [];
 foreach ($user_availabilities as $key => $user_availability) {
-    array_push($timeslot_times_scheduled, $user_availability['start_time']);
+    array_push($timeslot_times_scheduled, localizeDate($user_availability['start_time'], $_SESSION['user_timezone']));
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -99,7 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     foreach ($server_dates_table as $date) {
         if (!empty($availabilities_input)) {
-            $database->addAvailabilities($_SESSION['user_id'], $date['id'], $date['date'], $availabilities_input, $schedule['slot_duration']);
+            $database->addAvailabilities(
+                $_SESSION['user_id'], $date['id'], $date['date'], $schedule['start_time'], $schedule['end_time'],
+                $availabilities_input, $schedule['slot_duration']
+            );
         }
     }
 

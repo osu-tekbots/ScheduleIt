@@ -5,6 +5,16 @@
 <h1 class="h2 mb-4">
   {{title}}
 </h1>
+
+{% if meeting.creation_timezone != user_timezone %}
+<div class="alert alert-warning">
+  <i class="fas fa-exclamation-circle"></i>
+  This meeting was created in the <b>{{meeting.creation_timezone}}</b> timezone. Dates and
+  times below remain in that timezone, even though your profile timezone is currently
+  <b>{{user_timezone}}</b>.
+</div>
+{% endif %}
+
 <form enctype="multipart/form-data" method="post" id="form-meeting-dates">
   {{ include('meetings/_meeting_dates_form_fields.twig') }}
   <div class="pt-4">
