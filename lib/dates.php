@@ -85,7 +85,7 @@ function getUniqueDates($dates, $timezone) {
  * 
  * @param array{DateTime} $dates The dates for the start of each time range
  * @param string $start_time The start of each range in HH:MM format
- * @param string $end_time The end of each range in HH:MM format
+ * @param string $end_time The end of each range (exclusive) in HH:MM format
  * @param string $timezone The timezone to localize dates to
  * 
  * @return array{string} The unique dates in YYYY-MM-DD format
@@ -94,7 +94,7 @@ function getUniqueDatesFromRange($dates, $start_time, $end_time, $timezone) {
     $result = [];
     foreach ($dates as $date) {
         $start = new DateTime("$date $start_time");
-        $end = new DateTime("$date $end_time");
+        $end = (new DateTime("$date $end_time"))->modify('-1 second');
         if ($start > $end) $end->modify('+1 day');
         
         $result[] = $start;
