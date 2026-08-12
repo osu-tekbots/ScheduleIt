@@ -6,6 +6,27 @@ require_once ABSPATH . 'lib/dates.php';
 
 $schedule = $database->getScheduleById($schedule_id);
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($schedule['fk_schedule_creator'] == $_SESSION['user_id']) {
+        if (isset($_POST['deleteId'])) {
+            $scheduleId = trim($_POST['deleteId']);
+            
+            $result = $database->deleteFindATime($scheduleId);
+            if ($result > 0) {
+                $msg->success('"' . $schedule['name'] . '" has been deleted.', SITE_DIR . '/manage');
+            } else {
+                $msg->error('Could not delete the find-a-time.');
+            }
+        } else {
+            http_response_code(400);
+            $msg->error('Bad request data; could not complete.');
+        }
+    } else {
+        http_response_code(403);
+        $msg->error("Sorry, we couldn't find that find-a-time.");
+    }
+}
+
 $server_dates = $database->getDatesByScheduleId($schedule_id);
 if ($server_dates) {
     $server_dates = array_map(fn ($d) => $d['date'], $server_dates);
