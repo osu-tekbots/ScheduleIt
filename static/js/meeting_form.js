@@ -167,7 +167,7 @@ const timesSelector = {
 
     times.forEach((time) => {
       const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
-      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", USER_TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
+      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
       timeCheckboxes +=
         `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
         `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${jsonDate}" type="checkbox"> ${timeLabel}` +
@@ -205,7 +205,7 @@ const timesSelector = {
       dates.push(date);
     }); 
     const timeLabel = moment(time, "HH:mm:ss").format("hh:mm A");
-    const timeSelectorLabel = moment.tz(time, "HH:mm:ss", USER_TIMEZONE).format("h:mm a z");
+    const timeSelectorLabel = moment.tz(time, "HH:mm:ss", TIMEZONE).format("h:mm a z");
 
     $(`#times-selector-legend`).append(
       `<div class="times-label times-label-${time}" id="${time}">` +
@@ -222,7 +222,7 @@ const timesSelector = {
     });
 
     dates.forEach((date) => {
-      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", USER_TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
+      const jsonDate = moment.tz(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", TIMEZONE).format("YYYY-MM-DDTHH:mm:ssZ");
       $(`#time-${date}`).append(
         `<label class="times-label times-label-${time}" data-meetings-datetime-label="${date} ${time}" id="${date} ${time}">` +
         `<input name="timeslots[]" data-meetings-datetime="${date} ${time}" value="${jsonDate}" type="checkbox">${timeLabel}` +
@@ -349,7 +349,7 @@ const timesSelector = {
     let timeLabels = "";
 
     times.forEach((time) => {
-      const timeLabel = moment.tz(time, "HH:mm:ss", USER_TIMEZONE).format("h:mm a z");
+      const timeLabel = moment.tz(time, "HH:mm:ss", TIMEZONE).format("h:mm a z");
       timeLabels += `<div class="times-label times-label-${time}" id="${time}">${timeLabel}</div>`;
     });
 

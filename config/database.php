@@ -245,7 +245,7 @@ class DatabaseInterface
      * @param int $id
      * @return array
      */
-    public function getDatesByMeetingId($id)
+    public function getDatesByMeetingId($id, $timezone)
     {
         $timeslots_query = "
 
@@ -266,7 +266,7 @@ class DatabaseInterface
 
         // NOTE: This could be handled by MariaDB itself (with slight modification from
         // commit cd3056f) if its timezone table is given; not currently the case
-        $timezone = new DateTimeZone($_SESSION['user_timezone']);
+        $timezone = new DateTimeZone($timezone);
         $timezone_aware_list = [];
         foreach ($list as $start_time) {
             $start_time = new DateTime($start_time['date']);
@@ -905,7 +905,7 @@ class DatabaseInterface
      */
     public function addMeeting($user_id, $meeting)
     {
-        $server_tz = new DateTimeImmutable(date_default_timezone_get());
+        $server_tz = new DateTimeZone(date_default_timezone_get());
 
         $name = $meeting['name'];
         $location = $meeting['location'];

@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } 
 
 if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
-    $meeting['dates'] = $database->getDatesByMeetingId($meeting['id']);
+    $meeting['dates'] = $database->getDatesByMeetingId($meeting['id'], $_SESSION['user_timezone']);
     $meeting['dates_count'] = count($meeting['dates']);
     $attendee_meetings = $database->getMeetingAttendees($meeting['id']);
     foreach ($attendee_meetings as $key => $timeslot) {

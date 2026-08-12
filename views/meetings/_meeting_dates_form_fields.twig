@@ -69,7 +69,7 @@
     <div class="col-2"> 
       <select class="custom-select" id="start-time" name="event_start_time">
         {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
-          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.start_time %}{% if meeting.start_time|date('U') == time %}selected{% endif %}{% else %}{% if meetings_start_time|date('U') == time %}selected{% endif %}{% endif %}>
+          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.start_time %}{% if meeting.start_time|date('H:i') == time|date('H:i') %}selected{% endif %}{% else %}{% if meetings_start_time|date('U') == time %}selected{% endif %}{% endif %}>
             {{ time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
           </option>
         {% endfor %}
@@ -85,7 +85,7 @@
     <div class="col-2"> 
       <select class="custom-select" id="end-time" name="event_end_time">
         {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
-          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.end_time %}{% if meeting.end_time|date('U') == time %}selected{% endif %}{% else %}{% if meetings_end_time|date('U') == time %}selected{% endif %}{% endif %}>
+          <option value="{{time|date('H:i P', meeting.creation_timezone)}}" {% if meeting.end_time %}{% if meeting.end_time|date('H:i') == time|date('H:i') %}selected{% endif %}{% else %}{% if meetings_end_time|date('U') == time %}selected{% endif %}{% endif %}>
             {{ time | date('h:i a T (\\G\\M\\T P)', meeting.creation_timezone) }}
           </option>
         {% endfor %}
@@ -182,3 +182,5 @@ differently, despite sharing a very similar UI.
     </div>
   </div>
 </div>
+
+<script>TIMEZONE = '{{ meeting.creation_timezone }}';</script>

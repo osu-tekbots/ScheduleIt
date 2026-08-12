@@ -50,6 +50,8 @@
   font-size: 0.8rem;
   height: 24px;
   margin: 0;
+  text-wrap: nowrap;
+  text-overflow: clip;
 }
 
 .times-selector-legend-container .times-label {

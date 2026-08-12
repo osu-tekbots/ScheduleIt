@@ -10,9 +10,11 @@ $server_tz = new DateTimeZone(date_default_timezone_get());
 $meeting = $database->getMeetingById($meeting_id, $_SESSION['user_onid']);
 
 if ($meeting) {
+    $meeting_tz = new DateTimeZone($meeting['creation_timezone']);
+    
     $dates = [];
     $dates_saved = [];
-    $date_objects =  $database->getDatesByMeetingId($meeting_id);
+    $date_objects =  $database->getDatesByMeetingId($meeting_id, $meeting['creation_timezone']);
     $timeslots = $database->getTimeslotsByMeetingId($meeting_id);
     $meeting['duration'] = count($timeslots) > 0 ? $timeslots[0]['duration'] : 60;
     $meeting['slot_capacity'] = count($timeslots) > 0 ? $timeslots[0]['slot_capacity'] : 1;
@@ -37,10 +39,9 @@ if ($meeting) {
         array_push($dates_saved, $date['date']);
     }
 
-    $meeting_tz = new DateTimeZone($meeting['creation_timezone']);
-
     $start_time = (new DateTime($meeting['start_time']))->setTimezone($meeting_tz);
     $end_time = (new DateTime($meeting['end_time']))->setTimezone($meeting_tz);
+    if ($start_time > $end_time) $end_time->modify('+1 day');
 
     $time_labels = [];
     while ($start_time < $end_time) {

@@ -9,7 +9,7 @@ $meetings = [];
 // Add dates to meetings
 foreach ($results as $key => $meeting) {
     if ($meeting['id']) {
-        $meeting['dates'] = $database->getDatesByMeetingId($meeting['id']);
+        $meeting['dates'] = $database->getDatesByMeetingId($meeting['id'], $_SESSION['user_timezone']);
         $meeting['dates_count'] = count($meeting['dates']);
     }
 
