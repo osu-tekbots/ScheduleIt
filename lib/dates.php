@@ -26,20 +26,26 @@ function isNextDay($anchor, $time, $timezone) {
  * element of the result; all times that don't wrap past midnight are given in the second
  * element of the result.
  * 
- * @param string $start_time The start of the time range (e.g. "08:00")
- * @param string $end_time The end of the time range (e.g. "17:00")
+ * @param string $start_date The first date (server time) to produce labels for. Decreases
+ *                           DST-related bugs for regions with different DST periods than
+ *                           the server. For example, Sydney, AUS, has an inverted DST
+ *                           schedule that otherwise causes 2-hour gaps between time
+ *                           labels and timeslots.
+ * @param string $start_time The start of the time range (server time) in HH:MM format
+ * @param string $end_time The end of the time range (exclusive; server time) in HH:MM
+ *                         format
  * @param int $slot_duration The number of minutes each timeslot should be
  * @param string $timezone The timezone to use when determining whether times wrap past
  *                         midnight
  * 
  * @return array{array{DateTime}, array{DateTime}}
  */
-function getTimeLabels($start_time, $end_time, $slot_duration, $timezone) {
+function getTimeLabels($start_date, $start_time, $end_time, $slot_duration, $timezone) {
     $time_labels = [[], []];
 
-    $inc_time = localizeDate($start_time, $timezone);
-    $start_time = localizeDate($start_time, $timezone);
-    $stop_time = localizeDate($end_time, $timezone);
+    $inc_time = localizeDate("$start_date $start_time", $timezone);
+    $start_time = localizeDate("$start_date $start_time", $timezone);
+    $stop_time = localizeDate("$start_date $end_time", $timezone);
 
     if ($inc_time > $stop_time)
         $stop_time->modify('+1 day');

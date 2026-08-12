@@ -67,8 +67,8 @@ differently, despite sharing a very similar UI.
   <label class="h6">
     Meeting Time Range
   </label>
-  <p class="text-warning">
-    <i class="fas fa-info-circle text-warning"></i>
+  <p class="text-info">
+    <i class="fas fa-info-circle"></i>
     Values must be between {{ meetings_min_start_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
     and {{ meetings_max_end_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
   </p>
@@ -109,6 +109,10 @@ differently, despite sharing a very similar UI.
   <label class="h6">
     Select Meeting Dates
   </label>
+  <p class="text-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    Times may show unexpectedly when dates cross a daylight savings time boundary.
+  </p>
   {% if edit_dates %}
     <p class="text-danger">
       <i class="fas fa-exclamation-circle text-danger"></i>

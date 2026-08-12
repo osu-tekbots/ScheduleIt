@@ -27,10 +27,11 @@ $title = $schedule['name'];
 $server_dates_table = $database->getDatesByScheduleId($schedule['id']);
 $server_dates = array_map(fn ($d) => $d['date'], $server_dates_table);
 
+$first_date = count($server_dates) ? $server_dates[0] : date('Y-m-d');
 $localized_dates = getUniqueDatesFromRange($server_dates, $schedule['start_time'], $schedule['end_time'], $_SESSION['user_timezone']);
 $schedule['dates_count'] = count($server_dates);
 
-$time_labels = getTimeLabels($schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone']);
+$time_labels = getTimeLabels($first_date, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone']);
 
 $users = $database->getUsersByScheduleId($schedule['id']);
 $schedule['users_count'] = $users ? count($users) : 0;
