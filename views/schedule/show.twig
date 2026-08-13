@@ -56,11 +56,6 @@
               <a id="inviteLink" href="{{site_url}}/schedule/invite?key={{schedule.hash}}">Invite Link</a>
             </p>
           </div>
-          <div class="col-sm-6 d-flex justify-content-end align-items-start">
-            <button class="btn btn-sm btn-outline-danger" type="button" data-toggle="modal" data-target="#delete-findatime-modal">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -94,6 +89,17 @@
     </div>
   </div>
 </div>
+
+<p class="mb-5">
+  <a class="btn btn-primary" href="{{site_url}}/schedule/invite?key={{schedule.hash}}">
+    <i class="fas fa-calendar-alt"></i>
+    Edit Availability
+  </a>
+  <button class="btn btn-outline-danger ml-3" type="button" data-toggle="modal" data-target="#delete-findatime-modal">
+    <i class="fas fa-trash"></i>
+    Delete Find-a-Time
+  </button>
+</p>
 
 <div class="row">
   <div class="col-lg-6 col-10">

@@ -5,6 +5,7 @@ require_once ABSPATH . 'lib/send_email.php';
 require_once ABSPATH . 'lib/bookings_ics_file.php';
 require_once ABSPATH . 'lib/google_cal_link.php';
 require_once ABSPATH . 'lib/outlook_cal_link.php';
+require_once ABSPATH . 'lib/file_upload.php';
 
 $meeting = $database->getMeetingById($meeting_id, $_SESSION['user_id']);
 $timeslots = $database->getTimeslotsByMeetingId($meeting['id']);
@@ -12,7 +13,19 @@ $timeslots = $database->getTimeslotsByMeetingId($meeting['id']);
 $inviteList = $database->getNotRegistered($meeting['id']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['attendeeOnid'])) {
+    if (isset($_POST['deleteHash'])) {
+        $meetingHash = $_POST['deleteHash'];
+        $meetingHash = trim($meetingHash);
+
+        $result = $database->deleteMeeting($meetingHash);
+
+        if ($result > 0) {
+            $file_upload->deleteEventFiles($meetingHash);
+            $msg->success('"' . $meeting['name'] . '" has been deleted.', SITE_DIR . '/manage');
+        } else {
+            $msg->error('Could not delete the meeting.');
+        }
+    } else if (isset($_POST['attendeeOnid'])) {
         $attendeeOnids = $_POST['attendeeOnid'];
         $link = $_POST['link'];
         $host = $_SESSION['user_onid'];
