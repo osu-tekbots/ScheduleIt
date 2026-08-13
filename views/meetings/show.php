@@ -4,8 +4,8 @@ require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/send_email.php';
 require_once ABSPATH . 'lib/bookings_ics_file.php';
 require_once ABSPATH . 'lib/attendee_csv_file.php';
-require_once ABSPATH . 'lib/google_cal_link.php';
-require_once ABSPATH . 'lib/outlook_cal_link.php';
+require_once ABSPATH . 'lib/classes/CalLink/GoogleCalLink.php';
+require_once ABSPATH . 'lib/classes/CalLink/OutlookCalLink.php';
 require_once ABSPATH . 'lib/file_upload.php';
 
 $meeting = $database->getMeetingById($meeting_id, $_SESSION['user_id']);
@@ -17,18 +17,25 @@ if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
     $meeting['dates'] = $database->getDatesByMeetingId($meeting['id'], $_SESSION['user_timezone']);
     $meeting['dates_count'] = count($meeting['dates']);
     $attendee_meetings = $database->getMeetingAttendees($meeting['id']);
-    foreach ($attendee_meetings as $key => $timeslot) {
-		$event_title = urlencode($meeting['name'] . ": ". $attendee_meetings[$key]['attendee_name']);
-		$description = urlencode($attendee_meetings[$key]['attendee_name'] . "<BR><BR>" . $attendee_meetings[$key]['message']);
-// These dates being passed for the Google link produce the worng times. Likely due to UTC vs. current Timezone
-        $google_cal_link = new GoogleCalLink($event_title,$attendee_meetings[$key]['start_time'],$attendee_meetings[$key]['end_time'],$description,$meeting['location']);
-        $attendee_meetings[$key]['google_cal_link'] = $google_cal_link->getlink();
-        $outlook_cal_link = new OutlookCalLink($event_title,
-												$attendee_meetings[$key]['start_time'],
-												$attendee_meetings[$key]['end_time'],
-												$description,
-												$meeting['location']);
-        $attendee_meetings[$key]['outlook_cal_link'] = $outlook_cal_link->getlink();
+
+    $timeslot = $timeslot_google_link = $timeslot_outlook_link = null;
+    foreach ($attendee_meetings as $key => &$attendee) {
+        if (is_null($timeslot) || $timeslot['start_time'] != $attendee['start_time']) {
+            $timeslot_google_link = new GoogleCalLink(
+                $meeting['name'], $attendee['description'], $attendee['start_time'], $attendee['end_time'], $meeting['location']
+            );
+            $timeslot_outlook_link = new OutlookCalLink(
+                $meeting['name'], $attendee['description'], $attendee['start_time'], $attendee['end_time'], $meeting['location']
+            );
+
+            $timeslot = &$attendee;
+        }
+
+        $timeslot_google_link->addRequiredAttendee($attendee['attendee_email']);
+        $timeslot_outlook_link->addRequiredAttendee($attendee['attendee_email']);
+
+        $timeslot['google_cal_link'] = $timeslot_google_link->getOwnerLink();
+        $timeslot['outlook_cal_link'] = $timeslot_outlook_link->getOwnerLink();
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

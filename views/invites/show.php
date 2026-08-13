@@ -3,8 +3,8 @@ require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/file_upload.php';
 require_once ABSPATH . 'lib/send_email.php';
 require_once ABSPATH . 'lib/ics_file.php';
-require_once ABSPATH . 'lib/google_cal_link.php';
-require_once ABSPATH . 'lib/outlook_cal_link.php';
+require_once ABSPATH . 'lib/classes/CalLink/GoogleCalLink.php';
+require_once ABSPATH . 'lib/classes/CalLink/OutlookCalLink.php';
 
 $meeting_hash = !empty($_GET['key']) ? $_GET['key'] : null;
 
@@ -131,9 +131,13 @@ if ($meeting) {
         }
     }
     if (!empty($booking)) {
-        $google_cal_link = new GoogleCalLink($meeting['name'],$booking['start_time'],$booking['end_time'],$meeting['description'],$meeting['location']);
+        $google_cal_link = new GoogleCalLink(
+            $meeting['name'], $meeting['description'], $booking['start_time'], $booking['end_time'], $meeting['location']
+        );
+        $outlook_cal_link = new OutlookCalLink(
+            $meeting['name'], $meeting['description'], $booking['start_time'], $booking['end_time'], $meeting['location']
+        );
         $booking['google_cal_link'] = $google_cal_link->getlink();
-        $outlook_cal_link = new OutlookCalLink($meeting['name'],$booking['start_time'],$booking['end_time'],$meeting['description'],$meeting['location']);
         $booking['outlook_cal_link'] = $outlook_cal_link->getlink();
     }
     echo $twig->render('invites/show.twig', [
