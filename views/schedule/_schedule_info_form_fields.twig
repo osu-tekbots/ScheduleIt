@@ -1,0 +1,26 @@
+<p>
+  <span class="text-danger">* Required</span>
+</p>
+<div class="mb-3">
+  <label class="h6">Title <span class="text-danger">*</span></label>
+  <div class="row">
+    <div class="col-md-6">
+      <input class="form-control" name="name" required type="text" placeholder="Enter Title">
+    </div>
+  </div>
+</div>
+<div class="mb-4">
+  <label class="h6">Description</label>
+  <div class="row">
+    <div class="col-md-6">
+      <textarea class="form-control" name="description" placeholder="Enter Description"></textarea>
+    </div>
+  </div>
+</div>
+<div class="form-check mb-4">
+  <input class="form-check-input" {% if schedule.is_anon == true %}checked{% endif %} name="is_anon" type="checkbox" value="1" id="is_anon">
+  <label class="form-check-label" for="is_anon">
+    Block viewers from seeing others' entries
+    <i id="anon_desc" {% if schedule.is_anon == false %}style="display:none;" {% endif %}class="text-secondary"><br>Attendees cannot see each others' filled timeslots</i>
+  </label>
+</div>

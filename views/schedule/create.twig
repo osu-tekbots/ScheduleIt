@@ -9,145 +9,18 @@
 </div>
 
 <form enctype="multipart/form-data" method="post">
-<p>
-  <span class="text-danger">* Required</span>
-</p>
-<div class="mb-3">
-  <label class="h6">Title <span class="text-danger">*</span></label>
-  <div class="row">
-    <div class="col-md-6">
-      <input class="form-control" name="name" required type="text" placeholder="Enter Title">
-    </div>
+  {{ include('schedule/_schedule_info_form_fields.twig') }}
+
+  {{ include('schedule/_schedule_dates_form_fields.twig') }}
+
+  <div class="pt-4">
+    <button class="btn btn-success">
+      Save Schedule
+    </button>
+    <a class="ml-3" href="{{site_url}}/manage">
+      Cancel
+    </a>
   </div>
-</div>
-<div class="mb-4">
-  <label class="h6">Description</label>
-  <div class="row">
-    <div class="col-md-6">
-      <textarea class="form-control" name="description" placeholder="Enter Description"></textarea>
-    </div>
-  </div>
-</div>
-<div class="form-check mb-4">
-  <input class="form-check-input" {% if schedule.is_anon == true %}checked{% endif %} name="is_anon" type="checkbox" value="1" id="is_anon">
-  <label class="form-check-label" for="is_anon">
-    Block viewers from seeing others' entries
-    <i id="anon_desc" {% if schedule.is_anon == false %}style="display:none;" {% endif %}class="text-secondary"><br>Attendees cannot see each others' filled timeslots</i>
-  </label>
-</div>
-<div class="mb-4">
-  <label class="h6">
-    Timeslot Duration
-  </label>
-  <p class="text-danger">
-    <i class="fas fa-exclamation-circle text-danger"></i>
-    Changing this value will cause all selected times to be removed.
-  </p>
-  <div class="row">
-    <div class="col-6 col-md-2">
-      <select class="custom-select" id="duration" name="duration" data-create="{% if edit_dates %}false{% else %}true{% endif %}" data-saved-duration="{{schedule.duration}}">
-        <option value="60" {% if schedule.duration == 60 %}selected{% endif %}>
-          1 hour
-        </option>
-        <option value="30" {% if schedule.duration == 30 %}selected{% endif %}>
-          30 minutes
-        </option>
-      </select>
-    </div>
-  </div>
-</div>
-{# 
-NOTE: very similar to meetings (_meeting_dates_form_fields.twig), but work differently
-under the hood. Find-a-times only care about storing the valid dates and the creator's
-time selections are maintained separately. Meetings don't care about dates at all and
-store only the time selections. This means they need to handle timezone localization
-differently, despite sharing a very similar UI.
-#}
-<div class="mb-4">
-  <label class="h6">
-    Meeting Time Range
-  </label>
-  <p class="text-info">
-    <i class="fas fa-info-circle"></i>
-    Values must be between {{ meetings_min_start_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
-    and {{ meetings_max_end_time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
-  </p>
-  <div class="d-flex align-items-center">
-    <div class="col-lg-1 col-2"> 
-      <label>
-        From
-      </label>
-    </div>
-    <div class="col-2"> 
-      <select class="custom-select" id="start-time" name="start-time">
-        {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
-          <option value="{{time|date('H:i P', user_timezone)}}" {% if meetings_start_time|date('U') == time %}selected{% endif %}>
-            {{ time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-lg-1 col-2"> 
-    </div>
-    <div class="col-lg-1 col-2"> 
-      <label>
-        To
-      </label>
-    </div>
-    <div class="col-2"> 
-      <select class="custom-select" id="end-time" name="end-time">
-        {% for time in range(meetings_min_start_time|date('U'), meetings_max_end_time|date('U'), 3600) %}
-          <option value="{{time|date('H:i P', user_timezone)}}" {% if meetings_end_time|date('U') == time %}selected{% endif %}>
-            {{ time | date('h:i a T (\\G\\M\\T P)', user_timezone) }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-</div>
-<div class="mb-4">
-  <label class="h6">
-    Select Meeting Dates
-  </label>
-  <p class="text-danger">
-    <i class="fas fa-exclamation-circle"></i>
-    Times may show unexpectedly when dates cross a daylight savings time boundary.
-  </p>
-  {% if edit_dates %}
-    <p class="text-danger">
-      <i class="fas fa-exclamation-circle text-danger"></i>
-      Previously saved dates require confirmation for removal.
-    </p>
-  {% endif %}
-  <div
-    class="times-selector"
-    data-create="{% if edit_dates %}false{% else %}true{% endif %}"
-    data-dates="{{dates_json}}"
-    data-dates-saved="{{dates_saved_json}}"
-    data-end-time="{{meetings_end_time|date('H:i', user_timezone)}}"
-    data-start-time="{{meetings_start_time|date('H:i', user_timezone)}}"
-    data-max-end-time="{{meetings_max_end_time|date('H:i', user_timezone)}}"
-    data-min-start-time="{{meetings_min_start_time|date('H:i', user_timezone)}}"
-    id="calendar-times-selector"
-  >
-  </div>
-</div>
-
-  
-
-
-
-{{ include('schedule/_available_selector.twig') }}
-
-<div class="pt-4">
-  <button class="btn btn-success">
-    Save Schedule
-  </button>
-  <a class="ml-3" href="{{site_url}}/manage">
-    Cancel
-  </a>
-</div>
-
 </form>
 
 {% endblock %}
