@@ -36,14 +36,8 @@ switch ($request) {
     case '/schedule/create':
         require_once ABSPATH . 'views/schedule/create.php';
         break;
-    case '/schedule/available':
-        require_once ABSPATH . 'views/schedule/available.php';
-        break;
     case '/schedule/invite':
         require_once ABSPATH . 'views/schedule/invite.php';
-        break;
-    case '/schedule':
-        require_once ABSPATH . 'views/schedule/index.php';
         break;
     case '/create':
         require_once ABSPATH . 'views/create/index.php';

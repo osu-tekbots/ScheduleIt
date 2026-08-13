@@ -214,6 +214,37 @@ class DatabaseInterface
     }
 
     /**
+     * Get schedules by user id for manage page.
+     *
+     * @param int $user_id
+     * @param string $search_term
+     * @return mixed
+     */
+    public function getManageSchedules($user_id, $search_term)
+    {
+        $schedules_query = "
+        SELECT meb_schedule.*
+        FROM meb_schedule
+        WHERE fk_schedule_creator = ?
+        AND meb_schedule.name LIKE ?
+		ORDER BY meb_schedule.mod_date DESC;
+        ;";
+
+        $schedules = $this->database->prepare($schedules_query);
+
+        $partial_match = '%' . $search_term . '%';
+        $schedules->bind_param("is", $user_id, $partial_match);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $schedules->close();
+
+        return $list;
+    }
+
+    /**
      * Get meetings created by user for the manage page.
      *
      * @param string $onid
@@ -2576,41 +2607,6 @@ class DatabaseInterface
         $availabilities->close();
 
         return $availabilities_result;
-    }
-
-    /**
-     * Get schedules by user id for index page.
-     *
-     * @param int $user_id
-     * @return mixed
-     */
-    public function getUpcomingSchedulesByCreator($user_id)
-    {
-        $schedules_query = "
-        SELECT meb_schedule.*
-        FROM meb_schedule
-        WHERE fk_schedule_creator = ?
-		ORDER BY meb_schedule.mod_date DESC;
-        ;";
-
-        $schedules = $this->database->prepare($schedules_query);
-
-        $schedules->bind_param("i", $user_id);
-        $schedules->execute();
-
-        $result = $schedules->get_result();
-
-        if ($result->num_rows > 0) {
-            $list = $result->fetch_all(MYSQLI_ASSOC);
-            $schedules_result = $list;
-        } else {
-            $schedules_result = false;
-        }
-
-        $result->free();
-        $schedules->close();
-
-        return $schedules_result;
     }
 
     /**
