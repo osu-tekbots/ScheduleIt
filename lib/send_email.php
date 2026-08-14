@@ -160,11 +160,11 @@ class SendEmail
      * @param string $scheduleName
      * @param string $creatorName
      * @param string $creatorEmail
-     * @param array{mixed} $respondants
+     * @param array{mixed} $respondents
      * @return void
      */
-    public function scheduleReset($scheduleName, $creatorName, $creatorEmail, $respondants) {
-        foreach ($respondants as $user) {
+    public function scheduleReset($scheduleName, $creatorName, $creatorEmail, $respondents) {
+        foreach ($respondents as $user) {
             $to = $user['email'];
             $subject = 'Re-enter availability: ' . trim($scheduleName);
             $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .

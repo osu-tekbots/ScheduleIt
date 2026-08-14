@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $user_dates = !empty($_POST['date_vals']) ? $_POST['date_vals'] : [];
     $availabilities = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
-    $notify_respondants = isset($_POST['notify_respondants']);
+    $notify_respondents = isset($_POST['notify_respondents']);
 
     $server_dates = array_map(
         fn ($d) => localizeDate("$d {$_POST['start-time']}", date_default_timezone_get())->format('Y-m-d'),
@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (count($server_dates) == 0) {
         $msg->error('Please fill out all required fields.');
     } else {
-        if ($notify_respondants) {
-            $respondants = $database->getScheduleRespondants($schedule_id);
+        if ($notify_respondents) {
+            $respondents = $database->getScheduleRespondents($schedule_id);
         }
 
         $result = $database->replaceSchedule($schedule);
@@ -52,12 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $schedule['end_time'], $availabilities, $schedule['slot_duration']
                 );
             }
-            if ($notify_respondants) {
+            if ($notify_respondents) {
                 $send_email->scheduleReset(
                     $schedule['name'],
                     $_SESSION['user_firstname'] . ' ' . $_SESSION['user_lastname'],
                     $_SESSION['user_email'],
-                    $respondants
+                    $respondents
                 );
             }
 

@@ -2457,12 +2457,12 @@ class DatabaseInterface
     }
 
     /**
-     * Gets the emails of all respondants for the schedule.
+     * Gets the emails of all respondents for the schedule.
      * 
      * @param int $id
      * @return array{mixed}
      */
-    public function getScheduleRespondants($id)
+    public function getScheduleRespondents($id)
     {
         $query = 'SELECT email, first_name, last_name
             FROM meb_schedule s
@@ -2477,12 +2477,12 @@ class DatabaseInterface
         $statement->execute();
         
         $result = $statement->get_result();
-        $respondants = $result->fetch_all(MYSQLI_ASSOC);
+        $respondents = $result->fetch_all(MYSQLI_ASSOC);
         
         $result->free();
         $statement->close();
 
-        return $respondants;
+        return $respondents;
     }
 
     /**
