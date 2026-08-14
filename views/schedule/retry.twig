@@ -1,0 +1,44 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_content %}
+
+<div class="align-items-center d-md-flex justify-content-between">
+  <h1 class="h2 mb-4 col-6">
+    {{title}}
+  </h1>
+</div>
+
+<div class="row">
+  <div class="col-7">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-circle"></i>
+      <b>This should not be used if you need to preserve your find-a-time's original
+      responses.</b>
+      <br><br>
+      Retrying a find-a-time will clear all dates and responses so that a new date range
+      can be selected. This preserves the original response URL to make it easier for
+      respondants to find the right link to fill out again if none of the original
+      timeslots worked.
+    </div>
+  </div>
+</div>
+
+<form enctype="multipart/form-data" method="post">
+  <div class="form-check mb-4">
+    <input name="notify_respondants" id="notify_respondants" type="checkbox" class="form-check-input" checked>
+    <label for="notify_respondants" class="form-check-label">Notify current respondants to reenter their availability</label>
+  </div>
+
+  {{ include('schedule/_schedule_dates_form_fields.twig') }}
+
+  <div class="pt-4">
+    <button class="btn btn-danger">
+      Replace Schedule
+    </button>
+    <a class="ml-3" href="{{site_url}}/manage">
+      Cancel
+    </a>
+  </div>
+</form>
+
+{% endblock %}

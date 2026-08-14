@@ -2,13 +2,10 @@
 
 require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/dates.php';
+require_once ABSPATH . 'lib/send_email.php';
 
 $dates = [];
-$schedule = [
-    'slot_duration' => 60,
-    'title' => 'test title',
-    'description' => 'test description'
-];
+$schedule = $database->getScheduleById($schedule_id);
 
 $user_tz = new DateTimeZone($_SESSION['user_timezone']);
 
@@ -24,46 +21,55 @@ $time_labels = [[], $time_labels]; // Standardize format for _available_selector
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $server_tz = new DateTimeZone(date_default_timezone_get());
-    
-    $schedule['name'] = $_POST['name'];
-    $schedule['description'] = $_POST['description'];
-    $schedule['is_anon'] = !empty($_POST['is_anon']) ? 1 : 0;
 
+    $schedule['id'] = $schedule_id;
     $schedule['start_time'] = (new DateTimeImmutable($_POST['start-time']))->setTimezone($server_tz)->format('H:i:s');
     $schedule['end_time'] = (new DateTimeImmutable($_POST['end-time']))->setTimezone($server_tz)->format('H:i:s');
     $schedule['slot_duration'] = $_POST['duration'];
 
     $user_dates = !empty($_POST['date_vals']) ? $_POST['date_vals'] : [];
     $availabilities = !empty($_POST['timeslots']) ? $_POST['timeslots'] : [];
+    $notify_respondants = isset($_POST['notify_respondants']);
 
     $server_dates = array_map(
         fn ($d) => localizeDate("$d {$_POST['start-time']}", date_default_timezone_get())->format('Y-m-d'),
         $user_dates
     );
 
-    if (empty($_POST['name']) || (count($server_dates) == 0)) {
+    if (count($server_dates) == 0) {
         $msg->error('Please fill out all required fields.');
     } else {
-        $new_schedule_id = $database->addSchedule($_SESSION['user_id'], $schedule);
+        if ($notify_respondants) {
+            $respondants = $database->getScheduleRespondants($schedule_id);
+        }
 
-        if ($new_schedule_id > 0) {
+        $result = $database->replaceSchedule($schedule);
+
+        if ($result > 0) {
             if (!empty($server_dates)) {
                 $database->addDates(
-                    $_SESSION['user_id'], $new_schedule_id, $server_dates, $schedule['start_time'],
+                    $_SESSION['user_id'], $schedule_id, $server_dates, $schedule['start_time'],
                     $schedule['end_time'], $availabilities, $schedule['slot_duration']
                 );
             }
-            $msg->success('"' . $schedule['name'] . '" has been created.', SITE_DIR . '/schedule/' . $new_schedule_id);
-        } else {
-            $msg->error('Could not create schedule.');
-        }
+            if ($notify_respondants) {
+                $send_email->scheduleReset(
+                    $schedule['name'],
+                    $_SESSION['user_firstname'] . ' ' . $_SESSION['user_lastname'],
+                    $_SESSION['user_email'],
+                    $respondants
+                );
+            }
 
-        
+            $msg->success('"' . $schedule['name'] . '" has been replaced.', SITE_DIR . '/schedule/' . $schedule_id);
+        } else {
+            $msg->error('Could not replace schedule.');
+        }
     }
 }
 
-echo $twig->render('schedule/create.twig', [
-    'title' => 'Create Find-A-Time',
+echo $twig->render('schedule/retry.twig', [
+    'title' => "Retry Find-A-Time: {$schedule['name']}",
     'dates' => $dates,
     'dates_json' => json_encode($dates),
     'schedule' => $schedule,

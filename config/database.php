@@ -2321,6 +2321,66 @@ class DatabaseInterface
     }
 
     /**
+     * Replace all time information for a schedule.
+     *
+     * @param object $schedule
+     * @return array{string} Emails for users who had responded
+     */
+    public function replaceSchedule($schedule)
+    {
+        $id = $schedule['id'];
+        $start_time = $schedule['start_time'];
+        $end_time = $schedule['end_time'];
+        $slot_duration = $schedule['slot_duration'];
+
+        $query = "DELETE FROM meb_availability WHERE fk_date_id IN (
+                SELECT id FROM meb_date WHERE fk_schedule_id = ?
+            );
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param("i", $id);
+        $statement->execute();
+
+        $affected_rows = $statement->affected_rows;
+        $statement->close();
+
+
+        $query = "DELETE FROM meb_date WHERE fk_schedule_id = ?;";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param("i", $id);
+        $statement->execute();
+
+        $affected_rows = $statement->affected_rows;
+        $statement->close();
+
+
+        $query = "
+            UPDATE meb_schedule
+            SET start_time = ?,
+                end_time = ?,
+                slot_duration = ?
+            WHERE id = ?;
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param(
+            "ssii",
+            $start_time,
+            $end_time,
+            $slot_duration,
+            $id
+        );
+        $statement->execute();
+
+        $affected_rows += $statement->affected_rows;
+        $statement->close();
+
+        return $affected_rows;
+    }
+
+    /**
      * Get schedule by id for show and edit.
      *
      * @param int $id
@@ -2394,6 +2454,35 @@ class DatabaseInterface
         $schedule->close();
 
         return $schedule_result;
+    }
+
+    /**
+     * Gets the emails of all respondants for the schedule.
+     * 
+     * @param int $id
+     * @return array{mixed}
+     */
+    public function getScheduleRespondants($id)
+    {
+        $query = 'SELECT email, first_name, last_name
+            FROM meb_schedule s
+                INNER JOIN meb_date d ON d.fk_schedule_id = s.id
+                INNER JOIN meb_availability a ON a.fk_date_id = d.id
+                INNER JOIN meb_user u ON u.id = a.fk_user_id AND u.id != s.fk_schedule_creator
+            WHERE s.id = ?
+            GROUP BY u.id;
+        ';
+        $statement = $this->database->prepare($query);
+        $statement->bind_param('i', $id);
+        $statement->execute();
+        
+        $result = $statement->get_result();
+        $respondants = $result->fetch_all(MYSQLI_ASSOC);
+        
+        $result->free();
+        $statement->close();
+
+        return $respondants;
     }
 
     /**

@@ -8,11 +8,11 @@
   </p>
   <div class="row">
     <div class="col-6 col-md-2">
-      <select class="custom-select" id="duration" name="duration" data-create="{% if edit_dates %}false{% else %}true{% endif %}" data-saved-duration="{{schedule.duration}}">
-        <option value="60" {% if schedule.duration == 60 %}selected{% endif %}>
+      <select class="custom-select" id="duration" name="duration" data-create="{% if edit_dates %}false{% else %}true{% endif %}" data-saved-duration="{{schedule.slot_duration}}">
+        <option value="60" {% if schedule.slot_duration == 60 %}selected{% endif %}>
           1 hour
         </option>
-        <option value="30" {% if schedule.duration == 30 %}selected{% endif %}>
+        <option value="30" {% if schedule.slot_duration == 30 %}selected{% endif %}>
           30 minutes
         </option>
       </select>

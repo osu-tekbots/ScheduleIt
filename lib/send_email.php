@@ -153,6 +153,35 @@ class SendEmail
 
         mail($to, $subject, $message, $headers);
     }
+
+    /**
+     * Send email when find-a-time schedule is reset.
+     * 
+     * @param string $scheduleName
+     * @param string $creatorName
+     * @param string $creatorEmail
+     * @param array{mixed} $respondants
+     * @return void
+     */
+    public function scheduleReset($scheduleName, $creatorName, $creatorEmail, $respondants) {
+        foreach ($respondants as $user) {
+            $to = $user['email'];
+            $subject = 'Re-enter availability: ' . trim($scheduleName);
+            $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+            'Cc: ' . $creatorName . '<' . $creatorEmail . '>' . "\r\n" .
+            'Reply-To: ' . $creatorName . '<' . $creatorEmail . '>' . "\r\n" .
+            //   'Return-Path: tekbot-web@oregonstate.edu' . "\r\n" .
+            'X-MAiler: PHP/' . phpversion();
+
+            $message = 'Hi ' . $user['first_name'].' '.$user['last_name'] . ', ' . "\r\n\r\n";
+            $message .= $creatorName . ' has changed the dates for the "' . trim($scheduleName) . '" find-a-time.' . "\r\n\r\n";
+            $message .= 'Please enter your availability for the new date ranges.' . "\r\n\r\n";
+            $message .= 'If you have any questions, please contact ' . $creatorName . ' at ' . "\r\n";
+            $message .= $creatorEmail . "\r\n";
+
+            mail($to, $subject, $message, $headers);
+        }
+    }
 }
 
 $send_email = new SendEmail();
