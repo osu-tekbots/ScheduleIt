@@ -25,20 +25,18 @@ if ($meeting) {
             $meeting['name'] = $_POST['name'];
             $meeting['location'] = $_POST['location'];
             $meeting['description'] = $_POST['description'];
-            $meeting['is_anon'] = $_POST['is_anon'] == '1';
+            $meeting['is_anon'] = !empty($_POST['is_anon']) ? 1 : 0;
             $meeting['enable_message'] = !empty($_POST['enable_message']) ? 1 : 0;
             $meeting['require_message'] = !empty($_POST['require_message']) ? 1 : 0;
             $meeting['message_prompt'] = $_POST['message_prompt'];
-            $meeting['enable_upload'] = $_POST['enable_upload'] == '1';
-            $meeting['require_upload'] = $_POST['require_upload'] == '1';
+            $meeting['enable_upload'] = !empty($_POST['enable_upload']) ? 1 : 0;
+            $meeting['require_upload'] = !empty($_POST['require_upload']) ? 1 : 0;
             $meeting['upload_prompt'] = $_POST['upload_prompt'];
-            $meeting['start_time'] = $_POST['event_start_time'];
-            $meeting['end_time'] = $_POST['event_end_time'];
 
             if (empty($_POST['name']) || empty($_POST['location'])) {
                 $msg->error('Please fill out all required fields.');
             } else {
-                $updated_meeting = $database->updateMeeting($_SESSION['user_id'], $meeting);
+                $updated_meeting = $database->updateMeeting($meeting);
 
                 // Check for file to upload
                 if (!empty($_FILES['file']['name'])) {

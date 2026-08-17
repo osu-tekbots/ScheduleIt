@@ -1120,8 +1120,6 @@ class DatabaseInterface
         $require_upload = $meeting['require_upload'];
         $upload_prompt = $meeting['upload_prompt'];
         $capacity = $meeting['capacity'];
-        $start_time = $meeting['start_time'];
-        $end_time = $meeting['end_time'];
 
         $query = "UPDATE meb_event
             SET name = ?,
@@ -1134,16 +1132,14 @@ class DatabaseInterface
                 require_message = ?,
                 enable_upload = ?,
                 require_upload = ?,
-                capacity = ?,
-                start_time = ?,
-                end_time = ?
+                capacity = ?
             WHERE id = ?;
         ";
 
         $statement = $this->database->prepare($query);
 
         $statement->bind_param(
-            "sssssiiiiiissii",
+            "sssssiiiiiii",
             $name,
             $location,
             $description,
@@ -1155,8 +1151,6 @@ class DatabaseInterface
             $enable_upload,
             $require_upload,
             $capacity,
-            $start_time,
-            $end_time,
             $id
         );
 
