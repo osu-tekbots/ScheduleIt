@@ -4,8 +4,19 @@ require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/dates.php';
 require_once ABSPATH . 'lib/send_email.php';
 
-$dates = [];
+
 $schedule = $database->getScheduleById($schedule_id);
+
+if (!$schedule || $schedule['fk_schedule_creator'] != $_SESSION['user_id']) {
+    http_response_code(404);
+    echo $twig->render('errors/error_logged_in.twig', [
+        'message' => 'Sorry, we couldn\'t find that find-a-time.',
+        'title' => 'Find-a-Time Not Found',
+    ]);
+
+    exit;
+}
+
 
 $user_tz = new DateTimeZone($_SESSION['user_timezone']);
 
@@ -70,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 echo $twig->render('schedule/retry.twig', [
     'title' => "Retry Find-A-Time: {$schedule['name']}",
-    'dates' => $dates,
-    'dates_json' => json_encode($dates),
+    'dates' => [],
+    'dates_json' => json_encode([]),
     'schedule' => $schedule,
     'time_labels' => $time_labels,
     'meetings_end_time' => new DateTimeImmutable(MEETINGS_END_TIME, $user_tz),

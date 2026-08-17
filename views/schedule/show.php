@@ -6,24 +6,29 @@ require_once ABSPATH . 'lib/dates.php';
 
 $schedule = $database->getScheduleById($schedule_id);
 
+if (!$schedule || $schedule['fk_schedule_creator'] != $_SESSION['user_id']) {
+    http_response_code(404);
+    echo $twig->render('errors/error_logged_in.twig', [
+        'message' => 'Sorry, we couldn\'t find that find-a-time.',
+        'title' => 'Find-a-Time Not Found',
+    ]);
+
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if ($schedule['fk_schedule_creator'] == $_SESSION['user_id']) {
-        if (isset($_POST['deleteId'])) {
-            $scheduleId = trim($_POST['deleteId']);
-            
-            $result = $database->deleteFindATime($scheduleId);
-            if ($result > 0) {
-                $msg->success('"' . $schedule['name'] . '" has been deleted.', SITE_DIR . '/manage');
-            } else {
-                $msg->error('Could not delete the find-a-time.');
-            }
+    if (isset($_POST['deleteId'])) {
+        $scheduleId = trim($_POST['deleteId']);
+        
+        $result = $database->deleteFindATime($scheduleId);
+        if ($result > 0) {
+            $msg->success('"' . $schedule['name'] . '" has been deleted.', SITE_DIR . '/manage');
         } else {
-            http_response_code(400);
-            $msg->error('Bad request data; could not complete.');
+            $msg->error('Could not delete the find-a-time.');
         }
     } else {
-        http_response_code(403);
-        $msg->error("Sorry, we couldn't find that find-a-time.");
+        http_response_code(400);
+        $msg->error('Bad request data; could not complete.');
     }
 }
 
