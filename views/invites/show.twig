@@ -59,6 +59,12 @@
   </div>
 </div>
 
+{% if booking %}
+  {# Forms can't be nested, so will use JS to submit this form & download ICS #}
+  <form method="post" id="icsForm">
+    <input name="ics" value="1" type="hidden">
+  </form>
+{% endif %}
 <form enctype="multipart/form-data" method="post">
   <div class="mb-3">
     <div class="card">
@@ -77,12 +83,9 @@
                 </p>
               </div>
               <div class="col-6">
-                <form method="post">
-                  <input name="ics" value="1" type="hidden">
-                  <button type="submit" class="btn btn-secondary btn-sm" style="margin-top: -20px;">
-                    Download ICS
-                  </button>
-                </form>
+                <button type="button" onclick="$('#icsForm').trigger('submit')" class="btn btn-secondary btn-sm" style="margin-top: -20px;">
+                  Download ICS
+                </button>
                 <a href="{{booking.google_cal_link}}" target="_blank" class="btn-googlelink">
                   
                 </a>
