@@ -7,7 +7,7 @@ require_once ABSPATH . 'lib/send_email.php';
 
 $server_tz = new DateTimeZone(date_default_timezone_get());
 
-$meeting = $database->getMeetingById($meeting_id, $_SESSION['user_onid']);
+$meeting = $database->getMeetingById($meeting_id, $_SESSION['user_id']);
 
 if ($meeting) {
     $meeting_tz = new DateTimeZone($meeting['creation_timezone']);

@@ -132,6 +132,58 @@ class SendEmail
     }
 
     /**
+     * Inform collaborators that they've been added to the meeting.
+     *
+     * @param string $inviteName
+     * @param string $inviteEmail
+     * @param string $eventName
+     * @param string $creatorName
+     * @param string $creatorEmail
+     * @param string $link
+     * @return void
+     */
+    public function addMeetingCollaborator($inviteName, $inviteEmail, $eventName, $creatorName, $creatorEmail, $link)
+    {
+        $subject = 'Added as Collaborator: ' . $eventName;
+        $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+          'Reply-To: ' . $creatorName . '<' . $creatorEmail . '>' . "\r\n" .
+          'X-MAiler: PHP/' . phpversion();
+
+        $message = 'Hi ' . $inviteName . ', ' . "\r\n\r\n";
+        $message .= $creatorName . ' has added you as a collaborator for the meeting "' . $eventName . '".' . "\r\n";
+        $message .= 'This meeting is on the Oregon State scheduling tool Schedule-It.' . "\r\n";
+        $message .= 'To go directly to this meeting, follow the link below.' . "\r\n";
+        $message .= 'You may also view all of your meetings after logging into Schedule-It at eecs.engineering.oregonstate.edu/education/schedule-it.' . "\r\n\r\n";
+        $message .= 'View meeting: ' . $link . "\r\n";
+
+        mail($inviteEmail, $subject, $message, $headers);
+    }
+
+    /**
+     * Inform collaborators that they've been removed from the meeting.
+     *
+     * @param string $collaboratorName
+     * @param string $collaboratorEmail
+     * @param string $eventName
+     * @param string $creatorName
+     * @param string $creatorEmail
+     * @return void
+     */
+    public function removeMeetingCollaborator($collaboratorName, $collaboratorEmail, $eventName, $creatorName, $creatorEmail)
+    {
+        $subject = 'Removed as Collaborator: ' . $eventName;
+        $headers = 'From: ' . SITE_NAME . ' <no-reply@oregonstate.edu>' . "\r\n" .
+          'Reply-To: ' . $creatorName . '<' . $creatorEmail . '>' . "\r\n" .
+          'X-MAiler: PHP/' . phpversion();
+
+        $message = 'Hi ' . $collaboratorName . ', ' . "\r\n\r\n";
+        $message .= $creatorName . ' has removed you as a collaborator for the meeting "' . $eventName . '" on Schedule-It.' . "\r\n";
+        $message .= "If you believe this was in error, please contact them at $creatorEmail." . "\r\n";
+
+        mail($collaboratorEmail, $subject, $message, $headers);
+    }
+
+    /**
      * Send timeslots changed email.
      *
      * @param object $meeting

@@ -5,19 +5,25 @@ require_once ABSPATH . 'lib/send_email.php';
 require_once ABSPATH . 'lib/file_upload.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-     $removeOnid = $_POST['attendeeOnid'];
-     $slotHash = $_POST['slotHash'];
-     $removeOnid = trim($removeOnid);
-     $slotHash = trim($slotHash);
-     $meetingHash = $_POST['meetingHash'];
-     $meetingHash = trim($meetingHash);
-     $meetingName = $_POST['meetingName'];
-     $result = $database->deleteBooking($removeOnid, $slotHash);
+     $removeOnid = trim($_POST['attendeeOnid']);
+     $slotHash = trim($_POST['slotHash']);
 
-     // delete any uploaded file
-     $file_name = UPLOADS_ABSPATH . $meetingHash . '/' . $removeOnid . '_upload' . '.*';
-     $file_upload->delete($file_name);
-     echo json_encode($result);
-     // add email here
-     $send_email->notifyRemovedAttendee($removeOnid, $_SESSION['user_firstname'] . ' ' . $_SESSION['user_lastname'], $_SESSION['user_onid'], $meetingName);
+     $meeting = $database->getMeetingBySlotHash($slotHash);
+     $collaborators = $database->getMeetingCollaborators($meeting['id'], $meeting['hash']);
+
+     $is_collaborator = !empty(array_filter(
+          $collaborators,
+          fn ($c) => $c['user_id'] == $_SESSION['user_id']
+     ));
+
+     if ($is_collaborator || $_SESSION['user_id'] == $meeting['creator_id']) {
+          $result = $database->deleteBooking($removeOnid, $slotHash);
+     
+          // delete any uploaded file
+          $file_name = UPLOADS_ABSPATH . $meeting['hash'] . '/' . $removeOnid . '_upload' . '.*';
+          $file_upload->delete($file_name);
+          echo json_encode($result);
+          // add email here
+          $send_email->notifyRemovedAttendee($removeOnid, $_SESSION['user_firstname'] . ' ' . $_SESSION['user_lastname'], $_SESSION['user_onid'], $meeting['name']);
+     }
 }

@@ -245,7 +245,7 @@ class DatabaseInterface
     }
 
     /**
-     * Get meetings created by user for the manage page.
+     * Get meetings the user created or is a collaborator on for the manage page.
      *
      * @param string $onid
      * @param string $search_term
@@ -253,10 +253,7 @@ class DatabaseInterface
      */
     public function getManageMeetings($user_id, $search_term)
     {
-        if ($search_term) {
-            $events_query = "
-
-            SELECT
+        $events_query = "SELECT
             meb_event.id,
             meb_event.hash,
             meb_event.name,
@@ -264,37 +261,23 @@ class DatabaseInterface
             meb_event.open_slots,
             meb_event.capacity,
             meb_event.mod_date
-            FROM meb_event
-            WHERE meb_event.fk_event_creator = ?
+        FROM meb_event
+            LEFT JOIN meb_event_collaborator ON meb_event_collaborator.fk_event_id = meb_event.id
+        WHERE
+            (
+                meb_event.fk_event_creator = ?
+                OR meb_event_collaborator.fk_user_id = ?
+            )
             AND (
                 meb_event.name LIKE ?
                 OR meb_event.location LIKE ?
             )
-            ORDER BY meb_event.mod_date DESC
+        ORDER BY meb_event.mod_date DESC;
+        ";
 
-            ;";
-            $events = $this->database->prepare($events_query);
-            $partial_match = '%' . $search_term . '%';
-            $events->bind_param("iss", $user_id, $partial_match, $partial_match);
-        } else {
-            $events_query = "
-
-            SELECT
-            meb_event.id,
-            meb_event.hash,
-            meb_event.name,
-            meb_event.location,
-            meb_event.open_slots,
-            meb_event.capacity,
-            meb_event.mod_date
-            FROM meb_event
-            WHERE meb_event.fk_event_creator = ?
-            ORDER BY meb_event.mod_date DESC
-
-            ;";
-            $events = $this->database->prepare($events_query);
-            $events->bind_param("i", $user_id);
-        }
+        $events = $this->database->prepare($events_query);
+        $partial_match = '%' . $search_term . '%';
+        $events->bind_param("iiss", $user_id, $user_id, $partial_match, $partial_match);
 
         $events->execute();
 
@@ -674,46 +657,51 @@ class DatabaseInterface
     /**
      * Get meeting by id for show and edit views.
      *
-     * @param id $id
+     * @param int $id
+     * @param int $user_id If provided, only returns result if the user is the owner or a collaborator
      * @return mixed
      */
-    public function getMeetingById($id)
+    public function getMeetingById($id, $user_id = null)
     {
-        $bookings_query = "
-
-        SELECT
-        meb_event.id,
-        meb_event.name,
-        meb_event.location,
-        meb_event.description,
-        meb_event.mod_date,
-        meb_event.hash,
-        meb_event.capacity,
-        meb_event.open_slots,
-        meb_event.is_anon,
-        meb_event.enable_message,
-        meb_event.require_message,
-        meb_event.message_prompt,
-        meb_event.enable_upload,
-        meb_event.require_upload,
-        meb_event.upload_prompt,
-        meb_event.start_time,
-        meb_event.end_time,
-        meb_event.creation_timezone,
-        meb_event.event_file AS creator_file,
-        meb_event.fk_event_creator AS creator_id,
-        meb_user.email AS creator_email,
-        CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS creator_name
+        $bookings_query = "SELECT
+            meb_event.id,
+            meb_event.name,
+            meb_event.location,
+            meb_event.description,
+            meb_event.mod_date,
+            meb_event.hash,
+            meb_event.capacity,
+            meb_event.open_slots,
+            meb_event.is_anon,
+            meb_event.enable_message,
+            meb_event.require_message,
+            meb_event.message_prompt,
+            meb_event.enable_upload,
+            meb_event.require_upload,
+            meb_event.upload_prompt,
+            meb_event.start_time,
+            meb_event.end_time,
+            meb_event.creation_timezone,
+            meb_event.event_file AS creator_file,
+            meb_event.fk_event_creator AS creator_id,
+            meb_user.email AS creator_email,
+            CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS creator_name
         FROM meb_event
-        INNER JOIN meb_user ON meb_user.id = meb_event.fk_event_creator
+            INNER JOIN meb_user ON meb_user.id = meb_event.fk_event_creator
+            LEFT JOIN meb_event_collaborator ON meb_event_collaborator.fk_event_id = meb_event.id
         WHERE meb_event.id = ?
+            AND (
+                meb_event.fk_event_creator = ?
+                OR meb_event_collaborator.fk_user_id = ?
+                OR ? IS NULL
+            )
         LIMIT 1
 
         ;";
 
         $bookings = $this->database->prepare($bookings_query);
 
-        $bookings->bind_param("i", $id);
+        $bookings->bind_param("iiii", $id, $user_id, $user_id, $user_id);
         $bookings->execute();
 
         $result = $bookings->get_result();
@@ -777,6 +765,61 @@ class DatabaseInterface
         $bookings->close();
 
         return $list;
+    }
+
+    /**
+     * Gets the meeting collaborators (other people who can see details).
+     * 
+     * @param int $id
+     * @return array{int} $user_ids
+     */
+    public function getMeetingCollaborators($id)
+    {
+        $query = "
+            SELECT
+                meb_user.id AS user_id,
+                CONCAT(meb_user.first_name, ' ', meb_user.last_name) AS user_name,
+                meb_event_collaborator.date_added
+            FROM meb_event_collaborator
+                INNER JOIN meb_user ON meb_user.id = meb_event_collaborator.fk_user_id
+            WHERE meb_event_collaborator.fk_event_id = ?
+        ;";
+
+        $statement = $this->database->prepare($query);
+        $statement->bind_param("i", $id);
+        $statement->execute();
+
+        $result = $statement->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+
+        $result->free();
+        $statement->close();
+
+        return $list;
+    }
+
+    public function addMeetingCollaborator($userId, $eventId)
+    {
+        $query = 'INSERT INTO `meb_event_collaborator` (fk_user_id, fk_event_id)
+            VALUES (?,?);
+        ';
+        $insert = $this->database->prepare($query);
+
+        $insert->bind_param("ii", $userId, $eventId);
+        $insert->execute();
+
+        $insert->close();
+    }
+
+    public function removeMeetingCollaborator($userId, $eventId)
+    {
+        $query = 'DELETE FROM `meb_event_collaborator` WHERE fk_user_id = ? AND fk_event_id = ?;';
+        $insert = $this->database->prepare($query);
+
+        $insert->bind_param("ii", $userId, $eventId);
+        $insert->execute();
+
+        $insert->close();
     }
 
     /**
@@ -1063,7 +1106,7 @@ class DatabaseInterface
      * @param object $meeting
      * @return int
      */
-    public function updateMeeting($user_id, $meeting)
+    public function updateMeeting($meeting)
     {
         $id = $meeting['id'];
         $name = $meeting['name'];
@@ -1080,25 +1123,21 @@ class DatabaseInterface
         $start_time = $meeting['start_time'];
         $end_time = $meeting['end_time'];
 
-        $query = "
-
-            UPDATE meb_event
+        $query = "UPDATE meb_event
             SET name = ?,
-            location = ?,
-            description = ?,
-            message_prompt = ?,
-            upload_prompt = ?,
-            is_anon = ?,
-            enable_message = ?,
-            require_message = ?,
-            enable_upload = ?,
-            require_upload = ?,
-            capacity = ?,
-            start_time = ?,
-            end_time = ?
-            WHERE id = ?
-            AND fk_event_creator = ?
-
+                location = ?,
+                description = ?,
+                message_prompt = ?,
+                upload_prompt = ?,
+                is_anon = ?,
+                enable_message = ?,
+                require_message = ?,
+                enable_upload = ?,
+                require_upload = ?,
+                capacity = ?,
+                start_time = ?,
+                end_time = ?
+            WHERE id = ?;
         ";
 
         $statement = $this->database->prepare($query);
@@ -1118,8 +1157,7 @@ class DatabaseInterface
             $capacity,
             $start_time,
             $end_time,
-            $id,
-            $user_id
+            $id
         );
 
         $statement->execute();
@@ -1167,6 +1205,44 @@ class DatabaseInterface
         LIMIT 1
 
         ;";
+
+        $bookings = $this->database->prepare($bookings_query);
+
+        $bookings->bind_param("s", $hash);
+        $bookings->execute();
+
+        $result = $bookings->get_result();
+
+        if ($result->num_rows > 0) {
+            $list = $result->fetch_all(MYSQLI_ASSOC);
+            $meeting = $list[0];
+        } else {
+            $meeting = null;
+        }
+
+        $result->free();
+        $bookings->close();
+
+        return $meeting;
+    }
+
+    /**
+     * Get meeting by hash for invite page.
+     *
+     * @param string $hash
+     * @return mixed
+     */
+    public function getMeetingBySlotHash($hash)
+    {
+        $bookings_query = "SELECT
+            meb_event.id,
+            meb_event.name,
+            meb_event.hash,
+            meb_event.fk_event_creator AS creator_id
+        FROM meb_event
+            INNER JOIN meb_timeslot ON meb_timeslot.fk_event_id = meb_event.id
+        WHERE meb_timeslot.hash = ?;
+        ";
 
         $bookings = $this->database->prepare($bookings_query);
 

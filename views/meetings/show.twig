@@ -211,11 +211,9 @@
         <td class="col-1" style="text-align:center;">
           <button
             class="btn btn-danger btn-sm table-btn"
-            data-name="{{a_meeting.name}}"
             data-timeslot-hash="{{a_meeting.timeslot_hash}}"
             data-attendee-onid="{{a_meeting.attendee_onid}}"
             data-url="{{site_url}}/meetings/remove_attendee"
-            data-a_meeting-hash="{{a_meeting.hash}}"
             type="button"
           >
             <i class="fas fa-times"></i>
@@ -275,6 +273,44 @@
     Invite Attendees
   </button>
 </p>
+<h2 class="h3 mt-4">
+  Collaborators
+</h2>
+{% if collaborator_list %}
+  <table class="table">
+    <tr class="d-flex">
+      <th class="col-6">Name</th>
+      <th class="col-5">Date Added</th>
+      <th class="col-1">Remove</th>
+    </tr>
+    {% for collaborator in collaborator_list %}
+      <tr class="d-flex">
+        <td class="col-6">
+          {{ collaborator.user_name }}
+        </td>
+        <td class="col-5">
+          {{ collaborator.date_added | date("n/j/y g:ia T (\\G\\M\\T P)", user_timezone)}}
+        </td>
+        <td class="col-1" style="text-align: center;">
+          <form method="post">
+            <input type="hidden" name="removeCollaborator" value="{{ collaborator.user_id }}">
+            <button
+              class="btn btn-danger btn-sm"
+              type="submit"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endif %}
+<p class="mb-5 mt-3">
+  <button class="btn btn-primary" data-toggle="modal" data-target="#add-collaborators-modal" type="button">
+    Add Collaborator
+  </button>
+</p>
 <div class="modal fade" id="invite-attendees-modal" tabindex="-1" role="dialog" aria-labelledby="invite-attendees-modal-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -287,7 +323,7 @@
       <form method="post">
         <div class="modal-body">
           <p>
-            Please enter ONIDs separated by spaces.
+            Please enter ONIDs (without the email suffix "@oregonstate.edu") separated by spaces.
           </p>
           <div class="form-group">
             <input class="form-control" name="attendeeOnid" id="onid" placeholder="onid1 onid2..." type="text">
@@ -297,6 +333,37 @@
           <input type="hidden" name="link" value="{{site_url}}/invite?key={{meeting.hash}}">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button class="btn btn-success">Send Invites</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="add-collaborators-modal" tabindex="-1" role="dialog" aria-labelledby="add-collaborators-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="add-collaborators-modal-label">Add Collaborators</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post">
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Collaborators can view and edit the meeting but will only be shown as an
+            attendee for timeslots they sign up for.
+          </div>
+          <p>
+            Please enter the collaborator's ONID (without the email suffix "@oregonstate.edu").
+          </p>
+          <div class="form-group">
+            <input class="form-control" name="collaboratorOnid" id="onid" type="text">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add Collaborator</button>
         </div>
       </form>
     </div>

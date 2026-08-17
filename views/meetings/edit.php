@@ -3,7 +3,7 @@
 require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/file_upload.php';
 
-$meeting = $database->getMeetingById($meeting_id, $_SESSION['user_onid']);
+$meeting = $database->getMeetingById($meeting_id, $_SESSION['user_id']);
 
 if ($meeting) {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

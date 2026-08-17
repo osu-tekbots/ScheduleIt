@@ -12,8 +12,9 @@ $meeting = $database->getMeetingById($meeting_id, $_SESSION['user_id']);
 $timeslots = $database->getTimeslotsByMeetingId($meeting['id']);
 // list of onids that were invited to the event but have not registered
 $inviteList = $database->getNotRegistered($meeting['id']);
+$collaboratorList = $database->getMeetingCollaborators($meeting['id']);
 
-if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
+if ($meeting) {
     $meeting['dates'] = $database->getDatesByMeetingId($meeting['id'], $_SESSION['user_timezone']);
     $meeting['dates_count'] = count($meeting['dates']);
     $attendee_meetings = $database->getMeetingAttendees($meeting['id']);
@@ -80,6 +81,47 @@ if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
                     $msg->success('Sent 1 invite.', SITE_DIR . '/meetings/' . $meeting['id']);
                 }
             }
+        } else if (isset($_POST['collaboratorOnid'])) {
+            $onid = trim($_POST['collaboratorOnid']);
+            $user = $database->getUserByONID($onid);
+            
+            if ($user) {
+                $database->addMeetingCollaborator($user['id'], $meeting['id']);
+    
+                $send_email->addMeetingCollaborator(
+                    $user['first_name'].' '.$user['last_name'],
+                    $user['email'],
+                    $meeting['name'],
+                    $_SESSION['user_firstname'].' '.$_SESSION['user_lastname'],
+                    $_SESSION['user_email'],
+                    "https://eecs.engineering.oregonstate.edu/education/schedule-it/meetings/{$meeting['id']}"
+                );
+
+                $successMessage = "Added {$user['first_name']} {$user['last_name']} as a collaborator";
+                $msg->success($successMessage, SITE_DIR . '/meetings/' . $meeting['id']);
+            } else {
+                $msg->error("Could not find $onid. Have they logged into Schedule-It yet?");
+            }
+        } else if (isset($_POST['removeCollaborator'])) {
+            $user_id = trim($_POST['removeCollaborator']);
+            $user = $database->getUserById($user_id);
+
+            if ($user) {
+                 $database->removeMeetingCollaborator($user['id'], $meeting['id']);
+    
+                $send_email->removeMeetingCollaborator(
+                    $user['first_name'].' '.$user['last_name'],
+                    $user['email'],
+                    $meeting['name'],
+                    $_SESSION['user_firstname'].' '.$_SESSION['user_lastname'],
+                    $_SESSION['user_email']
+                );
+
+                $successMessage = "Removed {$user['first_name']} {$user['last_name']} as a collaborator";
+                $msg->success($successMessage, SITE_DIR . '/meetings/' . $meeting['id']);
+            } else {
+                $msg->error('Could not find user.');
+            }
         } elseif (isset($_POST['ics'])) {
             $ics_file = new BookingsIcsFile($meeting, $timeslots);
             $ics_file->serveIcsFile();
@@ -94,6 +136,7 @@ if ($meeting && $meeting['creator_id'] == $_SESSION['user_id']) {
         'meeting' => $meeting,
         'title' => $meeting['name'],
         'invite_list' => $inviteList,
+        'collaborator_list' => $collaboratorList,
     ]);
 } else {
     http_response_code(404);
