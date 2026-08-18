@@ -40,5 +40,5 @@ foreach($merged_meetings as $meeting) {
 echo $twig->render('calendar/index.twig', [
     'calendar_page' => true,
     'meetings_json' => json_encode($meetings_array),
-    'title' => 'Calendar'
+    'title' => 'Meeting Calendar'
 ]);
