@@ -51,8 +51,10 @@ foreach ($availabilities as $key => &$availability) {
 }
 
 $timeslots = getTimeslots(
-    $server_dates, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'],
-    $timeslot_availabilities, $_SESSION['user_timezone']
+    $server_dates, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone'],
+    function (&$timeslot, $start_time, $_) use ($timeslot_availabilities) {
+        $timeslot['available'] = $timeslot_availabilities[$start_time] ?? [];
+    }
 );
 
 

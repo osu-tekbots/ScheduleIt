@@ -140,14 +140,12 @@ function localizeDate($date, $timezone) {
  * @param string $start_time The start of each time block (in server time; HH:MM format)
  * @param string $end_time The end of each time block (in server time; HH:MM format)
  * @param int $slot_duration The number of minutes each timeslot takes up
- * @param array{string: array{string}} $timeslot_availabilities An associative array
- *                                     mapping timeslots (in server time) to the names of
- *                                     everyone who is available during that timeslot
  * @param string $timezone The timezone that all timeslots should be localized to
+ * @param callable $callback A function for adding custom parameters to the timeslot
  * 
  * @return array{array{available array{string}, formatted_date array{string}}}
  */
-function getTimeslots($server_dates, $start_time, $end_time, $slot_duration, $timeslot_availabilities, $timezone) {
+function getTimeslots($server_dates, $start_time, $end_time, $slot_duration, $timezone, $callback) {
     $server_tz = new DateTimeZone(date_default_timezone_get());
     $date_format = 'l, M j, Y \a\t g:i A T';
     $timeslots = [];
@@ -159,11 +157,13 @@ function getTimeslots($server_dates, $start_time, $end_time, $slot_duration, $ti
 
         while ($inc_time < $stop_time) {
             $server_datetime = (clone $inc_time)->setTimezone($server_tz)->format('Y-m-d H:i:s');
+            $slot_end_time = (clone $inc_time)->setTimezone($server_tz)->modify("+$slot_duration mins")->format('Y-m-d H:i:s');
             $user_date = $inc_time->format('Y-m-d');
             $user_time = $inc_time->format('H:i:s');
 
-            $timeslots[$user_date][$user_time]['available'] = $timeslot_availabilities[$server_datetime] ?? [];
             $timeslots[$user_date][$user_time]['formatted_date'] = $inc_time->format($date_format);
+            
+            $callback($timeslots[$user_date][$user_time], $server_datetime, $slot_end_time);
 
             $inc_time->modify("+$slot_duration mins");
         }

@@ -2,6 +2,7 @@
 
 require_once ABSPATH . 'config/session.php';
 require_once ABSPATH . 'lib/dates.php';
+require_once ABSPATH . 'lib/classes/CalLink/OutlookCalLink.php';
 
 
 $schedule = $database->getScheduleById($schedule_id);
@@ -58,10 +59,23 @@ $availabilities = $database->getAvailabilitiesByScheduleId($schedule_id);
 $timeslot_availabilities = [];
 foreach ($availabilities as $key => $availability) {
     $user = $database->getUserById($availability['fk_user_id']);
-    $timeslot_availabilities[$availability['start_time']][] = $user['first_name'] . " " . $user['last_name'];
+    $timeslot_availabilities[$availability['start_time']]['name'][] = $user['first_name'] . " " . $user['last_name'];
+    $timeslot_availabilities[$availability['start_time']]['email'][] = $user['email'];
 }
 
-$timeslots = getTimeslots($server_dates, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $timeslot_availabilities, $_SESSION['user_timezone']);
+$timeslots = getTimeslots(
+    $server_dates, $schedule['start_time'], $schedule['end_time'], $schedule['slot_duration'], $_SESSION['user_timezone'],
+    function (&$timeslot, $start_time, $end_time) use ($schedule, $timeslot_availabilities) {
+        $timeslot['available'] = $timeslot_availabilities[$start_time]['name'] ?? [];
+
+        $link = new OutlookCalLink($schedule['name'], $schedule['description'], $start_time, $end_time, '');
+        foreach ($timeslot_availabilities[$start_time]['email'] as $email) {
+            $link->addRequiredAttendee($email);
+        }
+        $timeslot['outlook_link'] = $link->getOwnerLink();
+    }
+);
+$schedule['has_outlook_links'] = true;
 
 echo $twig->render('schedule/show.twig', [
     'title' => $schedule['name'],

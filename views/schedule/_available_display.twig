@@ -1,7 +1,13 @@
 <div class="mb-2">
-  <label class="h6 mb-3">
-      Others' Availabilities
-  </label>
+  <h5 class="h5 mb-3">
+    Others' Availabilities
+  </h5>
+  {% if schedule.has_outlook_links %}
+    <p class='text-info'>
+      <i class="fas fa-fire"></i>
+      Click a timeslot to create an Outlook meeting invite.
+    </p>
+  {% endif %}
   <div class="d-flex">
     <div class="times-selector-legend-container">
       <ul class="d-flex list-unstyled">
@@ -36,13 +42,17 @@
               {% for time in label_group %}
                 {% set user_time = time | date('H:i:s', user_timezone) %}
                 {% if timeslots[date][user_time] is defined %}
-                  <label
+                  <a
                     onmouseover='showGroupAvailability("{{timeslots[date][user_time].formatted_date}}", {{timeslots[date][user_time].available | json_encode | raw}});' onmouseleave="showTimeSelector()"
                     class="times-label {% if timeslots[date][user_time].available | length > 0 %}times-label--checked times-label--checked-confirm"
-                    style="background-color:green;opacity:{{(((timeslots[date][user_time].available | length) * 100) // schedule.users_count)}}%; {% endif %}">
+                    style="background-color:green;opacity:{{(((timeslots[date][user_time].available | length) * 100) // schedule.users_count)}}%; {% endif %}"
+                    {% if schedule.has_outlook_links %}
+                      href="{{timeslots[date][user_time].outlook_link}}"
+                      target="_blank"
+                    {% endif %}
+                  >
                     {{user_time}}
-                    <input>
-                  </label>
+                  </a>
                 {% else %}
                   <label class="times-label times-label--disabled">
                     <input disabled>
