@@ -3134,6 +3134,30 @@ class DatabaseInterface
 
         return $affected_rows;
     }
+
+
+    public function getSiteStatistics()
+    {
+        $query = "SELECT
+            (SELECT COUNT(DISTINCT meb_event.id) FROM meb_event) AS meetings,
+            (SELECT COUNT(DISTINCT meb_booking.fk_user_id) FROM meb_booking) AS meeting_users,
+            (SELECT COUNT(DISTINCT meb_timeslot.id) FROM meb_timeslot) AS meeting_appointments,
+            (SELECT COUNT(DISTINCT meb_schedule.id) FROM meb_schedule) AS find_a_times,
+            (SELECT COUNT(DISTINCT meb_availability.fk_user_id) FROM meb_availability) AS find_a_time_users,
+            (SELECT COUNT(DISTINCT meb_user.id) FROM meb_user) AS users;
+        ";
+
+        $statement = $this->database->prepare($query);
+        $statement->execute();
+        
+        $result = $statement->get_result();
+        $stats = $result->fetch_all(MYSQLI_ASSOC);
+        
+        $result->free();
+        $statement->close();
+
+        return $stats[0];
+    }
 }
 
 $database = new DatabaseInterface();
