@@ -1406,7 +1406,8 @@ class DatabaseInterface
         meb_timeslot.id,
         meb_timeslot.hash,
         meb_timeslot.start_time,
-        meb_timeslot.end_time
+        meb_timeslot.end_time,
+        meb_timeslot.slot_capacity
         FROM meb_timeslot
         INNER JOIN meb_event ON meb_event.id = meb_timeslot.fk_event_id
         WHERE meb_event.hash = ?

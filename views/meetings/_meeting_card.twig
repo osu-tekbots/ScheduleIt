@@ -60,7 +60,7 @@
       {% for index, attendee in meeting.attendees %}
         <tr class="d-flex">
           <td class="col">
-            {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or meeting.attendees_count == 1 %}
+            {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or attendee.attendee_email == user_email %}
               <a href="mailto:{{attendee.attendee_email}}">{% if attendee.attendee_email == user_email %}Me{% else %}{{attendee.attendee_name}}{% endif %}</a>
             {% else %}
               Attendee {{index + 1}}
@@ -68,7 +68,7 @@
           </td>
           {% if meeting.enable_upload == true %}
             <td class="col">
-              {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or meeting.attendees_count == 1 %}
+              {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or attendee.attendee_email == user_email %}
                 {% if attendee.attendee_file %}
                   <a href="{{uploads_url}}{{attendee.attendee_file}}" download="">{{attendee.attendee_file | basename}}</a>
                 {% else %}
@@ -83,7 +83,7 @@
         <tr>
           {% if meeting.enable_message == true %}
             <td class="col border-top-0 pt-0">
-              {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or meeting.attendees_count == 1 %}
+              {% if meeting.creator_onid == user_onid or meeting.is_anon == 0 or attendee.attendee_email == user_email %}
                 {% if attendee.attendee_message %}
                   {# WARNING: Could potentially allow XSS vulnerability if not in a <td> element because of `|raw` #}
                   {{attendee.attendee_message|raw}}

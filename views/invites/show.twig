@@ -115,7 +115,7 @@
                         {% if meeting.is_anon == 0 %}
                           {{ time_and_attendees.attendees|map(a => a.attendee_name)|join(', ', ', and') }}
                         {% else %}
-                          {{ time_and_attendees.attendees|count }} attendees signed up
+                          {{ time_and_attendees.attendees|count }} of {{ time_and_attendees.timeslot.slot_capacity }} attendees signed up
                         {% endif %}
                       </label>
                     </li>
