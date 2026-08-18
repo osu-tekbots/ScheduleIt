@@ -12,7 +12,7 @@ function calendarInit() {
 
     const mappedEvents = events.map(function (event) {
       const createdEvent = event.creator_id === parseInt(userId, 10);
-      const meetingWith = createdEvent ? event.booker_name : event.creator_name;
+      const meetingWith = createdEvent ? event.booker_name : `Host: ${event.creator_name}`;
 
       return {
         classNames:
