@@ -34,6 +34,9 @@ switch ($request) {
     case '/admininfo':
         require_once ABSPATH . 'views/admin/info.php';
         break;
+    case '/schedule':
+        require_once ABSPATH . 'views/schedule/index.php';
+        break;
     case '/schedule/create':
         require_once ABSPATH . 'views/schedule/create.php';
         break;

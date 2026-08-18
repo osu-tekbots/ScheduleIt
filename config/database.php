@@ -2527,6 +2527,225 @@ class DatabaseInterface
     }
 
     /**
+     * Get upcoming schedules created by user or where they're a respondent for the find-a-times page.
+     *
+     * @param int $user_id
+     * @return array
+     */
+    public function getAllUpcomingSchedules($user_id)
+    {
+        $query = "SELECT
+            meb_schedule.id,
+            meb_schedule.hash AS schedule_hash,
+            meb_schedule.name,
+            MIN(meb_date.date) AS start_date,
+            MAX(meb_date.date) AS end_date,
+            COUNT(DISTINCT meb_availability.fk_user_id) AS responses,
+            meb_schedule.fk_schedule_creator AS creator_id,
+            meb_creator.email AS creator_email,
+            CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name
+        FROM meb_schedule
+            INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_schedule.fk_schedule_creator
+            LEFT JOIN meb_date ON meb_date.fk_schedule_id = meb_schedule.id
+            LEFT JOIN meb_availability ON meb_availability.fk_date_id = meb_date.id
+        WHERE (meb_creator.id = ? OR ? IN (
+            SELECT meb_availability2.fk_user_id
+            FROM meb_date AS meb_date2
+                INNER JOIN meb_availability AS meb_availability2 ON meb_availability2.fk_date_id = meb_date2.id
+            WHERE meb_date2.fk_schedule_id = meb_schedule.id
+        ))
+        GROUP BY meb_schedule.id
+        HAVING TIMESTAMP(MIN(meb_date.date), MIN(meb_schedule.start_time)) > now()
+        ORDER BY start_date ASC
+        ;";
+
+        $schedules = $this->database->prepare($query);
+        $schedules->bind_param("ii", $user_id, $user_id);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $schedules->close();
+
+        return $list;
+    }
+
+    /**
+     * Get upcoming schedules created by user for the find-a-times page.
+     *
+     * @param int $user_id
+     * @return array
+     */
+    public function getUpcomingSchedulesByCreator($user_id)
+    {
+        $query = "SELECT
+            meb_schedule.id,
+            meb_schedule.hash AS schedule_hash,
+            meb_schedule.name,
+            MIN(meb_date.date) AS start_date,
+            MAX(meb_date.date) AS end_date,
+            COUNT(DISTINCT meb_availability.fk_user_id) AS responses,
+            meb_schedule.fk_schedule_creator AS creator_id,
+            meb_creator.email AS creator_email,
+            CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name
+        FROM meb_schedule
+            INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_schedule.fk_schedule_creator
+            LEFT JOIN meb_date ON meb_date.fk_schedule_id = meb_schedule.id
+            LEFT JOIN meb_availability ON meb_availability.fk_date_id = meb_date.id
+        WHERE meb_creator.id = ?
+        GROUP BY meb_schedule.id
+        HAVING TIMESTAMP(MIN(meb_date.date), MIN(meb_schedule.start_time)) > now()
+        ORDER BY start_date ASC
+        ;";
+
+        $schedules = $this->database->prepare($query);
+        $schedules->bind_param("i", $user_id);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $schedules->close();
+
+        return $list;
+    }
+
+    /**
+     * Get past schedules created by user or where they're a respondent for the find-a-times page.
+     *
+     * @param int $user_id
+     * @return array
+     */
+    public function getPastSchedules($user_id)
+    {
+        $query = "SELECT
+            meb_schedule.id,
+            meb_schedule.hash AS schedule_hash,
+            meb_schedule.name,
+            MIN(meb_date.date) AS start_date,
+            MAX(meb_date.date) AS end_date,
+            COUNT(DISTINCT meb_availability.fk_user_id) AS responses,
+            meb_schedule.fk_schedule_creator AS creator_id,
+            meb_creator.email AS creator_email,
+            CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name
+        FROM meb_schedule
+            INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_schedule.fk_schedule_creator
+            LEFT JOIN meb_date ON meb_date.fk_schedule_id = meb_schedule.id
+            LEFT JOIN meb_availability ON meb_availability.fk_date_id = meb_date.id
+        WHERE (meb_creator.id = ? OR ? IN (
+            SELECT meb_availability2.fk_user_id
+            FROM meb_date AS meb_date2
+                INNER JOIN meb_availability AS meb_availability2 ON meb_availability2.fk_date_id = meb_date2.id
+            WHERE meb_date2.fk_schedule_id = meb_schedule.id
+        ))
+        GROUP BY meb_schedule.id
+        HAVING TIMESTAMP(MIN(meb_date.date), MIN(meb_schedule.start_time)) <= now()
+        ORDER BY start_date ASC
+        ;";
+
+        $schedules = $this->database->prepare($query);
+        $schedules->bind_param("ii", $user_id, $user_id);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $schedules->close();
+
+        return $list;
+    }
+
+    /**
+     * Get past schedules created by user or where they're a respondent for the find-a-times page.
+     *
+     * @param int $user_id
+     * @return array
+     */
+    public function getSchedulesBySearchTerm($user_id, $search_term)
+    {
+        $query = "SELECT
+            meb_schedule.id,
+            meb_schedule.hash AS schedule_hash,
+            meb_schedule.name,
+            MIN(meb_date.date) AS start_date,
+            MAX(meb_date.date) AS end_date,
+            COUNT(DISTINCT meb_availability.fk_user_id) AS responses,
+            meb_schedule.fk_schedule_creator AS creator_id,
+            meb_creator.email AS creator_email,
+            CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) AS creator_name
+        FROM meb_schedule
+            INNER JOIN meb_user AS meb_creator ON meb_creator.id = meb_schedule.fk_schedule_creator
+            LEFT JOIN meb_date ON meb_date.fk_schedule_id = meb_schedule.id
+            LEFT JOIN meb_availability ON meb_availability.fk_date_id = meb_date.id
+        WHERE (meb_creator.id = ? OR ? IN (
+            SELECT meb_availability2.fk_user_id
+            FROM meb_date AS meb_date2
+                INNER JOIN meb_availability AS meb_availability2 ON meb_availability2.fk_date_id = meb_date2.id
+            WHERE meb_date2.fk_schedule_id = meb_schedule.id
+        )) AND (
+            meb_schedule.name LIKE ?
+            OR CONCAT(meb_creator.first_name, ' ', meb_creator.last_name) LIKE ?
+        )
+        GROUP BY meb_schedule.id
+        HAVING TIMESTAMP(MIN(meb_date.date), MIN(meb_schedule.start_time)) <= now()
+        ORDER BY start_date ASC
+        ;";
+        $schedules = $this->database->prepare($query);
+
+        $partial_match = '%' . $search_term . '%';
+        $schedules->bind_param("iiss", $user_id, $user_id, $partial_match, $partial_match);
+        $schedules->execute();
+
+        $result = $schedules->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $schedules->close();
+
+        return $list;
+    }
+
+    /**
+     * Fetches up to `$limit` times with the greatest availability. Breaks ties first by
+     * attempting to choose different dates, then by the earliest times.
+     * 
+     * @param int $id
+     * @param int $limit
+     * @return array
+     */
+    public function getTopScheduleTimes($id, $limit)
+    {
+        $query = "WITH ranked AS (
+            SELECT
+                meb_availability.start_time AS time,
+                COUNT(DISTINCT meb_availability.fk_user_id) AS available,
+                ROW_NUMBER() OVER (
+                    PARTITION BY DATE(meb_availability.start_time)
+                    ORDER BY COUNT(DISTINCT meb_availability.fk_user_id) DESC, meb_availability.start_time ASC
+                ) AS date_rank
+            FROM meb_availability
+                INNER JOIN meb_date ON meb_date.id = meb_availability.fk_date_id
+            WHERE meb_date.fk_schedule_id = ?
+            GROUP BY meb_availability.start_time
+        )
+        SELECT time, available FROM ranked
+        ORDER BY available DESC, date_rank ASC, time ASC
+        LIMIT ?
+        ";
+
+        $times = $this->database->prepare($query);
+        $times->bind_param("ii", $id, $limit);
+        $times->execute();
+
+        $result = $times->get_result();
+        $list = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free();
+        $times->close();
+
+        return $list;
+    }
+
+    /**
      * Gets the emails of all respondents for the schedule.
      * 
      * @param int $id

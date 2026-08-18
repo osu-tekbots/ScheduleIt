@@ -1,0 +1,50 @@
+<div class="card mb-3 {{ schedule.creator_id == user_id ? 'card-mine' : 'card-other' }}">
+  <div class="card-body">
+    <h3 class="h6 d-md-flex justify-content-between">
+      <span>
+        {{schedule.start_date | date('D, F j, Y')}}
+        {% if schedule.end_date and schedule.end_date != schedule.start_date %}
+          &ndash; {{schedule.end_date | date('D, F j, Y')}}
+        {% endif %}
+      </span>
+    </h3>
+    <h4 class="h5 mb-2">
+      {% if schedule.creator_id == user_id  %}
+        <a href="{{site_url}}/schedule/{{schedule.id}}">
+          {{schedule.name}}
+        </a>
+      {% else %}
+        <a href="{{site_url}}/schedule/invite?key={{schedule.schedule_hash}}">
+          {{schedule.name}}
+        </a>
+      {% endif %}
+    </h4>
+    <p class="mb-0">
+      Responses: {{schedule.responses}}
+    </p>
+    {% if schedule.creator_id != user_id %}
+      <p class="mb-0">
+        Creator:
+        <a href="mailto:{{schedule.creator_email}}">
+          {{schedule.creator_name}}
+        </a>
+      </p>
+    {% endif %}
+
+    <table class="table mt-2">
+      <tr>
+        <th scope="col" class="border-top-0">Top Timeslots</th>
+        <th scope="col" class="border-top-0 text-right">Respondents Available</th>
+      </tr>
+      {% for timeslot in schedule.top_timeslots %}
+        <tr>
+          <td>{{timeslot.time | date('D, F j, Y g:ia')}}</td>
+          <td class="text-right">
+            {{timeslot.available}}
+            ({{ (100 * timeslot.available / schedule.responses) | number_format(0)}}%)
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
