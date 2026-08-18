@@ -165,16 +165,17 @@
     {% set previous = false %}
     {% for a_meeting in attendee_meetings %}
       <tr class="d-flex">
-        <td class="col">
-          {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+        {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+          <td class="col">
             {{a_meeting.start_time | date("D, F j, Y", user_timezone)}}
-          {% endif %}
-        </td>
-        <td class="col">
-          {% if (previous == false or previous.start_time != a_meeting.start_time) %}
+          </td>
+          <td class="col">
             {{a_meeting.start_time| date("g:ia", user_timezone)}}-{{a_meeting.end_time| date("g:ia T (\\G\\M\\T P)", user_timezone)}}
-          {% endif %}
-        </td>
+          </td>
+        {% else %}
+          <td class="col border-top-0"></td>
+          <td class="col border-top-0"></td>
+        {% endif %}
         <td class="col">
           <a href="mailto:{{a_meeting.attendee_email}}">{{a_meeting.attendee_name}}</a>
         </td>
