@@ -1,4 +1,4 @@
-{% extends 'layouts/logged_in.twig' %}
+{% extends 'layouts/admin.twig' %}
 
 {% block page_content %}
 
@@ -28,13 +28,14 @@
     <div class="col">
       <div class="tab-content pt-3">
         <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
-          <table class="table">
+          <table id="userDatatable" class="table">
             <thead>
               <tr class="d-flex">
                 <th class="col-1">ID</th>
                 <th class="col">ONID</th>
                 <th class="col">Name</th>
                 <th class="col">Email</th>
+                <th class="col">Last Present</th>
                 <th class="col-1"></th>
               </tr>
             </thead>
@@ -52,6 +53,9 @@
                   </td>
                   <td class="col">
                     {{user['email']}}
+                  </td>
+                  <td class="col">
+                    {{user['last_present']}}
                   </td>
                   <td class="col-1">
                     <form method="post">

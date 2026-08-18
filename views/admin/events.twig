@@ -1,4 +1,4 @@
-{% extends 'layouts/logged_in.twig' %}
+{% extends 'layouts/admin.twig' %}
 
 {% block page_content %}
 
@@ -9,7 +9,7 @@
   {% if isadmin != 0 %}
     <div class="col mr-4">
       <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-old-events-modal">
-        Delete Old Events
+        Delete Meetings >100 Days Old
       </button>
     </div>
     {{ include('shared/_search_form.twig') }}
@@ -35,7 +35,7 @@
     <div class="col">
       <div class="tab-content pt-3">
         <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="events-tab">
-          <table class="table">
+          <table id="meetingDatatable" class="table">
             <thead>
               <tr class="d-flex">
                 <th class="col-1">ID</th>

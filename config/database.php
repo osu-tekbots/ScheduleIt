@@ -2284,16 +2284,17 @@ class DatabaseInterface
      */
     public function getAllUsersBySearchTerm($search_term)
     {
-        $users_query = "
-        SELECT
-        meb_user.*
+        $users_query = "SELECT
+            meb_user.*,
+            meb_admins.user_id IS NOT NULL AS isAdmin
         FROM meb_user
+            LEFT JOIN meb_admins ON meb_user.id = meb_admins.user_id
         WHERE (
             meb_user.id LIKE ?
             OR meb_user.onid LIKE ?
             OR CONCAT(meb_user.first_name, ' ', meb_user.last_name) LIKE ?
         )
-        ORDER BY meb_user.onid asc
+        ORDER BY meb_user.last_present DESC
         ;";
 
         $users = $this->database->prepare($users_query);

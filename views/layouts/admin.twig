@@ -1,0 +1,6 @@
+{% extends 'layouts/logged_in.twig' %}
+
+{% block page_footer %}
+  {{ parent() }}
+  <script src="{{site_url}}/static/js/admin.js"></script>
+{% endblock %}

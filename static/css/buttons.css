@@ -38,3 +38,17 @@
     display: inline-block;
   }
 }
+
+/* For datatable pagination buttons: */
+.page-link {
+  color: var(--osu-orange-secondary);
+}
+
+.page-link:hover {
+  color: var(--osu-orange);
+}
+
+.page-item.active .page-link {
+  background-color: var(--osu-orange-secondary);
+  border-color: var(--osu-orange-secondary);
+}
