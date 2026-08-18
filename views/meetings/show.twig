@@ -106,7 +106,10 @@
           {% endif %}
         </p>
         <p class="card-text-large">
-          <a id="inviteLink" href="{{site_url}}/invite?key={{meeting.hash}}">Invite Link</a>
+          <a id="inviteLink" class="align-middle" href="{{site_url}}/invite?key={{meeting.hash}}">Invite Link</a>
+          <button class="btn btn-outline-secondary btn-sm copy-btn ml-2" data-link="{{site_url}}/invite?key={{meeting.hash}}">
+            <i class="fas fa-clipboard"></i> Copy
+          </button>
         </p>
       </div>
     </div>

@@ -53,7 +53,10 @@
         <div class="row">
           <div class="col-sm-6">
             <p class="card-text-large">
-              <a id="inviteLink" href="{{site_url}}/schedule/invite?key={{schedule.hash}}">Invite Link</a>
+              <a id="inviteLink" class="align-middle" href="{{site_url}}/schedule/invite?key={{schedule.hash}}">Invite Link</a>
+              <button class="btn btn-outline-secondary btn-sm copy-btn ml-2" data-link="{{site_url}}/schedule/invite?key={{schedule.hash}}">
+                <i class="fas fa-clipboard"></i> Copy
+              </button>
             </p>
           </div>
         </div>
