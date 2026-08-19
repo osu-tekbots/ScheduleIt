@@ -3139,12 +3139,14 @@ class DatabaseInterface
     public function getSiteStatistics()
     {
         $query = "SELECT
-            (SELECT COUNT(DISTINCT meb_event.id) FROM meb_event) AS meetings,
-            (SELECT COUNT(DISTINCT meb_booking.fk_user_id) FROM meb_booking) AS meeting_users,
-            (SELECT COUNT(DISTINCT meb_timeslot.id) FROM meb_timeslot) AS meeting_appointments,
-            (SELECT COUNT(DISTINCT meb_schedule.id) FROM meb_schedule) AS find_a_times,
-            (SELECT COUNT(DISTINCT meb_availability.fk_user_id) FROM meb_availability) AS find_a_time_users,
-            (SELECT COUNT(DISTINCT meb_user.id) FROM meb_user) AS users;
+            (SELECT MAX(meb_event.id) FROM meb_event) AS meetings,
+            (SELECT MAX(meb_timeslot.id) FROM meb_timeslot) AS meeting_bookings,
+            (SELECT COUNT(DISTINCT meb_timeslot.id) FROM meb_timeslot WHERE mod_date > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH)) AS meeting_bookings_last_month,
+            (SELECT MAX(meb_schedule.id) FROM meb_schedule) AS find_a_times,
+            (SELECT MAX(meb_date.id) FROM meb_date) AS find_a_time_dates,
+            (SELECT COUNT(DISTINCT meb_schedule.id) FROM meb_schedule WHERE mod_date > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH)) AS find_a_times_last_month,
+            (SELECT MAX(DISTINCT meb_user.id) FROM meb_user) AS users,
+            (SELECT COUNT(DISTINCT meb_user.id) FROM meb_user WHERE last_present > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH)) AS users_last_month;
         ";
 
         $statement = $this->database->prepare($query);

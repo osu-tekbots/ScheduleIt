@@ -2,26 +2,108 @@
 
 {% block page_content %}
 
-<div class="jumbotron jumbotron-fluid">
+<div class="jumbotron jumbotron-fluid bg-cloud">
   <div class="container">
     <h1 class="display-md-4"
       >Welcome to {{site_name}}
     </h1>
     <p class="lead">
-      {{site_name}} is a meeting scheduling service that is available to anyone in the Oregon State
-      University community. No registration is necessary. Sign in with your OSU email to get started.
+      Welcome to {{site_name}}, a meeting scheduling service for the Oregon State
+      University community. Log in with your ONID to get started.
     </p>
     <p class="lead">
       <a class="btn btn-lg btn-primary" href="{{site_url}}/login">
-        Login
+        Log In
       </a>
     </p>
-    <p>
-      Schedule-It has helped {{stats.meeting_users}} users book {{stats.meeting_appointments}}
-      appointments for {{stats.meetings}} events and helped {{stats.find_a_time_users}}
-      users find the best time to meet for {{stats.find_a_times}} meetings. To date, it
-      has served {{stats.users}} people at Oregon State University.
-    </p>
+
+    <div class="mt-4">
+      <p class="h6">
+        What does {{site_name}} do?
+      </p>
+      <p class="text-muted">
+        Schedule-It allows you to set up appointments for other people at Oregon State University to meet with you.
+        If you just need one meeting slot with a large group, it also allows you to poll the group's availability to
+        find the best time to meet.
+      </p>
+
+      <p class="h6">
+        Why is {{site_name}} better than when2meet?
+      </p>
+      <p class="text-muted">
+        {{site_name}} requires ONID login, ensuring FERPA compliance when polling availability at OSU. You can also
+        add meetings to your Oregon State University Outlook calendar with the click of a button.
+      </p>
+
+      <p class="h6">
+        What else can {{site_name}} do?
+      </p>
+      <p class="text-muted">
+        {{site_name}} can collect information from attendees (via a text entry or file upload) when they sign up to
+        meet with you. You can make anonymous events and track who has reserved a meeting time and who has not.
+      </p>
+
+      <p class="h6">
+        Who can use {{site_name}}?
+      </p>
+      <p class="text-muted">
+        Anyone in the Oregon State University community (with an ONID) can use {{site_name}}. {{site_name}} is also
+        open-source and other communities are welcome to adapt it for their own use.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-auto">
+  <div class="row">
+    <div class="col-md mb-4">
+      <div class="card text-center shadow bg-cloud h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="display-4 text-primary">{{stats.meeting_bookings}}</div>
+          <p class="mt-auto card-text text-muted" style="text-wrap: pretty;">
+            appointments booked for <span class="text-primary font-weight-bold">{{stats.meetings}}</span> events
+          </p>
+          <p class="card-text small text-success">
+            {% if stats.meeting_bookings_last_month > 10 %}
+              {{stats.meeting_bookings_last_month}} this month
+            {% endif %}
+            &nbsp;
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md mb-4">
+      <div class="card text-center shadow bg-cloud h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="display-4 text-primary">{{stats.users}}</div>
+          <p class="mt-auto card-text text-muted" style="text-wrap: pretty;">
+            users served by {{site_name}}
+          </p>
+          <p class="card-text small text-success">
+            {% if stats.users_last_month > 10 %}
+              {{stats.users_last_month}} this month
+            {% endif %}
+            &nbsp;
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md mb-4">
+      <div class="card text-center shadow bg-cloud h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="display-4 text-primary">{{stats.find_a_time_dates}}</div>
+          <p class="mt-auto card-text text-muted" style="text-wrap: pretty;">
+            dates polled to find the best time to meet for <span class="text-primary font-weight-bold">{{stats.find_a_times}}</span> events
+          </p>
+          <p class="card-text small text-success">
+            {% if stats.find_a_times_last_month > 10 %}
+              {{stats.find_a_times_last_month}} this month
+            {% endif %}
+            &nbsp;
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

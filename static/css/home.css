@@ -10,6 +10,18 @@
   }
 }
 
-.jumbotron {
+.bg-cloud {
   background-color: rgba(240, 240, 240, 0.95);
+}
+
+.text-primary {
+  color: var(--osu-orange) !important;
+}
+
+.btn-link {
+  color: var(--osu-orange) !important;
+}
+
+.btn-link:hover {
+  color: var(--osu-orange-secondary) !important;
 }
